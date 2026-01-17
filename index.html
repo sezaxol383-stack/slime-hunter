@@ -9,10 +9,18 @@
 <body>
 
     <div class="header">
-        <div class="gold-display" onclick="onDevSecretClick()" style="cursor: pointer; user-select: none;">
-            <img src="images/coin.png" class="coin-icon" alt="Gold">
-            <span id="goldCount">0</span>
+        <div style="display: flex; gap: 10px; align-items: center;">
+
+            <button id="btnSound" class="sound-btn" onclick="toggleSound()">
+                🔊
+            </button>
+
+            <div class="gold-display" onclick="onDevSecretClick()" style="cursor: pointer; user-select: none;">
+                <img src="images/coin.png" class="coin-icon" alt="Gold">
+                <span id="goldCount">0</span>
+            </div>
         </div>
+
         <div class="nav-buttons">
             <button class="nav-btn active" onclick="switchTab('game')">Охота</button>
             <button class="nav-btn" onclick="switchTab('shop')">Гильдия</button>

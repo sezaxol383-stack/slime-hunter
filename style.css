@@ -222,101 +222,108 @@ h2 { font-size: 16px; color: var(--accent); margin-top: 0; text-transform: upper
 
 .mobile-hint { display: none; color: #555; font-size: 12px; margin-top: 20px; }
 
-/* === МОБИЛЬНАЯ АДАПТАЦИЯ (САМОЕ ВАЖНОЕ) === */
-/* === МОБИЛЬНАЯ АДАПТАЦИЯ (ФИНАЛЬНАЯ ВЕРСИЯ) === */
+/* === МОБИЛЬНАЯ АДАПТАЦИЯ (ИСПРАВЛЕННАЯ V2) === */
 @media (max-width: 768px) {
-    /* 1. Убираем лишние панели */
+    /* 1. Скрываем боковые панели */
     .desktop-only {
         display: none !important;
     }
 
-    /* 2. Настраиваем главный контейнер */
+    /* 2. ЖЕЛЕЗОБЕТОННАЯ ФИКСАЦИЯ КОНТЕЙНЕРА */
+    /* Вместо height: calc(...) используем fixed, чтобы браузер не обманывал с высотой */
     .game-container {
+        position: fixed; /* Прибиваем к экрану */
+        top: 60px; /* Начинаем сразу под шапкой */
+        bottom: 0; /* Растягиваем до самого низа */
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: auto; /* Высота определится сама между top и bottom */
         border-radius: 0;
-        height: calc(100vh - 60px); /* Высота экрана минус шапка */
+        z-index: 10; /* Чтобы точно был поверх всего */
     }
 
-    /* 3. ЕДИНЫЙ СКРОЛЛ (Лечим наложение скроллов) */
+    /* 3. НАСТРОЙКА СКРОЛЛА */
     .screen {
         display: none;
         height: 100%;
-        overflow-y: auto; /* Скроллится только этот блок */
+        overflow-y: scroll; /* Принудительный скролл */
         overflow-x: hidden;
-        padding-bottom: 80px; /* Место снизу для пальца */
-        -webkit-overflow-scrolling: touch; /* Плавный скролл на iPhone */
+        padding: 10px; /* Отступы по бокам */
+        /* ВАЖНО: Огромный отступ снизу, чтобы контент не перекрывался рамкой браузера */
+        padding-bottom: 150px;
+        box-sizing: border-box;
+        -webkit-overflow-scrolling: touch; /* Плавность для iPhone */
     }
 
         .screen.active {
-            display: block; /* Важно: block, а не flex, чтобы элементы шли вниз */
+            display: block;
         }
 
-    /* 4. Исправляем МАГАЗИН (Убираем разрыв между блоками) */
+    /* 4. Магазин в столбик */
     .shop-screen {
         flex-direction: column;
     }
 
     .shop-column {
         width: 100%;
-        height: auto !important; /* Отключаем высоту колонки */
-        overflow: visible !important; /* Отключаем скролл колонки */
-        padding: 10px;
+        height: auto !important;
+        overflow: visible !important;
+        padding: 0;
         border: none;
-        margin-bottom: 0;
+        margin-bottom: 20px;
     }
 
-    /* 5. УМЕНЬШАЕМ ГИГАНТСКИЕ ЭЛЕМЕНТЫ */
-
-    /* Монетка в шапке */
+    /* 5. Уменьшение элементов (чтобы влезали) */
     .coin-icon {
         width: 24px !important;
         height: 24px !important;
     }
 
     .gold-display {
-        font-size: 14px; /* Шрифт счета тоже поменьше */
+        font-size: 14px;
         padding: 5px 8px;
     }
 
-    /* Монетки внутри кнопок (Купить/Продать) */
     button img {
-        width: 14px !important; /* Принудительно уменьшаем */
+        width: 14px !important;
         height: auto !important;
     }
 
-    /* Сундук */
+    /* Сундук и Слайм */
     .lootbox-img {
         width: 100px;
         height: 100px;
         margin: 5px 0;
     }
 
-    /* Слайм */
     .slime-img {
         width: 180px;
         height: 180px;
-        margin-top: 40px; /* Опускаем чуть ниже */
+        margin-top: 30px;
+        margin-bottom: 20px;
     }
 
     /* Кузница */
     .forge-card {
         min-height: auto;
         padding: 15px;
-        margin-bottom: 15px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
-    /* Кнопки навигации */
+    /* Тексты */
+    h2, h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
     .nav-btn {
         padding: 8px 10px;
         font-size: 12px;
     }
 
-    /* Шрифт заголовков */
-    h2, h3 {
-        font-size: 18px;
-        margin-bottom: 10px;
-    }
-
-    /* Подсказка */
     .mobile-hint {
         display: block;
         text-align: center;
@@ -474,3 +481,27 @@ h2 { font-size: 16px; color: var(--accent); margin-top: 0; text-transform: upper
             background: #00ff00;
             color: black;
         }
+/* КНОПКА ЗВУКА */
+.sound-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+    .sound-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .sound-btn.muted {
+        opacity: 0.5;
+        filter: grayscale(1);
+    }

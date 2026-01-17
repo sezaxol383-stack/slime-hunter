@@ -11,19 +11,93 @@ let gameState = {
 let currentSlime = { maxHp: 10, currentHp: 10 };
 
 // --- ЗВУКИ ---
-const audioFiles = {
-    hit: new Audio('sounds/hit.mp3'),
-    coin: new Audio('sounds/coin.mp3'),
-    drop: new Audio('sounds/drop.mp3')
+// --- АУДИО СИСТЕМА v2.0 ---
+
+// Настройки звука
+let audioSettings = {
+    musicVolume: 0.3, // Музыка тише (30%)
+    sfxVolume: 0.6,   // Эффекты громче (60%)
+    isMuted: false    // Включен ли звук глобально
 };
 
+// Загружаем настройку из памяти (если игрок уже выключал звук)
+if (localStorage.getItem('isMuted') === 'true') {
+    audioSettings.isMuted = true;
+}
+
+// Объекты аудио
+const sounds = {
+    hit: new Audio('sounds/hit.mp3'),
+    coin: new Audio('sounds/coin.mp3'),
+    drop: new Audio('sounds/drop.mp3'),
+    upgrade: new Audio('sounds/coin.mp3') // Можно добавить звук ковки
+};
+
+// Фоновая музыка
+const bgMusic = new Audio('sounds/music.mp3');
+bgMusic.loop = true; // Зациклить
+bgMusic.volume = audioSettings.musicVolume;
+
+// Функция проигрывания эффектов
 function playSound(name) {
-    const sound = audioFiles[name];
+    if (audioSettings.isMuted) return; // Если выкл, не играем
+
+    const sound = sounds[name];
     if (sound) {
-        sound.currentTime = 0;
-        sound.play().catch(err => console.log("Браузер пока не разрешил звук"));
+        // КЛОНИРУЕМ звук, чтобы можно было играть его много раз подряд быстро
+        // (иначе быстрые клики будут "глотать" звук)
+        const clone = sound.cloneNode();
+        clone.volume = audioSettings.sfxVolume;
+        clone.play().catch(() => { }); // Игнорим ошибки (если браузер блокирует)
     }
 }
+
+// Функция переключения звука (вешается на кнопку)
+function toggleSound() {
+    audioSettings.isMuted = !audioSettings.isMuted;
+
+    // Сохраняем настройку
+    localStorage.setItem('isMuted', audioSettings.isMuted);
+
+    updateSoundButton();
+    manageMusic();
+}
+
+// Управление музыкой
+function manageMusic() {
+    if (audioSettings.isMuted) {
+        bgMusic.pause();
+    } else {
+        // Браузеры запрещают авто-старт музыки.
+        // Она запустится только после первого клика по странице.
+        bgMusic.play().catch(() => {
+            // Если браузер не дал запустить, ждем клика игрока
+            document.addEventListener('click', startMusicOnFirstClick, { once: true });
+        });
+    }
+}
+
+function startMusicOnFirstClick() {
+    if (!audioSettings.isMuted) {
+        bgMusic.play().catch(() => { });
+    }
+}
+
+// Обновление иконки кнопки
+function updateSoundButton() {
+    const btn = document.getElementById('btnSound');
+    if (btn) {
+        if (audioSettings.isMuted) {
+            btn.innerText = '🔇';
+            btn.classList.add('muted');
+        } else {
+            btn.innerText = '🔊';
+            btn.classList.remove('muted');
+        }
+    }
+}
+
+
 
 // --- ЗАПУСК ---
 function loadGame() {
@@ -52,6 +126,8 @@ function loadGame() {
             updateAllUI();
         }
     }, 1000);
+    updateSoundButton();
+    manageMusic();
 }
 
 function saveGame() {
