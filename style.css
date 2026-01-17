@@ -97,8 +97,28 @@ h2 { font-size: 16px; color: var(--accent); margin-top: 0; text-transform: upper
     width: 100%;
 }
 
-.slime { font-size: 120px; filter: drop-shadow(0 0 15px rgba(122, 162, 247, 0.4)); transition: 0.1s; }
-.slime:active { transform: scale(0.9); }
+/* ЭТО ВСТАВИТЬ */
+.slime-img {
+    width: 200px; /* Размер слайма на ПК */
+    height: 200px;
+    object-fit: contain; /* Чтобы картинка не сплющилась */
+    filter: drop-shadow(0 0 15px rgba(122, 162, 247, 0.6)); /* Светящаяся обводка */
+    transition: 0.1s;
+    cursor: pointer;
+}
+
+    .slime-img:active {
+        transform: scale(0.95) rotate(-5deg); /* Эффект нажатия */
+    }
+
+/* АДАПТАЦИЯ ПОД ТЕЛЕФОН */
+@media (max-width: 768px) {
+    .slime-img {
+        width: 250px; /* На телефоне слайм покрупнее */
+        height: 250px;
+        margin-bottom: 20px;
+    }
+}
 
 .hp-bar-container {
     width: 80%; max-width: 400px; height: 24px;
@@ -159,3 +179,26 @@ h2 { font-size: 16px; color: var(--accent); margin-top: 0; text-transform: upper
     
     .mobile-hint { display: block; }
 }
+/* Иконка монетки в шапке */
+.coin-icon {
+    width: 48px;
+    height: 48px;
+    margin-right: 8px;
+    filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5)); /* Золотое свечение */
+    vertical-align: middle;
+}
+/* Иконка сундука (лутбокса) */
+.lootbox-img {
+    width: 180px;
+    height: 180px;
+    object-fit: contain;
+    margin: 10px 0;
+    filter: drop-shadow(0 0 10px rgba(138, 43, 226, 0.6)); /* Фиолетовое свечение */
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+    /* Эффект при наведении на сундук */
+    .lootbox-img:hover {
+        transform: scale(1.05) rotate(2deg);
+    }

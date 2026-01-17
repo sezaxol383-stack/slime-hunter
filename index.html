@@ -10,7 +10,7 @@
 
 <div class="header">
     <div class="gold-display">
-        <span>🪙</span>
+        <img src="images/coin.png" class="coin-icon" alt="Gold">
         <span id="goldCount">0</span>
     </div>
     <div class="nav-buttons">
@@ -32,7 +32,7 @@
             <div class="stats-overlay">Убито: <span id="killCount">0</span></div>
             
             <div class="slime-container" id="slimeArea" onclick="clickSlime(event)">
-                <div class="slime">🦠</div>
+                <img src="images/slime_boss.png" class="slime-img" alt="Слайм">
             </div>
             
             <div class="hp-bar-container">
@@ -51,16 +51,18 @@
 
     <div id="shopScreen" class="screen shop-screen">
         <div class="shop-column">
-            <h2>Продать Лут</h2>
+            <h2>Лавка Гильдии</h2>
             <div id="sellList" class="scrollable-list"></div>
         </div>
         <div class="shop-column">
-            <h2>Лутбокс</h2>
-            <div class="lootbox-card">
-                <h3>Загадочный Сундук</h3>
-                <div class="lootbox-icon">🎁</div>
+            <h2>Загадочная лавка</h2>
+            <div class="shop-card lootbox-card">
+                <h3>Мистический Сундук</h3>
+                <img src="images/lootbox.png" class="lootbox-img" alt="Сундук">
                 <p>Испытай удачу!</p>
-                <button class="btn-buy" onclick="buyLootbox()">Купить (100 🪙)</button>
+                <button class="btn-buy" onclick="buyLootbox()">
+                    Купить (100 <img src="images/coin.png" style="width:28px; vertical-align:middle;">)
+                </button>
             </div>
         </div>
     </div>
