@@ -111,12 +111,74 @@ h2 { font-size: 16px; color: var(--accent); margin-top: 0; text-transform: upper
         transform: scale(0.95) rotate(-5deg); /* Эффект нажатия */
     }
 
-/* АДАПТАЦИЯ ПОД ТЕЛЕФОН */
+/* === МОБИЛЬНАЯ АДАПТАЦИЯ (ИСПРАВЛЕННАЯ) === */
 @media (max-width: 768px) {
-    .slime-img {
-        width: 250px; /* На телефоне слайм покрупнее */
-        height: 250px;
+    /* 1. Скрываем боковые панели (инвентарь и логи) */
+    .desktop-only {
+        display: none !important;
+    }
+
+    .game-container {
+        border-radius: 0;
+    }
+
+    /* 2. Настраиваем прокрутку */
+    /* Важно: разрешаем скроллить сам экран, а не колонки внутри */
+    .screen {
+        overflow-y: auto; /* Вертикальная прокрутка */
+        height: 100%;
+        display: none;
+        flex-direction: column;
+        padding-bottom: 50px; /* Отступ снизу, чтобы удобно скроллить */
+    }
+
+        .screen.active {
+            display: flex; /* Показываем активный экран */
+        }
+
+    /* 3. Исправляем МАГАЗИН */
+    .shop-screen {
+        flex-direction: column; /* Элементы строго вертикально */
+    }
+
+    .shop-column {
+        width: 100%; /* На всю ширину */
+        flex: none; /* Не сжиматься и не растягиваться */
+        height: auto; /* Высота зависит от контента */
+        overflow: visible; /* Убираем внутренние скроллы */
+        padding: 15px;
+        box-sizing: border-box; /* Чтобы отступы не ломали ширину */
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    /* 4. Исправляем КУЗНИЦУ (чтобы не была черной полоской) */
+    .forge-card {
+        min-height: 150px; /* Минимальная высота, чтобы контент влез */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
         margin-bottom: 20px;
+    }
+
+    /* 5. Уменьшаем СУНДУК на телефоне */
+    .lootbox-img {
+        width: 120px;
+        height: 120px;
+    }
+
+    /* 6. Увеличиваем СЛАЙМА на главном экране */
+    .slime-img {
+        width: 240px;
+        height: 240px;
+        margin-top: 20px;
+        margin-bottom: 30px;
+    }
+
+    /* 7. Подсказка для мобильных */
+    .mobile-hint {
+        display: block;
+        text-align: center;
+        opacity: 0.7;
     }
 }
 
