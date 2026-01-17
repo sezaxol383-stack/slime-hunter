@@ -3,11 +3,10 @@ let gameState = {
     gold: 0,
     inventory: { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0 },
     unlockedCollectibles: [],
-    artifacts: [], // <--- ВАЖНО: Это поле должно остаться!
-    clickPower: 1
+    artifacts: [],
+    clickPower: 1,  // <--- ОШИБКА 1: Тут не хватало запятой
+    upgradeCost: 50
 };
-
-// ВТОРОЙ gameState Я УДАЛИЛ ОТСЮДА
 
 let currentSlime = { maxHp: 10, currentHp: 10 };
 
@@ -36,19 +35,23 @@ function loadGame() {
     if (!gameState.artifacts) {
         gameState.artifacts = [];
     }
+    // Если в сохранении нет цены улучшения, ставим дефолт
+    if (!gameState.upgradeCost) {
+        gameState.upgradeCost = 50;
+    }
 
     currentSlime.maxHp = Math.floor(10 * Math.pow(1.05, gameState.kills));
     currentSlime.currentHp = currentSlime.maxHp;
     changeSlimeSkin();
     updateAllUI();
 
-    // --- НОВЫЙ КОД: АВТО-ЗОЛОТО (Чаша Вечности) ---
+    // --- АВТО-ЗОЛОТО (Чаша Вечности) ---
     setInterval(() => {
         if (gameState.artifacts.includes('a1')) { // Если есть Чаша
-            gameState.gold += 5; // Даем 5 монет
-            updateAllUI();       // Обновляем экран
+            gameState.gold += 5;
+            updateAllUI();
         }
-    }, 1000); // Каждые 1000 мс (1 секунда)
+    }, 1000);
 }
 
 function saveGame() {
@@ -82,14 +85,12 @@ function clickSlime(event) {
 
     // 2. Отнимаем здоровье
     currentSlime.currentHp -= damage;
-    // (УДАЛИЛ ЛИШНЮЮ СТРОКУ, которая была здесь)
 
     if (currentSlime.currentHp < 0) currentSlime.currentHp = 0;
 
     // 3. Рисуем правильную цифру урона
     let x = event.clientX;
     let y = event.clientY;
-    // ВАЖНО: передаем переменную damage третьим аргументом!
     spawnDamageNumber(x, y, damage);
 
     updateGameUI();
@@ -108,14 +109,13 @@ function onSlimeDeath() {
 }
 
 function rollLoot() {
-    // --- НОВЫЙ РАСЧЕТ ШАНСА (Книга Тайн) ---
+    // --- РАСЧЕТ ШАНСА (Книга Тайн) ---
     let chanceMultiplier = 1;
-    if (gameState.artifacts.includes('a2')) { // Если есть Книга
-        chanceMultiplier = 2; // Шансы x2
+    if (gameState.artifacts.includes('a2')) {
+        chanceMultiplier = 2;
     }
 
     for (let item of rarities) {
-        // Умножаем шанс предмета на наш множитель
         if (Math.random() < (item.chance * chanceMultiplier)) {
             gameState.inventory[item.id]++;
             playSound('drop');
@@ -129,6 +129,22 @@ function rollLoot() {
 }
 
 // --- МАГАЗИН ---
+function buyUpgrade() {
+    if (gameState.gold >= gameState.upgradeCost) {
+        gameState.gold -= gameState.upgradeCost;
+        gameState.clickPower += 1;
+        gameState.upgradeCost = Math.floor(gameState.upgradeCost * 1.5);
+
+        playSound('coin');
+        saveGame();
+        updateAllUI();
+
+        if (navigator.vibrate) navigator.vibrate(100);
+    } else {
+        alert("Не хватает золота на заточку!");
+    }
+}
+
 function sellEgg(rarityId) {
     if (gameState.inventory[rarityId] > 0) {
         playSound('coin');
@@ -139,7 +155,46 @@ function sellEgg(rarityId) {
         updateAllUI();
     }
 }
+// Функция для продажи ВСЕГО инвентаря сразу
+function sellAllLoot() {
+    let totalEarned = 0;
+    let somethingSold = false;
 
+    // Пробегаем по всем типам редкости
+    rarities.forEach(r => {
+        const count = gameState.inventory[r.id];
+
+        if (count > 0) {
+            // Считаем сколько денег получим за этот тип
+            const earnings = count * r.price;
+            totalEarned += earnings;
+
+            // Обнуляем количество предметов
+            gameState.inventory[r.id] = 0;
+            somethingSold = true;
+        }
+    });
+
+    if (somethingSold) {
+        // Начисляем золото
+        gameState.gold += totalEarned;
+
+        // Звук монеток
+        playSound('coin');
+
+        // Вибрация (длинная, так как много денег)
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+        // Сохраняем и обновляем экран
+        saveGame();
+        updateAllUI();
+
+        // Можно показать красивый алерт или просто лог
+        alert(`💰 Вы продали всё и заработали ${totalEarned} монет!`);
+    } else {
+        alert("В инвентаре пусто! Иди охотиться!");
+    }
+}
 function buyLootbox() {
     const cost = 100;
     if (gameState.gold >= cost) {
@@ -160,15 +215,13 @@ function buyLootbox() {
     }
 }
 
-// --- РИТУАЛ (НОВОЕ) ---
+// --- РИТУАЛ ---
 function performRitual() {
-    // 1. Проверяем коллекцию
     if (gameState.unlockedCollectibles.length < 5) {
         alert("Соберите полную коллекцию (5 предметов), чтобы провести Ритуал!");
         return;
     }
 
-    // 2. Проверяем доступные артефакты
     const availableArtifacts = artifacts.filter(art => !gameState.artifacts.includes(art.id));
 
     if (availableArtifacts.length === 0) {
@@ -176,18 +229,15 @@ function performRitual() {
         return;
     }
 
-    // 3. Подтверждение
     if (!confirm("Вы готовы пожертвовать всей коллекцией ради получения Древнего Артефакта? Предметы исчезнут!")) {
         return;
     }
 
-    // 4. МАГИЯ
     gameState.unlockedCollectibles = [];
     const newArtifact = availableArtifacts[Math.floor(Math.random() * availableArtifacts.length)];
     gameState.artifacts.push(newArtifact.id);
 
-    // 5. Финал
-    playSound('drop'); // Звук успеха
+    playSound('drop');
     alert(`⚡ РИТУАЛ ЗАВЕРШЕН! Получен артефакт: ${newArtifact.name}!`);
     saveGame();
     updateAllUI();
@@ -208,7 +258,6 @@ function updateGameUI() {
     document.getElementById('maxHp').innerText = currentSlime.maxHp;
     document.getElementById('killCount').innerText = gameState.kills;
 
-    // Инвентарь
     const list = document.getElementById('inventoryList');
     if (list) {
         list.innerHTML = '';
@@ -227,7 +276,21 @@ function updateGameUI() {
 }
 
 function updateShopUI() {
-    const list = document.getElementById('sellList');
+    // 1. Обновляем кнопку улучшения
+    const btnUpgrade = document.getElementById('btnUpgrade');
+    if (btnUpgrade) {
+        btnUpgrade.innerHTML = `+1 Урона (${gameState.upgradeCost} <img src="images/coin.png" style="width:16px; vertical-align:middle;">)`;
+        if (gameState.gold < gameState.upgradeCost) {
+            btnUpgrade.style.opacity = "0.5";
+            btnUpgrade.style.cursor = "not-allowed";
+        } else {
+            btnUpgrade.style.opacity = "1";
+            btnUpgrade.style.cursor = "pointer";
+        }
+    }
+
+    // 2. Отрисовываем список продажи яиц
+    const list = document.getElementById('sellList'); // <--- ОШИБКА 2: Добавил эту строку, её не было!
     if (!list) return;
 
     list.innerHTML = '';
@@ -236,7 +299,7 @@ function updateShopUI() {
         const div = document.createElement('div');
         div.className = 'sell-row';
 
-        const coinImg = '<img src="images/coin.png" style="width:18px; vertical-align:middle;">'; // Поправил размер на 18px чтобы влезало в кнопку
+        const coinImg = '<img src="images/coin.png" style="width:18px; vertical-align:middle;">';
 
         div.innerHTML = `
             <span class="${r.class}" style="font-weight:bold;">${r.name} (x${count})</span>
@@ -252,16 +315,13 @@ function updateCollectionUI() {
     const grid = document.getElementById('collectionGrid');
     if (!grid) return;
 
-    // --- ГЛАВНАЯ НАСТРОЙКА: Всё ставим в один столбик по центру ---
     grid.style.display = 'flex';
     grid.style.flexDirection = 'column';
     grid.style.alignItems = 'center';
-    grid.style.gap = '20px'; // Расстояние между этажами
-    grid.innerHTML = ''; // Очистка старого
+    grid.style.gap = '20px';
+    grid.innerHTML = '';
 
-    // ============================================
-    // ЭТАЖ 1: ОБЫЧНАЯ КОЛЛЕКЦИЯ
-    // ============================================
+    // ЭТАЖ 1
     const collectionSection = document.createElement('div');
     collectionSection.style.textAlign = 'center';
     collectionSection.style.width = '100%';
@@ -274,21 +334,18 @@ function updateCollectionUI() {
     collectionSection.appendChild(title1);
 
     const standardContainer = document.createElement('div');
-    // Выстраиваем предметы в ряд (горизонтально)
     standardContainer.style.display = 'flex';
     standardContainer.style.justifyContent = 'center';
-    standardContainer.style.flexWrap = 'wrap'; // Если не влезут, перенос на след. строку
+    standardContainer.style.flexWrap = 'wrap';
     standardContainer.style.gap = '10px';
 
     collectionItems.forEach(item => {
         const isUnlocked = gameState.unlockedCollectibles.includes(item.id);
         const div = document.createElement('div');
         div.className = `collection-item ${isUnlocked ? 'unlocked' : ''}`;
-
-        // Красивая рамка: зеленая если есть, серая если нет
         div.style.border = isUnlocked ? "2px solid #00ffcc" : "2px solid #333";
         div.style.background = isUnlocked ? "rgba(0, 255, 204, 0.1)" : "rgba(0,0,0,0.3)";
-        div.style.width = "80px"; // Фиксированная ширина
+        div.style.width = "80px";
         div.style.padding = "10px";
         div.style.borderRadius = "10px";
 
@@ -297,27 +354,18 @@ function updateCollectionUI() {
             : '<span style="font-size: 30px; opacity: 0.3;">🔒</span>';
 
         div.innerHTML = `
-            <div style="height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">
-                ${iconHtml}
-            </div>
-            <div style="font-size: 10px; text-align: center; color: ${isUnlocked ? '#fff' : '#777'}">
-                ${item.name}
-            </div>
+            <div style="height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">${iconHtml}</div>
+            <div style="font-size: 10px; text-align: center; color: ${isUnlocked ? '#fff' : '#777'}">${item.name}</div>
         `;
         standardContainer.appendChild(div);
     });
     collectionSection.appendChild(standardContainer);
     grid.appendChild(collectionSection);
 
-
-    // ============================================
-    // ЭТАЖ 2: КНОПКА РИТУАЛА
-    // ============================================
+    // ЭТАЖ 2
     const ritualSection = document.createElement('div');
-    ritualSection.style.margin = "20px 0"; // Отступ сверху и снизу
+    ritualSection.style.margin = "20px 0";
     ritualSection.style.textAlign = "center";
-
-    // Проверка: можно ли нажать (есть ли 5 предметов)
     const canRitual = gameState.unlockedCollectibles.length >= 5;
 
     ritualSection.innerHTML = `
@@ -339,16 +387,11 @@ function updateCollectionUI() {
         "
         ${canRitual ? "onmouseover=\"this.style.transform='scale(1.05)'\" onmouseout=\"this.style.transform='scale(1)'\"" : ""}
         >🔮 Провести Ритуал 🔮</button>
-        <div style="font-size: 12px; color: #aaa; margin-top: 10px;">
-            (Нужно собрать 5 предметов)
-        </div>
+        <div style="font-size: 12px; color: #aaa; margin-top: 10px;">(Нужно собрать 5 предметов)</div>
     `;
     grid.appendChild(ritualSection);
 
-
-    // ============================================
-    // ЭТАЖ 3: ДРЕВНИЕ АРТЕФАКТЫ
-    // ============================================
+    // ЭТАЖ 3
     const artifactSection = document.createElement('div');
     artifactSection.style.textAlign = 'center';
     artifactSection.style.width = '100%';
@@ -370,8 +413,6 @@ function updateCollectionUI() {
         const hasArt = gameState.artifacts.includes(art.id);
         const artDiv = document.createElement('div');
         artDiv.className = `collection-item ${hasArt ? 'unlocked' : ''}`;
-
-        // Золотая рамка
         artDiv.style.border = hasArt ? "2px solid #ffcc00" : "2px dashed #664400";
         artDiv.style.background = hasArt ? "rgba(255, 204, 0, 0.15)" : "rgba(0,0,0,0.2)";
         artDiv.style.width = "90px";
@@ -383,15 +424,9 @@ function updateCollectionUI() {
             : '<span style="font-size: 40px; opacity: 0.2;">❓</span>';
 
         artDiv.innerHTML = `
-            <div style="height: 60px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">
-                ${artIcon}
-            </div>
-            <div style="font-size: 10px; color: ${hasArt ? '#ffcc00' : '#665544'}; font-weight: bold;">
-                ${art.name}
-            </div>
-            <div style="font-size: 9px; color: #00ff00; margin-top: 2px;">
-                ${hasArt ? art.buff : ''}
-            </div>
+            <div style="height: 60px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">${artIcon}</div>
+            <div style="font-size: 10px; color: ${hasArt ? '#ffcc00' : '#665544'}; font-weight: bold;">${art.name}</div>
+            <div style="font-size: 9px; color: #00ff00; margin-top: 2px;">${hasArt ? art.buff : ''}</div>
          `;
         artContainer.appendChild(artDiv);
     });
@@ -412,24 +447,19 @@ function logEvent(text, cssClass) {
     if (logPanel.children.length > 15) logPanel.removeChild(logPanel.lastChild);
 }
 
-function spawnDamageNumber(x, y, amount) { // <-- Добавили аргумент amount
+function spawnDamageNumber(x, y, amount) {
     const el = document.createElement('div');
     el.className = 'damage-number';
-
-    // Если amount не передан (старый вызов), берем clickPower, иначе amount
     const dmg = amount ? amount : gameState.clickPower;
-
-    el.innerText = `-${dmg}`; // Показываем реальный урон
+    el.innerText = `-${dmg}`;
     el.style.left = `${x}px`;
     el.style.top = `${y - 50}px`;
 
-    // Если урон усилен (больше обычного), сделаем цифру красной и большой
     if (dmg > gameState.clickPower) {
         el.style.color = "#ff3300";
         el.style.fontSize = "30px";
         el.style.fontWeight = "bold";
     }
-
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 800);
 }
@@ -444,3 +474,54 @@ function changeSlimeSkin() {
 
 // Старт
 loadGame();
+// --- ЛОГИКА РАЗРАБОТЧИКА ---
+
+let devClickCount = 0;
+let devTimer = null;
+
+// Функция для вызова меню (нужно повесить на монетку в HTML)
+function onDevSecretClick() {
+    devClickCount++;
+
+    // Сбрасываем счетчик, если не кликал 1 секунду
+    clearTimeout(devTimer);
+    devTimer = setTimeout(() => { devClickCount = 0; }, 1000);
+
+    // Если 5 кликов подряд
+    if (devClickCount >= 5) {
+        toggleDevPanel();
+        devClickCount = 0;
+    }
+}
+
+function toggleDevPanel() {
+    const panel = document.getElementById('devPanel');
+    if (panel.style.display === 'none') {
+        panel.style.display = 'flex';
+    } else {
+        panel.style.display = 'none';
+    }
+}
+
+function devAddGold() {
+    gameState.gold += 5000;
+    updateAllUI();
+    // Вибрация подтверждения
+    if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+}
+
+function devAddLoot() {
+    // Добавляем по 10 штук каждого яйца
+    rarities.forEach(r => {
+        gameState.inventory[r.id] += 10;
+    });
+    updateAllUI();
+    alert("Лут добавлен! Иди продавай.");
+}
+
+function devReset() {
+    if (confirm("Точно удалить весь прогресс?")) {
+        localStorage.removeItem('slimeHunterMobile_v1');
+        location.reload(); // Перезагрузка страницы
+    }
+}

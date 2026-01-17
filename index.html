@@ -8,74 +8,97 @@
 </head>
 <body>
 
-<div class="header">
-    <div class="gold-display">
-        <img src="images/coin.png" class="coin-icon" alt="Gold">
-        <span id="goldCount">0</span>
-    </div>
-    <div class="nav-buttons">
-        <button class="nav-btn active" onclick="switchTab('game')">Охота</button>
-        <button class="nav-btn" onclick="switchTab('shop')">Магазин</button>
-        <button class="nav-btn" onclick="switchTab('collection')">Коллекция</button>
-    </div>
-</div>
-
-<div class="game-container">
-    
-    <div id="gameScreen" class="screen active">
-        <div class="panel desktop-only">
-            <h2>Инвентарь</h2>
-            <div id="inventoryList"></div>
+    <div class="header">
+        <div class="gold-display" onclick="onDevSecretClick()" style="cursor: pointer; user-select: none;">
+            <img src="images/coin.png" class="coin-icon" alt="Gold">
+            <span id="goldCount">0</span>
         </div>
+        <div class="nav-buttons">
+            <button class="nav-btn active" onclick="switchTab('game')">Охота</button>
+            <button class="nav-btn" onclick="switchTab('shop')">Гильдия</button>
+            <button class="nav-btn" onclick="switchTab('collection')">Коллекция</button>
+        </div>
+    </div>
 
-        <div class="main-area">
-            <div class="stats-overlay">Убито: <span id="killCount">0</span></div>
-            
-            <div class="slime-container" id="slimeArea" onclick="clickSlime(event)">
-                <img src="images/slime_boss.png" class="slime-img" alt="Слайм">
+    <div class="game-container">
+
+        <div id="gameScreen" class="screen active">
+            <div class="panel desktop-only">
+                <h2>Инвентарь</h2>
+                <div id="inventoryList"></div>
             </div>
-            
-            <div class="hp-bar-container">
-                <div class="hp-bar-fill" id="hpFill"></div>
+
+            <div class="main-area">
+                <div class="stats-overlay">Убито: <span id="killCount">0</span></div>
+
+                <div class="slime-container" id="slimeArea" onclick="clickSlime(event)">
+                    <img src="images/slime_green.png" class="slime-img" alt="Слайм">
+                </div>
+
+                <div class="hp-bar-container">
+                    <div class="hp-bar-fill" id="hpFill"></div>
+                </div>
+                <div class="hp-text"><span id="currentHp">10</span> / <span id="maxHp">10</span> HP</div>
+
+                <div class="mobile-hint">Твой инвентарь в Магазине ➡️</div>
             </div>
-            <div class="hp-text"><span id="currentHp">10</span> / <span id="maxHp">10</span> HP</div>
-            
-            <div class="mobile-hint">Твой инвентарь в Магазине ➡️</div>
-        </div>
 
-        <div class="panel desktop-only">
-            <h2>События</h2>
-            <div id="logList"></div>
-        </div>
-    </div>
-
-    <div id="shopScreen" class="screen shop-screen">
-        <div class="shop-column">
-            <h2>Лавка Гильдии</h2>
-            <div id="sellList" class="scrollable-list"></div>
-        </div>
-        <div class="shop-column">
-            <h2>Загадочная лавка</h2>
-            <div class="shop-card lootbox-card">
-                <h3>Мистический Сундук</h3>
-                <img src="images/lootbox.png" class="lootbox-img" alt="Сундук">
-                <p>Испытай удачу!</p>
-                <button class="btn-buy" onclick="buyLootbox()">
-                    Купить (100 <img src="images/coin.png" style="width:28px; vertical-align:middle;">)
-                </button>
+            <div class="panel desktop-only">
+                <h2>События</h2>
+                <div id="logList"></div>
             </div>
         </div>
+
+        <div id="shopScreen" class="screen shop-screen">
+
+            <div class="shop-column">
+
+                <div class="shop-card forge-card">
+                    <h3 style="color: #ff5500;">⚔️ Кузница</h3>
+                    <p style="color: #ffccaa; font-size: 12px;">Усиль свой удар!</p>
+                    <button id="btnUpgrade" class="btn-buy btn-upgrade" onclick="buyUpgrade()">
+                        Загрузка...
+                    </button>
+                </div>
+
+                <h2>Лавка Гильдии</h2>
+
+                <div class="sell-all-container">
+                    <button class="btn-sell-all" onclick="sellAllLoot()">
+                        💰 Продать всё 💰
+                    </button>
+                </div>
+
+                <div id="sellList" class="scrollable-list"></div>
+            </div>
+
+            <div class="shop-column">
+                <h2>Загадочная лавка</h2>
+                <div class="shop-card lootbox-card">
+                    <h3>Мистический Сундук</h3>
+                    <img src="images/lootbox.png" class="lootbox-img" alt="Сундук">
+                    <p>Испытай удачу!</p>
+                    <button class="btn-buy" onclick="buyLootbox()">
+                        Купить (100 <img src="images/coin.png" style="width:22px; vertical-align:middle;">)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="collectionScreen" class="screen collection-screen">
+            <div class="collection-grid" id="collectionGrid"></div>
+        </div>
+
     </div>
 
-    <div id="collectionScreen" class="screen collection-screen">
-        <h2>Моя Коллекция</h2>
-        <div class="collection-grid" id="collectionGrid"></div>
+    <script src="data.js"></script>
+    <script src="game.js"></script>
+    <div id="devPanel" class="dev-panel" style="display: none;">
+        <h3>🛠 GOD MODE 🛠</h3>
+        <button onclick="devAddGold()">💰 +5000 Золота</button>
+        <button onclick="devAddLoot()">🥚 +10 Яиц (Всех)</button>
+        <button onclick="devReset()">❌ Сброс Прогресса</button>
+        <button onclick="toggleDevPanel()" style="background: #555; margin-top: 20px;">Закрыть</button>
     </div>
-
-</div>
-
-<script src="data.js"></script>
-<script src="game.js"></script>
-
 </body>
 </html>
