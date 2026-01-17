@@ -223,20 +223,107 @@ h2 { font-size: 16px; color: var(--accent); margin-top: 0; text-transform: upper
 .mobile-hint { display: none; color: #555; font-size: 12px; margin-top: 20px; }
 
 /* === МОБИЛЬНАЯ АДАПТАЦИЯ (САМОЕ ВАЖНОЕ) === */
+/* === МОБИЛЬНАЯ АДАПТАЦИЯ (ФИНАЛЬНАЯ ВЕРСИЯ) === */
 @media (max-width: 768px) {
-    /* Скрываем боковые панели на телефоне */
-    .desktop-only { display: none !important; }
-    
-    .game-container { border-radius: 0; }
-       
-    /* Магазин в одну колонку */
-    .shop-screen { flex-direction: column; }
-    .shop-column { width: 100%; padding: 10px; border-bottom: 1px solid #303650; }
-    
-    /* Кнопки крупнее */
-    .nav-btn { padding: 10px 15px; font-size: 14px; }
-    
-    .mobile-hint { display: block; }
+    /* 1. Убираем лишние панели */
+    .desktop-only {
+        display: none !important;
+    }
+
+    /* 2. Настраиваем главный контейнер */
+    .game-container {
+        border-radius: 0;
+        height: calc(100vh - 60px); /* Высота экрана минус шапка */
+    }
+
+    /* 3. ЕДИНЫЙ СКРОЛЛ (Лечим наложение скроллов) */
+    .screen {
+        display: none;
+        height: 100%;
+        overflow-y: auto; /* Скроллится только этот блок */
+        overflow-x: hidden;
+        padding-bottom: 80px; /* Место снизу для пальца */
+        -webkit-overflow-scrolling: touch; /* Плавный скролл на iPhone */
+    }
+
+        .screen.active {
+            display: block; /* Важно: block, а не flex, чтобы элементы шли вниз */
+        }
+
+    /* 4. Исправляем МАГАЗИН (Убираем разрыв между блоками) */
+    .shop-screen {
+        flex-direction: column;
+    }
+
+    .shop-column {
+        width: 100%;
+        height: auto !important; /* Отключаем высоту колонки */
+        overflow: visible !important; /* Отключаем скролл колонки */
+        padding: 10px;
+        border: none;
+        margin-bottom: 0;
+    }
+
+    /* 5. УМЕНЬШАЕМ ГИГАНТСКИЕ ЭЛЕМЕНТЫ */
+
+    /* Монетка в шапке */
+    .coin-icon {
+        width: 24px !important;
+        height: 24px !important;
+    }
+
+    .gold-display {
+        font-size: 14px; /* Шрифт счета тоже поменьше */
+        padding: 5px 8px;
+    }
+
+    /* Монетки внутри кнопок (Купить/Продать) */
+    button img {
+        width: 14px !important; /* Принудительно уменьшаем */
+        height: auto !important;
+    }
+
+    /* Сундук */
+    .lootbox-img {
+        width: 100px;
+        height: 100px;
+        margin: 5px 0;
+    }
+
+    /* Слайм */
+    .slime-img {
+        width: 180px;
+        height: 180px;
+        margin-top: 40px; /* Опускаем чуть ниже */
+    }
+
+    /* Кузница */
+    .forge-card {
+        min-height: auto;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    /* Кнопки навигации */
+    .nav-btn {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+
+    /* Шрифт заголовков */
+    h2, h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+
+    /* Подсказка */
+    .mobile-hint {
+        display: block;
+        text-align: center;
+        margin-top: 20px;
+        color: #555;
+        font-size: 12px;
+    }
 }
 /* Иконка монетки в шапке */
 .coin-icon {
