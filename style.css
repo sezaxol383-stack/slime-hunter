@@ -1,0 +1,161 @@
+:root {
+    --bg-color: #1a1b26;
+    --panel-bg: #24283b;
+    --text-color: #c0caf5;
+    --accent: #7aa2f7;
+    --gold: #e0af68;
+    
+    --common: #9aa5ce;
+    --rare: #3d59a1;
+    --epic: #bb9af7;
+    --legendary: #ff9e64;
+    --mythic: #f7768e;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden; /* Чтобы не скроллилось всё окно */
+}
+
+/* ШАПКА */
+.header {
+    width: 100%;
+    max-width: 900px;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+    box-sizing: border-box;
+    background: var(--bg-color);
+}
+
+.gold-display {
+    font-size: 18px;
+    color: var(--gold);
+    font-weight: bold;
+    background: rgba(255,255,255,0.1);
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+.nav-buttons { display: flex; gap: 5px; }
+
+.nav-btn {
+    background: var(--panel-bg);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+.nav-btn.active { background: var(--accent); color: var(--bg-color); }
+
+/* ОСНОВНОЙ КОНТЕЙНЕР */
+.game-container {
+    width: 100%;
+    max-width: 900px;
+    flex: 1; /* Занимает всё оставшееся место */
+    background-color: var(--panel-bg);
+    border-radius: 20px 20px 0 0; /* Скругление только сверху */
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+}
+
+.screen { width: 100%; height: 100%; display: none; }
+.screen.active { display: flex; }
+
+/* ПАНЕЛИ И ЦЕНТР */
+.panel {
+    width: 250px;
+    padding: 15px;
+    overflow-y: auto;
+    border-right: 1px solid #303650;
+    background: rgba(0,0,0,0.1);
+}
+.panel:last-child { border-right: none; border-left: 1px solid #303650; }
+
+h2 { font-size: 16px; color: var(--accent); margin-top: 0; text-transform: uppercase;}
+
+.main-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+}
+
+.slime { font-size: 120px; filter: drop-shadow(0 0 15px rgba(122, 162, 247, 0.4)); transition: 0.1s; }
+.slime:active { transform: scale(0.9); }
+
+.hp-bar-container {
+    width: 80%; max-width: 400px; height: 24px;
+    background-color: #16161e; border-radius: 12px;
+    margin-top: 30px; overflow: hidden;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+}
+.hp-bar-fill { height: 100%; background: linear-gradient(90deg, #f7768e, #ff9e64); width: 100%; transition: width 0.2s; }
+.hp-text { margin-top: 10px; font-weight: bold; font-size: 20px; }
+
+/* МАГАЗИН И КОЛЛЕКЦИЯ */
+.shop-screen { flex-direction: row; }
+.shop-column { flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; }
+.scrollable-list { width: 100%; }
+
+.sell-row {
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(0,0,0,0.2); padding: 12px; margin-bottom: 8px; border-radius: 8px;
+}
+.btn-sell { background: #e0af68; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+.lootbox-card { background: linear-gradient(135deg, #7aa2f7, #bb9af7); padding: 20px; border-radius: 20px; text-align: center; color: #1a1b26; width: 80%; }
+.btn-buy { background: #1a1b26; color: white; border: none; padding: 12px 20px; border-radius: 10px; margin-top: 10px; font-weight: bold; cursor: pointer;}
+
+.collection-screen { flex-direction: column; padding: 20px; align-items: center; overflow-y: auto; }
+.collection-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 15px; width: 100%; max-width: 600px; }
+.collection-item { background: rgba(0,0,0,0.3); aspect-ratio: 1; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid #303650; }
+.collection-item.unlocked { border-color: #ffd700; background: radial-gradient(circle, rgba(255,215,0,0.1), transparent); }
+
+/* ЦВЕТА РЕДКОСТИ */
+.rarity-common { color: var(--common); }
+.rarity-rare { color: var(--rare); }
+.rarity-epic { color: var(--epic); }
+.rarity-legendary { color: var(--legendary); }
+.rarity-mythic { color: var(--mythic); text-shadow: 0 0 5px var(--mythic); }
+
+/* ЭФФЕКТЫ */
+.damage-number { position: absolute; color: white; font-weight: bold; font-size: 28px; pointer-events: none; animation: floatUp 0.8s forwards; text-shadow: 0 0 5px black;}
+@keyframes floatUp { to { opacity: 0; transform: translateY(-80px); } }
+
+.mobile-hint { display: none; color: #555; font-size: 12px; margin-top: 20px; }
+
+/* === МОБИЛЬНАЯ АДАПТАЦИЯ (САМОЕ ВАЖНОЕ) === */
+@media (max-width: 768px) {
+    /* Скрываем боковые панели на телефоне */
+    .desktop-only { display: none !important; }
+    
+    .game-container { border-radius: 0; }
+    
+    /* Увеличиваем слайма */
+    .slime { font-size: 160px; margin-bottom: 20px; }
+    
+    /* Магазин в одну колонку */
+    .shop-screen { flex-direction: column; }
+    .shop-column { width: 100%; padding: 10px; border-bottom: 1px solid #303650; }
+    
+    /* Кнопки крупнее */
+    .nav-btn { padding: 10px 15px; font-size: 14px; }
+    
+    .mobile-hint { display: block; }
+}

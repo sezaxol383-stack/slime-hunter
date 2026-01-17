@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Slime Hunter Mobile</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="header">
+    <div class="gold-display">
+        <span>🪙</span>
+        <span id="goldCount">0</span>
+    </div>
+    <div class="nav-buttons">
+        <button class="nav-btn active" onclick="switchTab('game')">Охота</button>
+        <button class="nav-btn" onclick="switchTab('shop')">Магазин</button>
+        <button class="nav-btn" onclick="switchTab('collection')">Коллекция</button>
+    </div>
+</div>
+
+<div class="game-container">
+    
+    <div id="gameScreen" class="screen active">
+        <div class="panel desktop-only">
+            <h2>Инвентарь</h2>
+            <div id="inventoryList"></div>
+        </div>
+
+        <div class="main-area">
+            <div class="stats-overlay">Убито: <span id="killCount">0</span></div>
+            
+            <div class="slime-container" id="slimeArea" onclick="clickSlime(event)">
+                <div class="slime">🦠</div>
+            </div>
+            
+            <div class="hp-bar-container">
+                <div class="hp-bar-fill" id="hpFill"></div>
+            </div>
+            <div class="hp-text"><span id="currentHp">10</span> / <span id="maxHp">10</span> HP</div>
+            
+            <div class="mobile-hint">Твой инвентарь в Магазине ➡️</div>
+        </div>
+
+        <div class="panel desktop-only">
+            <h2>События</h2>
+            <div id="logList"></div>
+        </div>
+    </div>
+
+    <div id="shopScreen" class="screen shop-screen">
+        <div class="shop-column">
+            <h2>Продать Лут</h2>
+            <div id="sellList" class="scrollable-list"></div>
+        </div>
+        <div class="shop-column">
+            <h2>Лутбокс</h2>
+            <div class="lootbox-card">
+                <h3>Загадочный Сундук</h3>
+                <div class="lootbox-icon">🎁</div>
+                <p>Испытай удачу!</p>
+                <button class="btn-buy" onclick="buyLootbox()">Купить (100 🪙)</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="collectionScreen" class="screen collection-screen">
+        <h2>Моя Коллекция</h2>
+        <div class="collection-grid" id="collectionGrid"></div>
+    </div>
+
+</div>
+
+<script src="data.js"></script>
+<script src="game.js"></script>
+
+</body>
+</html>
