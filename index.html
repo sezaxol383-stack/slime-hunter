@@ -10,10 +10,9 @@
 
     <div class="header">
         <div style="display: flex; gap: 10px; align-items: center;">
+            <button id="btnSound" class="sound-btn" onclick="toggleSound()">🔊</button>
 
-            <button id="btnSound" class="sound-btn" onclick="toggleSound()">
-                🔊
-            </button>
+            <button id="btnBackpack" class="sound-btn mobile-only" onclick="toggleBackpack()">🎒</button>
 
             <div class="gold-display" onclick="onDevSecretClick()" style="cursor: pointer; user-select: none;">
                 <img src="images/coin.png" class="coin-icon" alt="Gold">
@@ -55,7 +54,7 @@
 
                 <div class="slime-container" id="slimeArea" onclick="clickSlime(event)">
                     <div class="slime-shadow"></div>
-                    <img src="images/slime_green.png" class="slime-img" alt="Слайм">
+                    <img src="images/slime_green_1.png" class="slime-img" alt="Слайм">
                 </div>
 
                 <div class="mobile-hint">Инвентарь внизу ⬇️</div>
@@ -97,6 +96,7 @@
 
     <script src="data.js"></script>
     <script src="game.js"></script>
+
     <div id="devPanel" class="dev-panel" style="display: none;">
         <h3>🛠 GOD MODE 🛠</h3>
         <button onclick="devAddGold()">💰 +5000 Золота</button>
@@ -104,8 +104,6 @@
         <button onclick="devReset()">❌ Сброс Прогресса</button>
         <button onclick="toggleDevPanel()" style="background: #555; margin-top: 20px;">Закрыть</button>
     </div>
-
-  
 
 </body>
 </html>

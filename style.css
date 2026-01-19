@@ -30,11 +30,8 @@ body {
     transition: background-image 1s ease-in-out, background-color 1s ease-in-out;
     /* Запрет выделения */
     -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
 }
 
     /* === ФОНЫ ЛОКАЦИЙ === */
@@ -68,11 +65,11 @@ body {
     align-items: center;
     padding: 0 10px;
     box-sizing: border-box;
-    /* Убираем фон шапки, чтобы было прозрачно */
     background: rgba(0,0,0,0.3);
     backdrop-filter: blur(5px);
     border-bottom: 1px solid rgba(255,255,255,0.1);
     z-index: 20;
+    flex-shrink: 0; /* Шапка не сжимается */
 }
 
 .gold-display {
@@ -83,6 +80,8 @@ body {
     padding: 5px 10px;
     border-radius: 8px;
     border: 1px solid rgba(255, 215, 0, 0.3);
+    display: flex;
+    align-items: center;
 }
 
 .nav-buttons {
@@ -106,66 +105,45 @@ body {
         color: #000;
     }
 
-/* === ИГРОВОЙ КОНТЕЙНЕР (ОБЩАЯ РАЗМЕТКА) === */
+/* === ИГРОВОЙ КОНТЕЙНЕР (ОБЩИЙ) === */
 .game-container {
     width: 100%;
     max-width: 900px;
-    /* Включаем Flexbox для расположения колонок */
     display: flex;
-    flex-direction: row; /* Сайдбар слева, Экран справа */
-    align-items: stretch; /* Растягиваем их на одну высоту */
-
+    flex-direction: row;
+    align-items: stretch;
     padding-top: 10px;
     position: relative;
     overflow: hidden;
-    flex: 1;
-    /* Полная прозрачность (чтобы видеть фон локации) */
+    flex: 1; /* Занимает всю высоту */
+
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     backdrop-filter: none !important;
 }
-.screen {
-    width: 100%;
-    height: 100%;
-    display: none;
-}
 
-    .screen.active {
-        display: flex;
-    }
-
-/* === НОВЫЙ ЛЕЙАУТ (Sidebar + Content) === */
-
-/* Контейнер держит боковую панель и активный экран рядом */
-.game-container {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch; /* Растягиваем на всю высоту */
-    padding-top: 10px;
-}
-
-/* Боковая панель всегда слева */
+/* Сайдбар (ПК) */
 .sidebar {
-    width: 260px; /* Фиксированная ширина */
+    width: 260px;
     display: flex;
     flex-direction: column;
     gap: 15px;
-    padding: 10px;
-    padding-left: 15px;
+    padding: 10px 0 10px 15px;
     z-index: 10;
-    flex-shrink: 0; /* Не сжиматься */
+    flex-shrink: 0;
 }
 
-/* Общий стиль для всех экранов (Правая часть) */
+/* Общий стиль экранов */
 .screen {
-    flex: 1; /* Занимает всё оставшееся место */
+    flex: 1;
     display: none;
     flex-direction: column;
     align-items: center;
     padding: 10px;
-    overflow-y: auto; /* Скролл если не влезает */
+    overflow-y: auto;
     height: 100%;
+    box-sizing: border-box;
 }
 
     .screen.active {
@@ -176,7 +154,6 @@ body {
 .panel {
     width: 100%;
     padding: 15px;
-    overflow-y: auto;
     box-sizing: border-box;
     background: rgba(20, 24, 35, 0.85) !important;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -196,11 +173,7 @@ h2 {
     margin-bottom: 10px;
 }
 
-#logList {
-    user-select: text; /* Разрешаем копировать текст событий */
-}
-
-/* === БОСС-БАР ЗДОРОВЬЯ === */
+/* === ЭКРАН ОХОТЫ === */
 .boss-hp-wrapper {
     width: 90%;
     max-width: 600px;
@@ -238,7 +211,7 @@ h2 {
     font-size: 16px;
     font-weight: 900;
     color: #fff;
-    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
     z-index: 10;
     pointer-events: none;
 }
@@ -249,14 +222,13 @@ h2 {
     text-shadow: 1px 1px 2px black;
 }
 
-/* === СЛАЙМ И ТЕНЬ === */
 .slime-container {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    height: 350px; /* Высота зоны слайма */
+    height: 350px;
     width: 100%;
     margin-bottom: 20px;
 }
@@ -274,7 +246,7 @@ h2 {
         transform: scale(0.95);
     }
 
-/* Тень под слаймом */
+/* Тень */
 .slime-shadow {
     position: absolute;
     bottom: 10px;
@@ -299,42 +271,11 @@ h2 {
     }
 }
 
-/* Анимация получения урона */
-@keyframes damageShake {
-    0% {
-        transform: scale(1) translate(0, 0);
-        filter: none;
-    }
-
-    25% {
-        transform: scale(0.95) translate(-3px, 3px) rotate(-5deg);
-        filter: sepia(1) hue-rotate(-50deg) saturate(4);
-    }
-
-    50% {
-        transform: scale(1.05) translate(3px, -3px) rotate(5deg);
-    }
-
-    75% {
-        transform: scale(0.95) translate(-3px, 3px) rotate(-5deg);
-    }
-
-    100% {
-        transform: scale(1) translate(0, 0);
-        filter: none;
-    }
-}
-
-.slime-hit-anim {
-    animation: damageShake 0.15s ease-in-out;
-}
-
-/* === ЭКРАНЫ: МАГАЗИН, КУЗНИЦА, КОЛЛЕКЦИЯ === */
+/* === МАГАЗИН И КУЗНИЦА === */
 .shop-screen, .forge-screen {
     flex-direction: row;
-    /* Добавляем фон, чтобы текст читался на картинке */
     background: rgba(20, 24, 35, 0.9);
-    margin: 15px;
+    margin: 15px 15px 15px 0;
     border-radius: 15px;
     border: 1px solid rgba(255,255,255,0.1);
     box-shadow: 0 0 20px rgba(0,0,0,0.5);
@@ -343,7 +284,7 @@ h2 {
 .collection-screen {
     flex-direction: column;
     background: rgba(20, 24, 35, 0.9);
-    margin: 15px;
+    margin: 15px 15px 15px 0;
     border-radius: 15px;
     padding: 20px;
     align-items: center;
@@ -357,6 +298,7 @@ h2 {
     flex-direction: column;
     align-items: center;
     overflow-y: auto;
+    padding-bottom: 60px;
 }
 
 .forge-screen {
@@ -365,21 +307,28 @@ h2 {
     overflow-y: auto;
 }
 
-/* Элементы магазина */
+.upgrades-container {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-bottom: 60px;
+    margin: 0 auto;
+}
 
-/* Кнопка продажи (Активная - когда есть яйца) */
+/* Элементы магазина */
 .btn-sell {
-    background-color: var(--gold); /* Золотой фон */
-    color: #1a1b26; /* Темный текст */
+    background-color: var(--gold);
+    color: #1a1b26;
     border: none;
     padding: 6px 12px;
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
-    min-width: 80px; /* Фиксированная ширина */
+    min-width: 80px;
     transition: filter 0.2s, transform 0.1s;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-    /* Центрируем текст и иконку */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -394,14 +343,13 @@ h2 {
         transform: scale(0.95);
     }
 
-    /* Кнопка продажи (Отключена - когда 0 яиц) */
     .btn-sell:disabled {
-        background-color: rgba(255, 255, 255, 0.05); /* Полупрозрачный фон */
-        color: rgba(255, 255, 255, 0.4); /* Светло-серый текст (ТЕПЕРЬ БУДЕТ ВИДНО) */
-        border: 1px solid rgba(255, 255, 255, 0.1); /* Тонкая рамка */
+        background-color: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
         cursor: not-allowed;
         box-shadow: none;
-        filter: grayscale(1); /* Делаем иконку монетки черно-белой */
+        filter: grayscale(1);
     }
 
 .sell-row {
@@ -450,55 +398,53 @@ h2 {
 }
 
 /* Элементы кузницы */
-/* Элементы кузницы */
 .upgrade-item {
     background: linear-gradient(90deg, #1a0500, #2a0a00);
     border: 1px solid #ff4500;
     border-left: 5px solid #ff4500;
-    padding: 15px; /* Внутренний отступ */
+    padding: 15px;
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
     width: 100%;
-    box-sizing: border-box; /* Важно: чтобы padding не увеличивал ширину */
+    box-sizing: border-box;
 }
 
-/* Новое: Обертка для текста, чтобы он не наезжал на кнопку */
 .upgrade-info {
-    flex: 1; /* Занимает всё доступное место слева */
-    padding-right: 10px; /* Отступ до кнопки */
-    min-width: 0; /* Разрешаем тексту сжиматься, если места мало */
+    flex: 1;
+    padding-right: 10px;
+    min-width: 0;
 }
 
     .upgrade-info h4 {
         margin: 0;
         color: #ffaa00;
         font-size: 16px;
-        white-space: nowrap; /* Заголовок в одну строку */
+        white-space: nowrap;
         overflow: hidden;
-        text-overflow: ellipsis; /* Троеточие, если не влезает */
+        text-overflow: ellipsis;
     }
 
     .upgrade-info p {
         margin: 5px 0 0 0;
         color: #999;
         font-size: 12px;
-        line-height: 1.3; /* Чуть больше высоты строки для читаемости */
+        line-height: 1.3;
     }
 
 .upgrade-btn {
     background: #ff4500;
     color: white;
     border: none;
-    padding: 8px 12px; /* Чуть уменьшили боковые отступы */
+    padding: 8px 12px;
     border-radius: 5px;
     font-weight: bold;
     cursor: pointer;
-    min-width: 75px; /* Фиксированная ширина кнопки */
+    min-width: 75px;
     text-align: center;
-    flex-shrink: 0; /* Запрещаем кнопке сжиматься */
+    flex-shrink: 0;
 }
 
     .upgrade-btn:disabled {
@@ -517,7 +463,23 @@ h2 {
     justify-items: center;
 }
 
-/* ЦВЕТА РЕДКОСТИ */
+.collection-item {
+    background: rgba(0,0,0,0.3);
+    aspect-ratio: 1;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #303650;
+}
+
+    .collection-item.unlocked {
+        border-color: #ffd700;
+        background: radial-gradient(circle, rgba(255,215,0,0.1), transparent);
+    }
+
+/* ЦВЕТА И ЭФФЕКТЫ */
 .rarity-common {
     color: var(--common);
 }
@@ -539,7 +501,6 @@ h2 {
     text-shadow: 0 0 5px var(--mythic);
 }
 
-/* Всплывающий урон */
 .damage-number, .crit-number {
     position: absolute;
     pointer-events: none;
@@ -567,7 +528,26 @@ h2 {
     }
 }
 
-/* Кнопка звука */
+@keyframes damageShake {
+    0%, 100% {
+        transform: scale(1);
+        filter: none;
+    }
+
+    25% {
+        transform: scale(0.95) rotate(-5deg);
+        filter: sepia(1) hue-rotate(-50deg) saturate(4);
+    }
+
+    50% {
+        transform: scale(1.05) rotate(5deg);
+    }
+}
+
+.slime-hit-anim {
+    animation: damageShake 0.15s ease-in-out;
+}
+
 .sound-btn {
     background: rgba(0,0,0,0.5);
     border: 1px solid rgba(255,255,255,0.2);
@@ -582,7 +562,6 @@ h2 {
     justify-content: center;
 }
 
-/* Картинки и иконки */
 .coin-icon {
     width: 24px;
     height: 24px;
@@ -595,90 +574,6 @@ h2 {
     height: 120px;
     object-fit: contain;
     margin: 10px 0;
-}
-
-/* === МОБИЛЬНАЯ АДАПТАЦИЯ === */
-@media (max-width: 768px) {
-    /* Перестраиваем в колонку */
-    #gameScreen {
-        flex-direction: column;
-        padding-top: 0;
-    }
-
-    .sidebar {
-        width: 100%;
-        order: 2; /* Сайдбар вниз */
-        padding: 10px;
-        box-sizing: border-box;
-    }
-
-    .main-area {
-        order: 1;
-        height: auto;
-        min-height: 50vh;
-    }
-
-    .game-container {
-        position: fixed;
-        top: 60px;
-        bottom: 0;
-        overflow-y: auto;
-        display: block; /* Сброс flex для скролла */
-    }
-
-    .screen {
-        display: none;
-        flex-direction: column;
-        padding-bottom: 50px;
-    }
-
-        .screen.active {
-            display: flex;
-        }
-
-     /* Магазин, Кузница и Коллекция на весь экран */
-    .shop-screen, .forge-screen, .collection-screen {
-        margin: 0;
-        border-radius: 0;
-        flex-direction: column;
-        min-height: 100vh;
-        border: none; /* Убираем рамки по бокам */
-        padding: 10px; /* Уменьшаем отступы (было 20px) */
-    }
-
-    .shop-column {
-        width: 100%;
-        padding: 10px;
-        overflow: visible;
-    }
-
-    .slime-container {
-        height: 250px; /* Чуть меньше на телефоне */
-        margin-bottom: 10px;
-    }
-
-    .slime-img {
-        width: 160px;
-    }
-
-    /* Инвентарь в две колонки */
-    #inventoryList {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
-
-        #inventoryList div {
-            background: rgba(255,255,255,0.05);
-            padding: 5px;
-            border-radius: 5px;
-            text-align: center;
-            justify-content: center;
-        }
-
-    .mobile-hint {
-        display: none !important;
-    }
 }
 
 /* Меню разработчика */
@@ -705,13 +600,126 @@ h2 {
         cursor: pointer;
         font-family: monospace;
     }
-.upgrades-container {
-    width: 100%;
-    max-width: 500px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    /* ВОТ ЭТО ИСПРАВИТ СКРОЛЛ: */
-    padding-bottom: 60px; /* Большой отступ снизу, чтобы ничего не обрезалось */
-    margin: 0 auto; /* Центрируем контейнер */
+
+/* === МОБИЛЬНАЯ АДАПТАЦИЯ (ИСПРАВЛЕННАЯ) === */
+.mobile-only {
+    display: none;
+}
+/* Скрыто на ПК */
+
+@media (max-width: 768px) {
+    .mobile-only {
+        display: flex !important;
+    }
+
+    /* 1. ГЛАВНОЕ: По умолчанию СКРЫВАЕМ сайдбар на телефоне */
+    .sidebar {
+        display: none;
+        position: fixed;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        height: calc(100% - 60px);
+        background: rgba(20, 24, 35, 0.98);
+        z-index: 1000;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow-y: auto;
+    }
+
+        /* 2. Показываем сайдбар, если нажата кнопка Рюкзака */
+        .sidebar.active {
+            display: flex;
+        }
+
+    /* 3. ИСКЛЮЧЕНИЕ: В магазине показываем сайдбар встроенным */
+    .game-container.shop-mode .sidebar {
+        display: flex;
+        position: relative;
+        top: 0;
+        height: auto;
+        background: transparent;
+        z-index: 1;
+        margin-bottom: 20px;
+        order: 1;
+    }
+
+    .game-container.shop-mode ~ .header #btnBackpack {
+        display: none !important;
+    }
+
+    /* Перестраиваем в колонку */
+    .game-container {
+        flex-direction: column;
+        padding-top: 0;
+        position: fixed;
+        top: 60px;
+        bottom: 0;
+        overflow-y: auto;
+        display: block;
+    }
+
+    .main-area {
+        order: 2;
+        min-height: 60vh;
+    }
+
+    .screen {
+        display: none;
+        flex-direction: column;
+        padding-bottom: 80px;
+    }
+
+        .screen.active {
+            display: flex;
+        }
+
+    /* Исправление Кузницы и Магазина */
+    .shop-screen, .forge-screen, .collection-screen {
+        margin: 0;
+        border-radius: 0;
+        flex-direction: column;
+        min-height: auto;
+        border: none;
+        padding: 10px;
+    }
+
+    .shop-mode #shopScreen {
+        order: 2;
+    }
+
+    .shop-column {
+        width: 100%;
+        padding: 5px;
+        overflow: visible;
+        padding-bottom: 20px;
+    }
+
+    .slime-container {
+        height: 250px;
+        margin-bottom: 10px;
+    }
+
+    .slime-img {
+        width: 160px;
+    }
+
+    /* Инвентарь красивой сеткой */
+    #inventoryList {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+        #inventoryList div {
+            background: rgba(255,255,255,0.05);
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+    .mobile-hint {
+        display: none !important;
+    }
 }

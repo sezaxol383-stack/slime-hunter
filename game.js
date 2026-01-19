@@ -171,6 +171,23 @@ function switchTab(tabName) {
     if (tabName === 'shop') btns[2]?.classList.add('active');
     if (tabName === 'collection') btns[3]?.classList.add('active');
 
+    // === НОВАЯ ЛОГИКА ДЛЯ МОБИЛЬНОГО ИНВЕНТАРЯ ===
+    const container = document.querySelector('.game-container');
+    const sidebar = document.querySelector('.sidebar');
+    const backpackBtn = document.getElementById('btnBackpack');
+
+    // Если открыли Магазин — включаем режим магазина (инвентарь виден всегда)
+    if (tabName === 'shop') {
+        container.classList.add('shop-mode');
+        sidebar.classList.remove('active'); // Убираем класс активного рюкзака, чтоб не двоилось
+        if (backpackBtn) backpackBtn.style.display = 'none'; // Прячем кнопку рюкзака
+    } else {
+        container.classList.remove('shop-mode');
+        if (backpackBtn) backpackBtn.style.display = 'flex'; // Показываем кнопку рюкзака
+        sidebar.classList.remove('active'); // Закрываем рюкзак при смене вкладки
+        if (backpackBtn) backpackBtn.innerText = '🎒';
+    }
+
     if (tabName === 'forge') updateForgeUI();
 }
 
@@ -692,4 +709,17 @@ function updateBackground() {
     const title = document.querySelector('.header h2'); // Если есть заголовок
     // Или просто в лог
     console.log("Локация:", loc.name);
+}
+// --- ФУНКЦИЯ РЮКЗАКА (МОБИЛЬНАЯ) ---
+function toggleBackpack() {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.classList.toggle('active');
+
+    // Меняем иконку кнопки для красоты
+    const btn = document.getElementById('btnBackpack');
+    if (sidebar.classList.contains('active')) {
+        btn.innerText = '❌'; // Крестик, чтобы закрыть
+    } else {
+        btn.innerText = '🎒';
+    }
 }
