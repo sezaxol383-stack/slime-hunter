@@ -17,34 +17,88 @@ const collectionItems = [
     { id: 'c5', name: 'Алмаз Души', image: 'images/item_diamond.png' }
 ];
 // Список картинок слаймов (используем ваши названия файлов)
-const slimeVariants = [
-    'images/slime_green.png',
-    'images/slime_fire.png',
-    'images/ice_fire.png',
-    'images/darc_fire.png'
+/* --- СИСТЕМА ЛОКАЦИЙ И СЛАЙМОВ --- */
+const locations = [
+    {
+        id: 'forest',
+        name: 'Тихий Лес',
+        minKills: 0,      // С 0 убийств
+        cssClass: 'loc-forest',
+        slimes: [
+            // Сюда впишешь свои 5 зеленых слаймов:
+            'images/slime_green_1.png',
+            'images/slime_green_2.png', // Замени на green_2.png
+            'images/slime_green_3.png', // Замени на green_3.png
+            'images/slime_green_4.png',
+            'images/slime_green_5.png'
+        ]
+    },
+    {
+        id: 'fire',
+        name: 'Лавовая Пещера',
+        minKills: 20,     // С 20 убийств
+        cssClass: 'loc-fire',
+        slimes: [
+            'images/slime_fire_1.png',
+            'images/slime_fire_2.png', // Замени на fire_2.png
+            'images/slime_fire_3.png',
+            'images/slime_fire_4.png',
+            'images/slime_fire_5.png'
+        ]
+    },
+    {
+        id: 'ice',
+        name: 'Ледяной Пик',
+        minKills: 50,     // С 50 убийств
+        cssClass: 'loc-ice',
+        slimes: [
+            'images/ice_1.png', // Тут видимо опечатка в названии, но используем твой файл
+            'images/ice_2.png',
+            'images/ice_3.png',
+            'images/ice_4.png',
+            'images/ice_5.png'
+        ]
+    },
+    {
+        id: 'dark',
+        name: 'Цитадель Тьмы',
+        minKills: 100,    // С 100 убийств
+        cssClass: 'loc-dark',
+        slimes: [
+            'images/darc_fire.png',
+            'images/darc_fire.png',
+            'images/darc_fire.png',
+            'images/darc_fire.png',
+            'images/darc_fire.png'
+        ]
+    }
 ];
     // Новые Древние Артефакты
-// В файле data.js
 const artifacts = [
     {
         id: 'a1',
         name: 'Чаша Вечности',
         image: 'images/art_chalice.png',
         desc: 'Древний сосуд силы.',
-        buff: '💰 +5 монет/сек'  // <--- ДОБАВИТЬ ЭТО
+        buff: '💰 +5 монет/сек'  
     },
     {
         id: 'a2',
         name: 'Книга Тайн',
         image: 'images/art_book.png',
         desc: 'Знания запретных миров.',
-        buff: '🍀 Шанс лута x2' // <--- ДОБАВИТЬ ЭТО
+        buff: '🍀 Шанс лута x2' 
     },
     {
         id: 'a3',
         name: 'Амулет Дракона',
         image: 'images/art_amulet.png',
         desc: 'Пылающая ярость.',
-        buff: '⚔️ Урон x2'      // <--- ДОБАВИТЬ ЭТО
+        buff: '⚔️ Урон x2'      
     }
+];
+// Питомцы
+const petsBase = [
+    { id: 'pet_blob', name: 'Слизне-кот', cost: 500, dps: 2, desc: 'Кусает за пятку (2 DPS)' },
+    { id: 'pet_wolf', name: 'Призрачный Волк', cost: 2000, dps: 10, desc: 'Громко воет (10 DPS)' }
 ];

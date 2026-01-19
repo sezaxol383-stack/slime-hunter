@@ -4,7 +4,6 @@
     --text-color: #c0caf5;
     --accent: #7aa2f7;
     --gold: #e0af68;
-    
     --common: #9aa5ce;
     --rare: #3d59a1;
     --epic: #bb9af7;
@@ -12,19 +11,54 @@
     --mythic: #f7768e;
 }
 
+/* === ГЛОБАЛЬНЫЕ НАСТРОЙКИ === */
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, sans-serif;
-    background-color: var(--bg-color);
     color: var(--text-color);
     display: flex;
     flex-direction: column;
     align-items: center;
     height: 100vh;
-    overflow: hidden; /* Чтобы не скроллилось всё окно */
+    overflow: hidden;
+    /* Фоны и переходы */
+    background-color: #1a1b26;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    transition: background-image 1s ease-in-out, background-color 1s ease-in-out;
+    /* Запрет выделения */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
-/* ШАПКА */
+    /* === ФОНЫ ЛОКАЦИЙ === */
+    body.loc-forest {
+        background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('images/bg_forest.jpg');
+        --accent: #55ff55;
+    }
+
+    body.loc-fire {
+        background-image: linear-gradient(rgba(50,0,0,0.3), rgba(50,0,0,0.3)), url('images/bg_fire.jpg');
+        --accent: #ffaa00;
+    }
+
+    body.loc-ice {
+        background-image: linear-gradient(rgba(0,30,60,0.3), rgba(0,30,60,0.3)), url('images/bg_ice.jpg');
+        --accent: #00ccff;
+    }
+
+    body.loc-dark {
+        background-image: linear-gradient(rgba(20,0,40,0.5), rgba(20,0,40,0.5)), url('images/bg_dark.jpg');
+        --accent: #aa00ff;
+    }
+
+/* === ШАПКА === */
 .header {
     width: 100%;
     max-width: 900px;
@@ -34,395 +68,376 @@ body {
     align-items: center;
     padding: 0 10px;
     box-sizing: border-box;
-    background: var(--bg-color);
+    /* Убираем фон шапки, чтобы было прозрачно */
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(5px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    z-index: 20;
 }
 
 .gold-display {
     font-size: 18px;
     color: var(--gold);
     font-weight: bold;
-    background: rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.5);
     padding: 5px 10px;
     border-radius: 8px;
+    border: 1px solid rgba(255, 215, 0, 0.3);
 }
 
-.nav-buttons { display: flex; gap: 5px; }
+.nav-buttons {
+    display: flex;
+    gap: 5px;
+}
 
 .nav-btn {
-    background: var(--panel-bg);
+    background: rgba(0,0,0,0.5);
     border: 1px solid var(--accent);
     color: var(--accent);
     padding: 8px 15px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
+    transition: all 0.2s;
 }
-.nav-btn.active { background: var(--accent); color: var(--bg-color); }
 
-/* ОСНОВНОЙ КОНТЕЙНЕР */
+    .nav-btn.active {
+        background: var(--accent);
+        color: #000;
+    }
+
+/* === ИГРОВОЙ КОНТЕЙНЕР (ОБЩАЯ РАЗМЕТКА) === */
 .game-container {
     width: 100%;
     max-width: 900px;
-    flex: 1; /* Занимает всё оставшееся место */
-    background-color: var(--panel-bg);
-    border-radius: 20px 20px 0 0; /* Скругление только сверху */
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
-    overflow: hidden;
-    position: relative;
+    /* Включаем Flexbox для расположения колонок */
     display: flex;
-}
+    flex-direction: row; /* Сайдбар слева, Экран справа */
+    align-items: stretch; /* Растягиваем их на одну высоту */
 
-.screen { width: 100%; height: 100%; display: none; }
-.screen.active { display: flex; }
-
-/* ПАНЕЛИ И ЦЕНТР */
-.panel {
-    width: 250px;
-    padding: 15px;
-    overflow-y: auto;
-    border-right: 1px solid #303650;
-    background: rgba(0,0,0,0.1);
-}
-.panel:last-child { border-right: none; border-left: 1px solid #303650; }
-
-h2 { font-size: 16px; color: var(--accent); margin-top: 0; text-transform: uppercase;}
-
-.main-area {
+    padding-top: 10px;
+    position: relative;
+    overflow: hidden;
     flex: 1;
+    /* Полная прозрачность (чтобы видеть фон локации) */
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+}
+.screen {
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+    .screen.active {
+        display: flex;
+    }
+
+/* === НОВЫЙ ЛЕЙАУТ (Sidebar + Content) === */
+
+/* Контейнер держит боковую панель и активный экран рядом */
+.game-container {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch; /* Растягиваем на всю высоту */
+    padding-top: 10px;
+}
+
+/* Боковая панель всегда слева */
+.sidebar {
+    width: 260px; /* Фиксированная ширина */
     display: flex;
     flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+    padding-left: 15px;
+    z-index: 10;
+    flex-shrink: 0; /* Не сжиматься */
+}
+
+/* Общий стиль для всех экранов (Правая часть) */
+.screen {
+    flex: 1; /* Занимает всё оставшееся место */
+    display: none;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    position: relative;
-    width: 100%;
+    padding: 10px;
+    overflow-y: auto; /* Скролл если не влезает */
+    height: 100%;
 }
 
-/* ЭТО ВСТАВИТЬ */
-.slime-img {
-    width: 200px; /* Размер слайма на ПК */
-    height: 200px;
-    object-fit: contain; /* Чтобы картинка не сплющилась */
-    filter: drop-shadow(0 0 15px rgba(122, 162, 247, 0.6)); /* Светящаяся обводка */
-    transition: 0.1s;
-    cursor: pointer;
-}
-
-    .slime-img:active {
-        transform: scale(0.95) rotate(-5deg); /* Эффект нажатия */
-    }
-
-/* === МОБИЛЬНАЯ АДАПТАЦИЯ (ИСПРАВЛЕННАЯ) === */
-@media (max-width: 768px) {
-    /* 1. Скрываем боковые панели (инвентарь и логи) */
-    .desktop-only {
-        display: none !important;
-    }
-
-    .game-container {
-        border-radius: 0;
-    }
-
-    /* 2. Настраиваем прокрутку */
-    /* Важно: разрешаем скроллить сам экран, а не колонки внутри */
-    .screen {
-        overflow-y: auto; /* Вертикальная прокрутка */
-        height: 100%;
-        display: none;
-        flex-direction: column;
-        padding-bottom: 50px; /* Отступ снизу, чтобы удобно скроллить */
-    }
-
-        .screen.active {
-            display: flex; /* Показываем активный экран */
-        }
-
-    /* 3. Исправляем МАГАЗИН */
-    .shop-screen {
-        flex-direction: column; /* Элементы строго вертикально */
-    }
-
-    .shop-column {
-        width: 100%; /* На всю ширину */
-        flex: none; /* Не сжиматься и не растягиваться */
-        height: auto; /* Высота зависит от контента */
-        overflow: visible; /* Убираем внутренние скроллы */
-        padding: 15px;
-        box-sizing: border-box; /* Чтобы отступы не ломали ширину */
-        border-bottom: 1px solid rgba(255,255,255,0.1);
-    }
-
-    /* 4. Исправляем КУЗНИЦУ (чтобы не была черной полоской) */
-    .forge-card {
-        min-height: 150px; /* Минимальная высота, чтобы контент влез */
+    .screen.active {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
-        margin-bottom: 20px;
     }
 
-    /* 5. Уменьшаем СУНДУК на телефоне */
-    .lootbox-img {
-        width: 120px;
-        height: 120px;
-    }
+/* === ПАНЕЛИ (Инвентарь, Логи) === */
+.panel {
+    width: 100%;
+    padding: 15px;
+    overflow-y: auto;
+    box-sizing: border-box;
+    background: rgba(20, 24, 35, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
+}
 
-    /* 6. Увеличиваем СЛАЙМА на главном экране */
-    .slime-img {
-        width: 240px;
-        height: 240px;
-        margin-top: 20px;
-        margin-bottom: 30px;
-    }
+h2 {
+    font-size: 16px;
+    color: var(--accent);
+    margin-top: 0;
+    text-transform: uppercase;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
 
-    /* 7. Подсказка для мобильных */
-    .mobile-hint {
-        display: block;
-        text-align: center;
-        opacity: 0.7;
-    }
+#logList {
+    user-select: text; /* Разрешаем копировать текст событий */
+}
+
+/* === БОСС-БАР ЗДОРОВЬЯ === */
+.boss-hp-wrapper {
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    margin-top: 10px;
+    z-index: 5;
 }
 
 .hp-bar-container {
-    width: 80%; max-width: 400px; height: 24px;
-    background-color: #16161e; border-radius: 12px;
-    margin-top: 30px; overflow: hidden;
-    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-}
-.hp-bar-fill { height: 100%; background: linear-gradient(90deg, #f7768e, #ff9e64); width: 100%; transition: width 0.2s; }
-.hp-text { margin-top: 10px; font-weight: bold; font-size: 20px; }
-
-/* МАГАЗИН И КОЛЛЕКЦИЯ */
-.shop-screen { flex-direction: row; }
-.shop-column { flex: 1; padding: 20px; display: flex; flex-direction: column; align-items: center; overflow-y: auto; }
-.scrollable-list { width: 100%; }
-
-.sell-row {
-    display: flex; justify-content: space-between; align-items: center;
-    background: rgba(0,0,0,0.2); padding: 12px; margin-bottom: 8px; border-radius: 8px;
-}
-.btn-sell { background: #e0af68; border: none; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-.lootbox-card { background: linear-gradient(135deg, #7aa2f7, #bb9af7); padding: 20px; border-radius: 20px; text-align: center; color: #1a1b26; width: 80%; }
-.btn-buy { background: #1a1b26; color: white; border: none; padding: 12px 20px; border-radius: 10px; margin-top: 10px; font-weight: bold; cursor: pointer;}
-
-.collection-screen { flex-direction: column; padding: 20px; align-items: center; overflow-y: auto; }
-.collection-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 15px; width: 100%; max-width: 600px; }
-.collection-item { background: rgba(0,0,0,0.3); aspect-ratio: 1; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid #303650; }
-.collection-item.unlocked { border-color: #ffd700; background: radial-gradient(circle, rgba(255,215,0,0.1), transparent); }
-
-/* ЦВЕТА РЕДКОСТИ */
-.rarity-common { color: var(--common); }
-.rarity-rare { color: var(--rare); }
-.rarity-epic { color: var(--epic); }
-.rarity-legendary { color: var(--legendary); }
-.rarity-mythic { color: var(--mythic); text-shadow: 0 0 5px var(--mythic); }
-
-/* ЭФФЕКТЫ */
-.damage-number { position: absolute; color: white; font-weight: bold; font-size: 28px; pointer-events: none; animation: floatUp 0.8s forwards; text-shadow: 0 0 5px black;}
-@keyframes floatUp { to { opacity: 0; transform: translateY(-80px); } }
-
-.mobile-hint { display: none; color: #555; font-size: 12px; margin-top: 20px; }
-
-/* === МОБИЛЬНАЯ АДАПТАЦИЯ (ИСПРАВЛЕННАЯ V2) === */
-@media (max-width: 768px) {
-    /* 1. Скрываем боковые панели */
-    .desktop-only {
-        display: none !important;
-    }
-
-    /* 2. ЖЕЛЕЗОБЕТОННАЯ ФИКСАЦИЯ КОНТЕЙНЕРА */
-    /* Вместо height: calc(...) используем fixed, чтобы браузер не обманывал с высотой */
-    .game-container {
-        position: fixed; /* Прибиваем к экрану */
-        top: 60px; /* Начинаем сразу под шапкой */
-        bottom: 0; /* Растягиваем до самого низа */
-        left: 0;
-        right: 0;
-        width: 100%;
-        height: auto; /* Высота определится сама между top и bottom */
-        border-radius: 0;
-        z-index: 10; /* Чтобы точно был поверх всего */
-    }
-
-    /* 3. НАСТРОЙКА СКРОЛЛА */
-    .screen {
-        display: none;
-        height: 100%;
-        overflow-y: scroll; /* Принудительный скролл */
-        overflow-x: hidden;
-        padding: 10px; /* Отступы по бокам */
-        /* ВАЖНО: Огромный отступ снизу, чтобы контент не перекрывался рамкой браузера */
-        padding-bottom: 150px;
-        box-sizing: border-box;
-        -webkit-overflow-scrolling: touch; /* Плавность для iPhone */
-    }
-
-        .screen.active {
-            display: block;
-        }
-
-    /* 4. Магазин в столбик */
-    .shop-screen {
-        flex-direction: column;
-    }
-
-    .shop-column {
-        width: 100%;
-        height: auto !important;
-        overflow: visible !important;
-        padding: 0;
-        border: none;
-        margin-bottom: 20px;
-    }
-
-    /* 5. Уменьшение элементов (чтобы влезали) */
-    .coin-icon {
-        width: 24px !important;
-        height: 24px !important;
-    }
-
-    .gold-display {
-        font-size: 14px;
-        padding: 5px 8px;
-    }
-
-    button img {
-        width: 14px !important;
-        height: auto !important;
-    }
-
-    /* Сундук и Слайм */
-    .lootbox-img {
-        width: 100px;
-        height: 100px;
-        margin: 5px 0;
-    }
-
-    .slime-img {
-        width: 180px;
-        height: 180px;
-        margin-top: 30px;
-        margin-bottom: 20px;
-    }
-
-    /* Кузница */
-    .forge-card {
-        min-height: auto;
-        padding: 15px;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* Тексты */
-    h2, h3 {
-        font-size: 18px;
-        margin-bottom: 10px;
-        text-align: center;
-    }
-
-    .nav-btn {
-        padding: 8px 10px;
-        font-size: 12px;
-    }
-
-    .mobile-hint {
-        display: block;
-        text-align: center;
-        margin-top: 20px;
-        color: #555;
-        font-size: 12px;
-    }
-}
-/* Иконка монетки в шапке */
-.coin-icon {
-    width: 48px;
-    height: 48px;
-    margin-right: 8px;
-    filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5)); /* Золотое свечение */
-    vertical-align: middle;
-}
-/* Иконка сундука (лутбокса) */
-.lootbox-img {
-    width: 180px;
-    height: 180px;
-    object-fit: contain;
-    margin: 10px 0;
-    filter: drop-shadow(0 0 10px rgba(138, 43, 226, 0.6)); /* Фиолетовое свечение */
-    transition: transform 0.2s;
-    cursor: pointer;
-}
-
-    /* Эффект при наведении на сундук */
-    .lootbox-img:hover {
-        transform: scale(1.05) rotate(2deg);
-    }
-/* --- КУЗНИЦА --- */
-.forge-card {
-    background: linear-gradient(135deg, #2a0a00, #000);
-    border: 2px solid #ff4500;
-    box-shadow: 0 0 15px rgba(255, 69, 0, 0.3);
-    margin-bottom: 20px;
-    position: relative;
-    overflow: hidden;
     width: 100%;
-    box-sizing: border-box;
-    padding: 15px;
-    text-align: center;
+    height: 35px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    overflow: hidden;
 }
 
-    /* Анимация блеска для кузницы */
-    .forge-card::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255,69,0,0.1) 0%, transparent 70%);
-        animation: pulseForge 3s infinite;
+.hp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #f7768e, #ff9e64);
+    width: 100%;
+    transition: width 0.2s;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,0.3);
+}
 
-        pointer-events: none;
+.hp-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    text-align: center;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.stats-overlay {
+    margin-top: 5px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black;
+}
+
+/* === СЛАЙМ И ТЕНЬ === */
+.slime-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 350px; /* Высота зоны слайма */
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.slime-img {
+    width: 180px;
+    height: auto;
+    z-index: 2;
+    transition: transform 0.1s;
+    cursor: pointer;
+    filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+}
+
+    .slime-img:active {
+        transform: scale(0.95);
     }
 
-@keyframes pulseForge {
-    0% {
+/* Тень под слаймом */
+.slime-shadow {
+    position: absolute;
+    bottom: 10px;
+    width: 140px;
+    height: 30px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 50%;
+    filter: blur(8px);
+    z-index: 1;
+    animation: shadow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes shadow-pulse {
+    0%, 100% {
         transform: scale(1);
-        opacity: 0.5;
+        opacity: 0.4;
     }
 
     50% {
         transform: scale(1.1);
-        opacity: 0.8;
+        opacity: 0.2;
+    }
+}
+
+/* Анимация получения урона */
+@keyframes damageShake {
+    0% {
+        transform: scale(1) translate(0, 0);
+        filter: none;
+    }
+
+    25% {
+        transform: scale(0.95) translate(-3px, 3px) rotate(-5deg);
+        filter: sepia(1) hue-rotate(-50deg) saturate(4);
+    }
+
+    50% {
+        transform: scale(1.05) translate(3px, -3px) rotate(5deg);
+    }
+
+    75% {
+        transform: scale(0.95) translate(-3px, 3px) rotate(-5deg);
     }
 
     100% {
-        transform: scale(1);
-        opacity: 0.5;
+        transform: scale(1) translate(0, 0);
+        filter: none;
     }
 }
 
-.btn-upgrade {
-    background: linear-gradient(to bottom, #ff4500, #8b0000);
-    border: 1px solid #ff8c00;
-    width: 100%; /* Растягиваем на всю ширину карточки */
+.slime-hit-anim {
+    animation: damageShake 0.15s ease-in-out;
+}
+
+/* === ЭКРАНЫ: МАГАЗИН, КУЗНИЦА, КОЛЛЕКЦИЯ === */
+.shop-screen, .forge-screen {
+    flex-direction: row;
+    /* Добавляем фон, чтобы текст читался на картинке */
+    background: rgba(20, 24, 35, 0.9);
+    margin: 15px;
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+.collection-screen {
+    flex-direction: column;
+    background: rgba(20, 24, 35, 0.9);
+    margin: 15px;
+    border-radius: 15px;
+    padding: 20px;
+    align-items: center;
+    overflow-y: auto;
+}
+
+.shop-column {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+}
+
+.forge-screen {
+    flex-direction: column;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Элементы магазина */
+
+/* Кнопка продажи (Активная - когда есть яйца) */
+.btn-sell {
+    background-color: var(--gold); /* Золотой фон */
+    color: #1a1b26; /* Темный текст */
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    min-width: 80px; /* Фиксированная ширина */
+    transition: filter 0.2s, transform 0.1s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    /* Центрируем текст и иконку */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+    .btn-sell:hover {
+        filter: brightness(1.15);
+    }
+
+    .btn-sell:active {
+        transform: scale(0.95);
+    }
+
+    /* Кнопка продажи (Отключена - когда 0 яиц) */
+    .btn-sell:disabled {
+        background-color: rgba(255, 255, 255, 0.05); /* Полупрозрачный фон */
+        color: rgba(255, 255, 255, 0.4); /* Светло-серый текст (ТЕПЕРЬ БУДЕТ ВИДНО) */
+        border: 1px solid rgba(255, 255, 255, 0.1); /* Тонкая рамка */
+        cursor: not-allowed;
+        box-shadow: none;
+        filter: grayscale(1); /* Делаем иконку монетки черно-белой */
+    }
+
+.sell-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255,255,255,0.05);
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.lootbox-card {
+    background: linear-gradient(135deg, #7aa2f7, #bb9af7);
+    padding: 20px;
+    border-radius: 20px;
+    text-align: center;
+    color: #1a1b26;
+    width: 80%;
+}
+
+.btn-buy {
+    background: #1a1b26;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 10px;
     margin-top: 10px;
-    padding: 10px 0; /* Отступы сверху и снизу внутри кнопки */
-    font-size: 14px;
-}
-
-    .btn-upgrade:hover {
-        filter: brightness(1.2);
-        box-shadow: 0 0 10px #ff4500;
-    }
-
-/* --- КНОПКА ПРОДАТЬ ВСЁ --- */
-.sell-all-container {
-    margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: bold;
+    cursor: pointer;
 }
 
 .btn-sell-all {
-    background: linear-gradient(to bottom, #2196F3, #0D47A1); /* Синяя */
+    background: linear-gradient(to bottom, #2196F3, #0D47A1);
     border: 1px solid #64B5F6;
     color: white;
     width: 100%;
@@ -430,61 +445,106 @@ h2 { font-size: 16px; color: var(--accent); margin-top: 0; text-transform: upper
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
-    font-size: 14px;
     text-transform: uppercase;
-    box-shadow: 0 4px 0 #0b3c91; /* Объемная кнопка */
-    transition: transform 0.1s;
+    margin-bottom: 15px;
 }
 
-    .btn-sell-all:active {
-        transform: translateY(4px); /* Эффект нажатия */
-        box-shadow: none;
-    }
-
-/* --- МЕНЮ РАЗРАБОТЧИКА --- */
-.dev-panel {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.95);
-    border: 2px solid #00ff00;
-    padding: 30px;
-    border-radius: 20px;
-    z-index: 9999;
+/* Элементы кузницы */
+.upgrade-item {
+    background: linear-gradient(90deg, #1a0500, #2a0a00);
+    border: 1px solid #ff4500;
+    border-left: 5px solid #ff4500;
+    padding: 15px;
+    border-radius: 8px;
     display: flex;
-    flex-direction: column;
-    gap: 15px;
-    box-shadow: 0 0 50px #00ff00;
-    text-align: center;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-    .dev-panel h3 {
-        color: #00ff00;
-        margin-top: 0;
-        font-family: monospace;
-        font-size: 24px;
+.upgrade-btn {
+    background: #ff4500;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    min-width: 80px;
+}
+
+    .upgrade-btn:disabled {
+        background: #555;
+        color: #888;
+        cursor: not-allowed;
     }
 
-    .dev-panel button {
-        background: #003300;
-        color: #00ff00;
-        border: 1px solid #00ff00;
-        padding: 10px 20px;
-        font-family: monospace;
-        font-weight: bold;
-        cursor: pointer;
-        font-size: 16px;
-    }
+/* Коллекция */
+.collection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 15px;
+    width: 100%;
+    max-width: 600px;
+    justify-items: center;
+}
 
-        .dev-panel button:hover {
-            background: #00ff00;
-            color: black;
-        }
-/* КНОПКА ЗВУКА */
+/* ЦВЕТА РЕДКОСТИ */
+.rarity-common {
+    color: var(--common);
+}
+
+.rarity-rare {
+    color: var(--rare);
+}
+
+.rarity-epic {
+    color: var(--epic);
+}
+
+.rarity-legendary {
+    color: var(--legendary);
+}
+
+.rarity-mythic {
+    color: var(--mythic);
+    text-shadow: 0 0 5px var(--mythic);
+}
+
+/* Всплывающий урон */
+.damage-number, .crit-number {
+    position: absolute;
+    pointer-events: none;
+    z-index: 100;
+    font-weight: bold;
+    text-shadow: 0 0 3px black;
+    animation: floatUp 0.8s forwards;
+}
+
+.damage-number {
+    color: white;
+    font-size: 28px;
+}
+
+.crit-number {
+    color: #ffd700;
+    font-size: 40px;
+    text-shadow: 0 0 10px #ff4500;
+}
+
+@keyframes floatUp {
+    to {
+        opacity: 0;
+        transform: translateY(-80px);
+    }
+}
+
+/* Кнопка звука */
 .sound-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.2);
     color: #fff;
     font-size: 20px;
     width: 40px;
@@ -494,14 +554,136 @@ h2 { font-size: 16px; color: var(--accent); margin-top: 0; text-transform: upper
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
 }
 
-    .sound-btn:hover {
-        background: rgba(255, 255, 255, 0.2);
+/* Картинки и иконки */
+.coin-icon {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.lootbox-img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    margin: 10px 0;
+}
+
+/* === МОБИЛЬНАЯ АДАПТАЦИЯ === */
+@media (max-width: 768px) {
+    /* Перестраиваем в колонку */
+    #gameScreen {
+        flex-direction: column;
+        padding-top: 0;
     }
 
-    .sound-btn.muted {
-        opacity: 0.5;
-        filter: grayscale(1);
+    .sidebar {
+        width: 100%;
+        order: 2; /* Сайдбар вниз */
+        padding: 10px;
+        box-sizing: border-box;
     }
+
+    .main-area {
+        order: 1;
+        height: auto;
+        min-height: 50vh;
+    }
+
+    .game-container {
+        position: fixed;
+        top: 60px;
+        bottom: 0;
+        overflow-y: auto;
+        display: block; /* Сброс flex для скролла */
+    }
+
+    .screen {
+        display: none;
+        flex-direction: column;
+        padding-bottom: 50px;
+    }
+
+        .screen.active {
+            display: flex;
+        }
+
+    /* Магазин и Кузница на весь экран */
+    .shop-screen, .forge-screen, .collection-screen {
+        margin: 0;
+        border-radius: 0;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    .shop-column {
+        width: 100%;
+        padding: 10px;
+        overflow: visible;
+    }
+
+    .slime-container {
+        height: 250px; /* Чуть меньше на телефоне */
+        margin-bottom: 10px;
+    }
+
+    .slime-img {
+        width: 160px;
+    }
+
+    /* Инвентарь в две колонки */
+    #inventoryList {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+        #inventoryList div {
+            background: rgba(255,255,255,0.05);
+            padding: 5px;
+            border-radius: 5px;
+            text-align: center;
+            justify-content: center;
+        }
+
+    .mobile-hint {
+        display: none !important;
+    }
+}
+
+/* Меню разработчика */
+.dev-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.95);
+    border: 2px solid #00ff00;
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+    .dev-panel button {
+        background: #003300;
+        color: #00ff00;
+        border: 1px solid #00ff00;
+        padding: 10px;
+        cursor: pointer;
+        font-family: monospace;
+    }
+.upgrades-container {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    /* ВОТ ЭТО ИСПРАВИТ СКРОЛЛ: */
+    padding-bottom: 60px; /* Большой отступ снизу, чтобы ничего не обрезалось */
+    margin: 0 auto; /* Центрируем контейнер */
+}

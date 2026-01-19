@@ -4,74 +4,68 @@ let gameState = {
     inventory: { common: 0, rare: 0, epic: 0, legendary: 0, mythic: 0 },
     unlockedCollectibles: [],
     artifacts: [],
-    clickPower: 1,  // <--- ОШИБКА 1: Тут не хватало запятой
-    upgradeCost: 50
+
+    // --- ПИТОМЦЫ ---
+    pets: [],
+    autoDps: 0,
+
+    // --- ХАРАКТЕРИСТИКИ ---
+    clickPower: 1,      // Урон
+    critChance: 0.05,   // Шанс крита (5%)
+    critMultiplier: 3,  // Сила крита (x3)
+
+    // --- ЦЕНЫ ---
+    costDamage: 50,
+    costChance: 150,
+    costCritPower: 200
 };
 
 let currentSlime = { maxHp: 10, currentHp: 10 };
-
-// --- ЗВУКИ ---
+let currentLocationIndex = 0; // Индекс текущей локации (0 - Лес)
 // --- АУДИО СИСТЕМА v2.0 ---
-
-// Настройки звука
 let audioSettings = {
-    musicVolume: 0.3, // Музыка тише (30%)
-    sfxVolume: 0.6,   // Эффекты громче (60%)
-    isMuted: false    // Включен ли звук глобально
+    musicVolume: 0.3,
+    sfxVolume: 0.6,
+    isMuted: false
 };
 
-// Загружаем настройку из памяти (если игрок уже выключал звук)
 if (localStorage.getItem('isMuted') === 'true') {
     audioSettings.isMuted = true;
 }
 
-// Объекты аудио
 const sounds = {
     hit: new Audio('sounds/hit.mp3'),
     coin: new Audio('sounds/coin.mp3'),
     drop: new Audio('sounds/drop.mp3'),
-    upgrade: new Audio('sounds/coin.mp3') // Можно добавить звук ковки
+    upgrade: new Audio('sounds/coin.mp3')
 };
 
-// Фоновая музыка
 const bgMusic = new Audio('sounds/music.mp3');
-bgMusic.loop = true; // Зациклить
+bgMusic.loop = true;
 bgMusic.volume = audioSettings.musicVolume;
 
-// Функция проигрывания эффектов
 function playSound(name) {
-    if (audioSettings.isMuted) return; // Если выкл, не играем
-
+    if (audioSettings.isMuted) return;
     const sound = sounds[name];
     if (sound) {
-        // КЛОНИРУЕМ звук, чтобы можно было играть его много раз подряд быстро
-        // (иначе быстрые клики будут "глотать" звук)
         const clone = sound.cloneNode();
         clone.volume = audioSettings.sfxVolume;
-        clone.play().catch(() => { }); // Игнорим ошибки (если браузер блокирует)
+        clone.play().catch(() => { });
     }
 }
 
-// Функция переключения звука (вешается на кнопку)
 function toggleSound() {
     audioSettings.isMuted = !audioSettings.isMuted;
-
-    // Сохраняем настройку
     localStorage.setItem('isMuted', audioSettings.isMuted);
-
     updateSoundButton();
     manageMusic();
 }
 
-// Управление музыкой
 function manageMusic() {
     if (audioSettings.isMuted) {
         bgMusic.pause();
     } else {
-        // Браузеры запрещают авто-старт музыки.
-        // Она запустится только после первого клика по странице.
         bgMusic.play().catch(() => {
-            // Если браузер не дал запустить, ждем клика игрока
             document.addEventListener('click', startMusicOnFirstClick, { once: true });
         });
     }
@@ -83,7 +77,6 @@ function startMusicOnFirstClick() {
     }
 }
 
-// Обновление иконки кнопки
 function updateSoundButton() {
     const btn = document.getElementById('btnSound');
     if (btn) {
@@ -97,37 +90,66 @@ function updateSoundButton() {
     }
 }
 
+// Новая функция: Игровой цикл (срабатывает раз в секунду)
+function gameLoop() {
+    // 1. Логика Артефактов (Золото)
+    if (gameState.artifacts.includes('a1')) {
+        gameState.gold += 5;
+        updateAllUI();
+    }
 
+    // 2. Логика Питомцев (Авто-урон)
+    if (gameState.autoDps > 0) {
+        currentSlime.currentHp -= gameState.autoDps;
+        if (currentSlime.currentHp < 0) currentSlime.currentHp = 0;
+
+        // Показываем урон (синим цветом)
+        const slime = document.querySelector('.slime-img');
+        const rect = slime ? slime.getBoundingClientRect() : { left: 100, top: 200 };
+        // Передаем true в конце, чтобы урон был синим
+        spawnDamageNumber(rect.left + 50, rect.top + 50, gameState.autoDps, false, true);
+
+        updateGameUI();
+        if (currentSlime.currentHp <= 0) onSlimeDeath();
+    }
+}
 
 // --- ЗАПУСК ---
 function loadGame() {
     const saved = localStorage.getItem('slimeHunterMobile_v1');
     if (saved) {
-        gameState = { ...gameState, ...JSON.parse(saved) };
-    }
-    // Если в сохранении еще нет массива артефактов (старое сохранение), добавляем его
-    if (!gameState.artifacts) {
-        gameState.artifacts = [];
-    }
-    // Если в сохранении нет цены улучшения, ставим дефолт
-    if (!gameState.upgradeCost) {
-        gameState.upgradeCost = 50;
+        const parsed = JSON.parse(saved);
+        gameState = { ...gameState, ...parsed };
+
+        if (parsed.inventory) {
+            gameState.inventory = { ...gameState.inventory, ...parsed.inventory };
+        }
     }
 
+    // ИСПРАВЛЕНИЕ: Заполняем нулями, если чего-то нет
+    rarities.forEach(r => {
+        if (typeof gameState.inventory[r.id] === 'undefined') {
+            gameState.inventory[r.id] = 0;
+        }
+    });
+
+    // Подготовка для питомцев
+    if (!gameState.pets) gameState.pets = [];
+    if (!gameState.autoDps) gameState.autoDps = 0;
+
+    // Восстановление здоровья слайма
     currentSlime.maxHp = Math.floor(10 * Math.pow(1.05, gameState.kills));
     currentSlime.currentHp = currentSlime.maxHp;
+
     changeSlimeSkin();
     updateAllUI();
-
-    // --- АВТО-ЗОЛОТО (Чаша Вечности) ---
-    setInterval(() => {
-        if (gameState.artifacts.includes('a1')) { // Если есть Чаша
-            gameState.gold += 5;
-            updateAllUI();
-        }
-    }, 1000);
+    updateBackground();
     updateSoundButton();
     manageMusic();
+
+    // ЗАПУСК ЦИКЛОВ:
+    setInterval(gameLoop, 1000);
+    setInterval(saveGame, 10000);
 }
 
 function saveGame() {
@@ -139,35 +161,45 @@ function switchTab(tabName) {
     document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
 
-    if (tabName === 'game') document.getElementById('gameScreen').classList.add('active');
-    if (tabName === 'shop') document.getElementById('shopScreen').classList.add('active');
-    if (tabName === 'collection') document.getElementById('collectionScreen').classList.add('active');
+    const screenId = tabName + 'Screen';
+    const screen = document.getElementById(screenId);
+    if (screen) screen.classList.add('active');
 
     const btns = document.querySelectorAll('.nav-btn');
-    if (tabName === 'game') btns[0].classList.add('active');
-    if (tabName === 'shop') btns[1].classList.add('active');
-    if (tabName === 'collection') btns[2].classList.add('active');
+    if (tabName === 'game') btns[0]?.classList.add('active');
+    if (tabName === 'forge') btns[1]?.classList.add('active');
+    if (tabName === 'shop') btns[2]?.classList.add('active');
+    if (tabName === 'collection') btns[3]?.classList.add('active');
+
+    if (tabName === 'forge') updateForgeUI();
 }
 
 // --- БОЙ ---
 function clickSlime(event) {
     playSound('hit');
-
-    // 1. Считаем урон (с учетом Амулета)
+    animateSlime();
+    // 1. Урон
     let damage = gameState.clickPower;
     if (gameState.artifacts.includes('a3')) {
         damage *= 2;
     }
 
-    // 2. Отнимаем здоровье
-    currentSlime.currentHp -= damage;
+    // 2. Крит
+    let isCrit = false;
+    if (Math.random() < gameState.critChance) {
+        damage *= gameState.critMultiplier;
+        damage = Math.floor(damage);
+        isCrit = true;
+    }
 
+    // 3. HP
+    currentSlime.currentHp -= damage;
     if (currentSlime.currentHp < 0) currentSlime.currentHp = 0;
 
-    // 3. Рисуем правильную цифру урона
+    // 4. Цифра
     let x = event.clientX;
     let y = event.clientY;
-    spawnDamageNumber(x, y, damage);
+    spawnDamageNumber(x, y, damage, isCrit);
 
     updateGameUI();
 
@@ -185,11 +217,8 @@ function onSlimeDeath() {
 }
 
 function rollLoot() {
-    // --- РАСЧЕТ ШАНСА (Книга Тайн) ---
     let chanceMultiplier = 1;
-    if (gameState.artifacts.includes('a2')) {
-        chanceMultiplier = 2;
-    }
+    if (gameState.artifacts.includes('a2')) chanceMultiplier = 2;
 
     for (let item of rarities) {
         if (Math.random() < (item.chance * chanceMultiplier)) {
@@ -204,23 +233,135 @@ function rollLoot() {
     logEvent("Пусто...", "");
 }
 
-// --- МАГАЗИН ---
-function buyUpgrade() {
-    if (gameState.gold >= gameState.upgradeCost) {
-        gameState.gold -= gameState.upgradeCost;
+// --- КУЗНИЦА ---
+function buyDamage() {
+    if (gameState.gold >= gameState.costDamage) {
+        gameState.gold -= gameState.costDamage;
         gameState.clickPower += 1;
-        gameState.upgradeCost = Math.floor(gameState.upgradeCost * 1.5);
+        gameState.costDamage = Math.floor(gameState.costDamage * 1.5);
+        onUpgradeSuccess();
+    } else alert("Не хватает золота!");
+}
 
-        playSound('coin');
+function buyCritChance() {
+    if (gameState.critChance >= 0.50) return;
+    if (gameState.gold >= gameState.costChance) {
+        gameState.gold -= gameState.costChance;
+        gameState.critChance += 0.02;
+        gameState.costChance = Math.floor(gameState.costChance * 1.6);
+        onUpgradeSuccess();
+    } else alert("Не хватает золота!");
+}
+
+function buyCritPower() {
+    if (gameState.gold >= gameState.costCritPower) {
+        gameState.gold -= gameState.costCritPower;
+        gameState.critMultiplier += 0.5;
+        gameState.costCritPower = Math.floor(gameState.costCritPower * 1.7);
+        onUpgradeSuccess();
+    } else alert("Не хватает золота!");
+}
+
+function buyPet(petId) {
+    const petDef = petsBase.find(p => p.id === petId);
+    if (!petDef) return;
+
+    if (gameState.pets.some(p => p.id === petId)) {
+        alert("Этот питомец уже служит вам!");
+        return;
+    }
+
+    if (gameState.gold >= petDef.cost) {
+        gameState.gold -= petDef.cost;
+        gameState.pets.push({ id: petId, name: petDef.name });
+        gameState.autoDps += petDef.dps;
+        playSound('upgrade');
+        alert(`🐾 Вы приручили: ${petDef.name}! (+${petDef.dps} DPS)`);
         saveGame();
         updateAllUI();
-
-        if (navigator.vibrate) navigator.vibrate(100);
+        updateForgeUI();
     } else {
-        alert("Не хватает золота на заточку!");
+        alert("Не хватает золота!");
     }
 }
 
+function onUpgradeSuccess() {
+    playSound('upgrade');
+    saveGame();
+    updateAllUI();
+    updateForgeUI();
+    if (navigator.vibrate) navigator.vibrate(50);
+}
+
+// --- ОБНОВЛЕНИЕ UI КУЗНИЦЫ (ИСПРАВЛЕНО) ---
+function updateForgeUI() {
+    const list = document.getElementById('upgradesList');
+    if (!list) return;
+    list.innerHTML = '';
+
+    const coinIcon = '<img src="images/coin.png" style="width:14px; vertical-align:middle;">';
+
+    // 1. Улучшения игрока
+    const upgrades = [
+        { id: 'dmg', name: 'Острота клинка', desc: `Урон +1 (Сейчас: ${gameState.clickPower})`, cost: gameState.costDamage, action: buyDamage },
+        { id: 'chance', name: 'Меткий глаз', desc: `Крит. шанс +2% (Сейчас: ${Math.round(gameState.critChance * 100)}%)`, cost: gameState.costChance, maxed: gameState.critChance >= 0.50, action: buyCritChance },
+        { id: 'power', name: 'Сокрушение', desc: `Сила крита +0.5x (Сейчас: x${gameState.critMultiplier})`, cost: gameState.costCritPower, action: buyCritPower }
+    ];
+
+    upgrades.forEach(upg => {
+        const div = document.createElement('div');
+        div.className = 'upgrade-item';
+        let btnText = upg.maxed ? "МАКС" : `${upg.cost} ${coinIcon}`;
+        let isDisabled = upg.maxed || gameState.gold < upg.cost;
+
+        div.innerHTML = `
+            <div class="upgrade-info"><h4>${upg.name}</h4><p>${upg.desc}</p></div>
+            <button class="upgrade-btn" ${isDisabled ? 'disabled' : ''}>${btnText}</button>
+        `;
+        div.querySelector('button').onclick = () => { if (!isDisabled) upg.action(); };
+        list.appendChild(div);
+    });
+
+    // 2. Питомцы
+    if (typeof petsBase !== 'undefined' && petsBase.length > 0) {
+        const petHeader = document.createElement('h3');
+        petHeader.style.textAlign = 'center';
+        petHeader.style.color = '#aaddff';
+        petHeader.style.marginTop = '20px';
+        petHeader.innerText = 'Зверинец 🐾';
+        list.appendChild(petHeader);
+
+        petsBase.forEach(pet => {
+            const isOwned = gameState.pets.some(p => p.id === pet.id);
+            const div = document.createElement('div');
+            div.className = 'upgrade-item';
+            if (isOwned) {
+                div.style.borderColor = '#0088ff';
+                div.style.background = 'linear-gradient(90deg, #001a33, #003366)';
+            }
+            let btnText = isOwned ? "КУПЛЕНО" : `${pet.cost} ${coinIcon}`;
+            let isDisabled = isOwned || gameState.gold < pet.cost;
+
+            div.innerHTML = `
+                <div class="upgrade-info">
+                    <h4 style="${isOwned ? 'color:#00ccff' : ''}">${pet.name}</h4>
+                    <p style="color:#ccc">Авто-урон: ${pet.dps} DPS</p>
+                    <p style="font-size:10px; color:#777">${pet.desc}</p>
+                </div>
+                <button class="upgrade-btn" ${isDisabled ? 'disabled' : ''} 
+                    style="${isOwned ? 'background:transparent; border:1px solid #00ccff; color:#00ccff' : ''}">
+                    ${btnText}
+                </button>
+            `;
+            if (!isOwned) {
+                div.querySelector('button').onclick = () => buyPet(pet.id);
+            }
+            list.appendChild(div);
+        });
+    }
+}
+
+// --- МАГАЗИН ---
 function sellEgg(rarityId) {
     if (gameState.inventory[rarityId] > 0) {
         playSound('coin');
@@ -231,46 +372,31 @@ function sellEgg(rarityId) {
         updateAllUI();
     }
 }
-// Функция для продажи ВСЕГО инвентаря сразу
+
 function sellAllLoot() {
     let totalEarned = 0;
     let somethingSold = false;
-
-    // Пробегаем по всем типам редкости
     rarities.forEach(r => {
         const count = gameState.inventory[r.id];
-
         if (count > 0) {
-            // Считаем сколько денег получим за этот тип
-            const earnings = count * r.price;
-            totalEarned += earnings;
-
-            // Обнуляем количество предметов
+            totalEarned += count * r.price;
             gameState.inventory[r.id] = 0;
             somethingSold = true;
         }
     });
 
     if (somethingSold) {
-        // Начисляем золото
         gameState.gold += totalEarned;
-
-        // Звук монеток
         playSound('coin');
-
-        // Вибрация (длинная, так как много денег)
         if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-
-        // Сохраняем и обновляем экран
         saveGame();
         updateAllUI();
-
-        // Можно показать красивый алерт или просто лог
         alert(`💰 Вы продали всё и заработали ${totalEarned} монет!`);
     } else {
-        alert("В инвентаре пусто! Иди охотиться!");
+        alert("В инвентаре пусто!");
     }
 }
+
 function buyLootbox() {
     const cost = 100;
     if (gameState.gold >= cost) {
@@ -291,35 +417,29 @@ function buyLootbox() {
     }
 }
 
-// --- РИТУАЛ ---
 function performRitual() {
     if (gameState.unlockedCollectibles.length < 5) {
-        alert("Соберите полную коллекцию (5 предметов), чтобы провести Ритуал!");
+        alert("Соберите полную коллекцию (5 предметов)!");
         return;
     }
-
     const availableArtifacts = artifacts.filter(art => !gameState.artifacts.includes(art.id));
-
     if (availableArtifacts.length === 0) {
-        alert("Вы уже собрали все Древние Артефакты! Вы — легенда!");
+        alert("Вы уже собрали все Древние Артефакты!");
         return;
     }
-
-    if (!confirm("Вы готовы пожертвовать всей коллекцией ради получения Древнего Артефакта? Предметы исчезнут!")) {
-        return;
-    }
+    if (!confirm("Пожертвовать коллекцией ради Артефакта?")) return;
 
     gameState.unlockedCollectibles = [];
     const newArtifact = availableArtifacts[Math.floor(Math.random() * availableArtifacts.length)];
     gameState.artifacts.push(newArtifact.id);
 
     playSound('drop');
-    alert(`⚡ РИТУАЛ ЗАВЕРШЕН! Получен артефакт: ${newArtifact.name}!`);
+    alert(`⚡ РИТУАЛ ЗАВЕРШЕН! Получен: ${newArtifact.name}!`);
     saveGame();
     updateAllUI();
 }
 
-// --- UI ---
+// --- UI ОБНОВЛЕНИЕ ---
 function updateAllUI() {
     document.getElementById('goldCount').innerText = gameState.gold;
     updateGameUI();
@@ -330,7 +450,7 @@ function updateAllUI() {
 function updateGameUI() {
     const percent = (currentSlime.currentHp / currentSlime.maxHp) * 100;
     document.getElementById('hpFill').style.width = `${percent}%`;
-    document.getElementById('currentHp').innerText = currentSlime.currentHp;
+    document.getElementById('currentHp').innerText = Math.ceil(currentSlime.currentHp);
     document.getElementById('maxHp').innerText = currentSlime.maxHp;
     document.getElementById('killCount').innerText = gameState.kills;
 
@@ -338,48 +458,35 @@ function updateGameUI() {
     if (list) {
         list.innerHTML = '';
         rarities.forEach(r => {
-            if (gameState.inventory[r.id] > 0 || r.id === 'common') {
-                const div = document.createElement('div');
-                div.style.display = "flex";
-                div.style.justifyContent = "space-between";
-                div.style.marginBottom = "5px";
-                div.className = r.class;
-                div.innerHTML = `<span>${r.name}</span> <span>x${gameState.inventory[r.id]}</span>`;
-                list.appendChild(div);
-            }
+            const count = gameState.inventory[r.id] || 0;
+            const div = document.createElement('div');
+            div.style.display = "flex";
+            div.style.justifyContent = "space-between";
+            div.style.marginBottom = "5px";
+            div.className = r.class;
+            const opacityStyle = count === 0 ? 'opacity: 0.5;' : '';
+            div.innerHTML = `<span style="${opacityStyle}">${r.name}</span> <span style="${opacityStyle}">x${count}</span>`;
+            list.appendChild(div);
         });
     }
 }
 
 function updateShopUI() {
-    // 1. Обновляем кнопку улучшения
-    const btnUpgrade = document.getElementById('btnUpgrade');
-    if (btnUpgrade) {
-        btnUpgrade.innerHTML = `+1 Урона (${gameState.upgradeCost} <img src="images/coin.png" style="width:16px; vertical-align:middle;">)`;
-        if (gameState.gold < gameState.upgradeCost) {
-            btnUpgrade.style.opacity = "0.5";
-            btnUpgrade.style.cursor = "not-allowed";
-        } else {
-            btnUpgrade.style.opacity = "1";
-            btnUpgrade.style.cursor = "pointer";
-        }
-    }
-
-    // 2. Отрисовываем список продажи яиц
-    const list = document.getElementById('sellList'); // <--- ОШИБКА 2: Добавил эту строку, её не было!
+    const list = document.getElementById('sellList');
     if (!list) return;
-
     list.innerHTML = '';
     rarities.forEach(r => {
-        const count = gameState.inventory[r.id];
+        const count = gameState.inventory[r.id] || 0;
         const div = document.createElement('div');
         div.className = 'sell-row';
-
         const coinImg = '<img src="images/coin.png" style="width:18px; vertical-align:middle;">';
-
+        const isDisabled = count === 0;
         div.innerHTML = `
-            <span class="${r.class}" style="font-weight:bold;">${r.name} (x${count})</span>
-            <button class="btn-sell" onclick="sellEgg('${r.id}')" ${count === 0 ? 'disabled' : ''}>
+            <span class="${r.class}" style="font-weight:bold; ${isDisabled ? 'opacity:0.6' : ''}">
+                ${r.name} (x${count})
+            </span>
+            <button class="btn-sell" onclick="sellEgg('${r.id}')" ${isDisabled ? 'disabled' : ''} 
+                    style="${isDisabled ? 'background:#555; cursor:not-allowed;' : ''}">
                 +${r.price} ${coinImg}
             </button>
         `;
@@ -390,100 +497,48 @@ function updateShopUI() {
 function updateCollectionUI() {
     const grid = document.getElementById('collectionGrid');
     if (!grid) return;
-
-    grid.style.display = 'flex';
-    grid.style.flexDirection = 'column';
-    grid.style.alignItems = 'center';
-    grid.style.gap = '20px';
     grid.innerHTML = '';
 
-    // ЭТАЖ 1
+    // Секция коллекции
     const collectionSection = document.createElement('div');
-    collectionSection.style.textAlign = 'center';
-    collectionSection.style.width = '100%';
-
-    const title1 = document.createElement('h3');
-    title1.innerText = "Коллекция Слаймов";
-    title1.style.color = "#aaddff";
-    title1.style.textShadow = "0 0 10px #0055ff";
-    title1.style.marginBottom = "15px";
-    collectionSection.appendChild(title1);
+    collectionSection.style.textAlign = 'center'; collectionSection.style.width = '100%';
+    collectionSection.innerHTML = `<h3 style="color: #aaddff">Коллекция Слаймов</h3>`;
 
     const standardContainer = document.createElement('div');
-    standardContainer.style.display = 'flex';
+    standardContainer.className = 'collection-grid'; // Используем grid класс из CSS
     standardContainer.style.justifyContent = 'center';
-    standardContainer.style.flexWrap = 'wrap';
-    standardContainer.style.gap = '10px';
 
     collectionItems.forEach(item => {
         const isUnlocked = gameState.unlockedCollectibles.includes(item.id);
         const div = document.createElement('div');
         div.className = `collection-item ${isUnlocked ? 'unlocked' : ''}`;
+
         div.style.border = isUnlocked ? "2px solid #00ffcc" : "2px solid #333";
         div.style.background = isUnlocked ? "rgba(0, 255, 204, 0.1)" : "rgba(0,0,0,0.3)";
         div.style.width = "80px";
-        div.style.padding = "10px";
-        div.style.borderRadius = "10px";
 
-        const iconHtml = isUnlocked
-            ? `<img src="${item.image}" style="width: 50px; height: 50px; object-fit: contain; filter: drop-shadow(0 0 5px #00ffcc);">`
-            : '<span style="font-size: 30px; opacity: 0.3;">🔒</span>';
-
-        div.innerHTML = `
-            <div style="height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">${iconHtml}</div>
-            <div style="font-size: 10px; text-align: center; color: ${isUnlocked ? '#fff' : '#777'}">${item.name}</div>
-        `;
+        const iconHtml = isUnlocked ? `<img src="${item.image}" style="width: 50px; height: 50px; object-fit: contain;">` : '<span style="font-size: 30px; opacity: 0.3;">🔒</span>';
+        div.innerHTML = `<div style="height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">${iconHtml}</div><div style="font-size: 10px; text-align: center; color: ${isUnlocked ? '#fff' : '#777'}">${item.name}</div>`;
         standardContainer.appendChild(div);
     });
     collectionSection.appendChild(standardContainer);
     grid.appendChild(collectionSection);
 
-    // ЭТАЖ 2
+    // Кнопка ритуала
     const ritualSection = document.createElement('div');
-    ritualSection.style.margin = "20px 0";
-    ritualSection.style.textAlign = "center";
+    ritualSection.style.margin = "20px 0"; ritualSection.style.textAlign = "center";
     const canRitual = gameState.unlockedCollectibles.length >= 5;
-
-    ritualSection.innerHTML = `
-        <button onclick="performRitual()" style="
-            background: linear-gradient(45deg, #ff0055, #ff00cc);
-            border: 3px solid #fff;
-            color: white;
-            padding: 15px 40px;
-            border-radius: 50px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            box-shadow: 0 0 20px ${canRitual ? '#ff00cc' : 'rgba(255,0,204,0.2)'};
-            transition: transform 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            opacity: ${canRitual ? '1' : '0.5'};
-            filter: ${canRitual ? 'none' : 'grayscale(1)'};
-        "
-        ${canRitual ? "onmouseover=\"this.style.transform='scale(1.05)'\" onmouseout=\"this.style.transform='scale(1)'\"" : ""}
-        >🔮 Провести Ритуал 🔮</button>
-        <div style="font-size: 12px; color: #aaa; margin-top: 10px;">(Нужно собрать 5 предметов)</div>
-    `;
+    ritualSection.innerHTML = `<button onclick="performRitual()" style="background: linear-gradient(45deg, #ff0055, #ff00cc); border: 3px solid #fff; color: white; padding: 15px 40px; border-radius: 50px; font-weight: bold; cursor: pointer; opacity: ${canRitual ? '1' : '0.5'}; filter: ${canRitual ? 'none' : 'grayscale(1)'};">🔮 Провести Ритуал 🔮</button>`;
     grid.appendChild(ritualSection);
 
-    // ЭТАЖ 3
+    // Артефакты
     const artifactSection = document.createElement('div');
-    artifactSection.style.textAlign = 'center';
-    artifactSection.style.width = '100%';
-
-    const title2 = document.createElement('h3');
-    title2.innerText = "Древние Артефакты";
-    title2.style.color = "#ffcc00";
-    title2.style.textShadow = "0 0 10px #ff6600";
-    title2.style.marginBottom = "15px";
-    artifactSection.appendChild(title2);
+    artifactSection.style.textAlign = 'center'; artifactSection.style.width = '100%';
+    artifactSection.innerHTML = `<h3 style="color: #ffcc00">Древние Артефакты</h3>`;
 
     const artContainer = document.createElement('div');
-    artContainer.style.display = 'flex';
+    artContainer.className = 'collection-grid';
     artContainer.style.justifyContent = 'center';
-    artContainer.style.flexWrap = 'wrap';
-    artContainer.style.gap = '15px';
 
     artifacts.forEach(art => {
         const hasArt = gameState.artifacts.includes(art.id);
@@ -491,19 +546,9 @@ function updateCollectionUI() {
         artDiv.className = `collection-item ${hasArt ? 'unlocked' : ''}`;
         artDiv.style.border = hasArt ? "2px solid #ffcc00" : "2px dashed #664400";
         artDiv.style.background = hasArt ? "rgba(255, 204, 0, 0.15)" : "rgba(0,0,0,0.2)";
-        artDiv.style.width = "90px";
-        artDiv.style.padding = "10px";
-        artDiv.style.borderRadius = "10px";
 
-        const artIcon = hasArt
-            ? `<img src="${art.image}" style="width: 60px; height: 60px; object-fit: contain; filter: drop-shadow(0 0 10px gold);">`
-            : '<span style="font-size: 40px; opacity: 0.2;">❓</span>';
-
-        artDiv.innerHTML = `
-            <div style="height: 60px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">${artIcon}</div>
-            <div style="font-size: 10px; color: ${hasArt ? '#ffcc00' : '#665544'}; font-weight: bold;">${art.name}</div>
-            <div style="font-size: 9px; color: #00ff00; margin-top: 2px;">${hasArt ? art.buff : ''}</div>
-         `;
+        const artIcon = hasArt ? `<img src="${art.image}" style="width: 60px; height: 60px; object-fit: contain;">` : '<span style="font-size: 40px; opacity: 0.2;">❓</span>';
+        artDiv.innerHTML = `<div style="height: 60px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">${artIcon}</div><div style="font-size: 10px; color: ${hasArt ? '#ffcc00' : '#665544'}; font-weight: bold;">${art.name}</div><div style="font-size: 9px; color: #00ff00; margin-top: 2px;">${hasArt ? art.buff : ''}</div>`;
         artContainer.appendChild(artDiv);
     });
     artifactSection.appendChild(artContainer);
@@ -520,50 +565,71 @@ function logEvent(text, cssClass) {
     entry.className = cssClass;
     entry.innerText = text;
     logPanel.insertBefore(entry, logPanel.firstChild);
-    if (logPanel.children.length > 15) logPanel.removeChild(logPanel.lastChild);
+    if (logPanel.children.length > 5) logPanel.removeChild(logPanel.lastChild);
 }
 
-function spawnDamageNumber(x, y, amount) {
+function spawnDamageNumber(x, y, amount, isCrit, isAuto = false) {
     const el = document.createElement('div');
-    el.className = 'damage-number';
-    const dmg = amount ? amount : gameState.clickPower;
-    el.innerText = `-${dmg}`;
-    el.style.left = `${x}px`;
+    el.className = isCrit ? 'crit-number' : 'damage-number';
+
+    if (isAuto) {
+        el.innerText = `⚔️${amount}`;
+        el.style.color = "#aaaaff";
+        el.style.fontSize = "22px";
+        el.style.zIndex = "50";
+    } else {
+        el.innerText = isCrit ? `💥-${amount}!` : `-${amount}`;
+    }
+
+    const randomX = (Math.random() - 0.5) * 40;
+    el.style.left = `${x + randomX}px`;
     el.style.top = `${y - 50}px`;
 
-    if (dmg > gameState.clickPower) {
+    if (!isCrit && !isAuto && amount > gameState.clickPower) {
         el.style.color = "#ff3300";
         el.style.fontSize = "30px";
         el.style.fontWeight = "bold";
     }
+
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 800);
 }
 
 function changeSlimeSkin() {
-    const randomSkin = slimeVariants[Math.floor(Math.random() * slimeVariants.length)];
-    const slimeImg = document.querySelector('.slime-img');
-    if (slimeImg) {
-        slimeImg.src = randomSkin;
+    // 1. Определяем локацию по количеству убийств
+    // Идем с конца, чтобы найти самую сложную открытую локацию
+    let newIndex = 0;
+    for (let i = locations.length - 1; i >= 0; i--) {
+        if (gameState.kills >= locations[i].minKills) {
+            newIndex = i;
+            break;
+        }
     }
+
+    // 2. Если локация сменилась — меняем фон и пишем об этом
+    if (newIndex !== currentLocationIndex) {
+        currentLocationIndex = newIndex;
+        updateBackground();
+        // Можно добавить уведомление, если хочешь
+        // alert(`Вы перешли в локацию: ${locations[newIndex].name}`); 
+    }
+
+    // 3. Берем случайный скин ИЗ ТЕКУЩЕЙ локации
+    const loc = locations[currentLocationIndex];
+    const randomSkin = loc.slimes[Math.floor(Math.random() * loc.slimes.length)];
+
+    const slimeImg = document.querySelector('.slime-img');
+    if (slimeImg) slimeImg.src = randomSkin;
 }
 
-// Старт
-loadGame();
 // --- ЛОГИКА РАЗРАБОТЧИКА ---
-
 let devClickCount = 0;
 let devTimer = null;
 
-// Функция для вызова меню (нужно повесить на монетку в HTML)
 function onDevSecretClick() {
     devClickCount++;
-
-    // Сбрасываем счетчик, если не кликал 1 секунду
     clearTimeout(devTimer);
     devTimer = setTimeout(() => { devClickCount = 0; }, 1000);
-
-    // Если 5 кликов подряд
     if (devClickCount >= 5) {
         toggleDevPanel();
         devClickCount = 0;
@@ -582,12 +648,10 @@ function toggleDevPanel() {
 function devAddGold() {
     gameState.gold += 5000;
     updateAllUI();
-    // Вибрация подтверждения
     if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
 }
 
 function devAddLoot() {
-    // Добавляем по 10 штук каждого яйца
     rarities.forEach(r => {
         gameState.inventory[r.id] += 10;
     });
@@ -598,6 +662,34 @@ function devAddLoot() {
 function devReset() {
     if (confirm("Точно удалить весь прогресс?")) {
         localStorage.removeItem('slimeHunterMobile_v1');
-        location.reload(); // Перезагрузка страницы
+        location.reload();
     }
+}
+
+// Запуск при старте
+loadGame();
+
+// --- ВИЗУАЛЬНЫЕ ЭФФЕКТЫ ---
+function animateSlime() {
+    const slime = document.querySelector('.slime-img');
+    if (!slime) return;
+
+    // Сброс анимации (магия CSS, чтобы можно было проигрывать подряд)
+    slime.classList.remove('slime-hit-anim');
+    void slime.offsetWidth; // Принудительная перерисовка
+    slime.classList.add('slime-hit-anim');
+}
+function updateBackground() {
+    const loc = locations[currentLocationIndex];
+
+    // Удаляем старые классы локаций
+    document.body.classList.remove('loc-forest', 'loc-fire', 'loc-ice', 'loc-dark');
+
+    // Добавляем новый класс
+    document.body.classList.add(loc.cssClass);
+
+    // Обновляем заголовок игры (по желанию)
+    const title = document.querySelector('.header h2'); // Если есть заголовок
+    // Или просто в лог
+    console.log("Локация:", loc.name);
 }
