@@ -450,29 +450,55 @@ h2 {
 }
 
 /* Элементы кузницы */
+/* Элементы кузницы */
 .upgrade-item {
     background: linear-gradient(90deg, #1a0500, #2a0a00);
     border: 1px solid #ff4500;
     border-left: 5px solid #ff4500;
-    padding: 15px;
+    padding: 15px; /* Внутренний отступ */
     border-radius: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
     width: 100%;
-    box-sizing: border-box;
+    box-sizing: border-box; /* Важно: чтобы padding не увеличивал ширину */
 }
+
+/* Новое: Обертка для текста, чтобы он не наезжал на кнопку */
+.upgrade-info {
+    flex: 1; /* Занимает всё доступное место слева */
+    padding-right: 10px; /* Отступ до кнопки */
+    min-width: 0; /* Разрешаем тексту сжиматься, если места мало */
+}
+
+    .upgrade-info h4 {
+        margin: 0;
+        color: #ffaa00;
+        font-size: 16px;
+        white-space: nowrap; /* Заголовок в одну строку */
+        overflow: hidden;
+        text-overflow: ellipsis; /* Троеточие, если не влезает */
+    }
+
+    .upgrade-info p {
+        margin: 5px 0 0 0;
+        color: #999;
+        font-size: 12px;
+        line-height: 1.3; /* Чуть больше высоты строки для читаемости */
+    }
 
 .upgrade-btn {
     background: #ff4500;
     color: white;
     border: none;
-    padding: 8px 15px;
+    padding: 8px 12px; /* Чуть уменьшили боковые отступы */
     border-radius: 5px;
     font-weight: bold;
     cursor: pointer;
-    min-width: 80px;
+    min-width: 75px; /* Фиксированная ширина кнопки */
+    text-align: center;
+    flex-shrink: 0; /* Запрещаем кнопке сжиматься */
 }
 
     .upgrade-btn:disabled {
@@ -610,12 +636,14 @@ h2 {
             display: flex;
         }
 
-    /* Магазин и Кузница на весь экран */
+     /* Магазин, Кузница и Коллекция на весь экран */
     .shop-screen, .forge-screen, .collection-screen {
         margin: 0;
         border-radius: 0;
         flex-direction: column;
         min-height: 100vh;
+        border: none; /* Убираем рамки по бокам */
+        padding: 10px; /* Уменьшаем отступы (было 20px) */
     }
 
     .shop-column {
