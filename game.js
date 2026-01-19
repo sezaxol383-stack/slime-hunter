@@ -723,3 +723,27 @@ function toggleBackpack() {
         btn.innerText = '🎒';
     }
 }
+// --- МОБИЛЬНОЕ МЕНЮ ---
+
+// 1. Открыть/Закрыть меню
+function toggleMenu() {
+    const menu = document.getElementById('dropdownMenu');
+    menu.classList.toggle('show');
+}
+
+// 2. Выбор пункта (переключает вкладку и закрывает меню)
+function selectMobileTab(tabName) {
+    switchTab(tabName); // Переключаем экран
+    toggleMenu();       // Закрываем меню
+}
+
+// Закрываем меню, если кликнули мимо (для удобства)
+document.addEventListener('click', function (event) {
+    const menu = document.getElementById('dropdownMenu');
+    const btn = document.querySelector('.menu-btn');
+
+    // Если клик НЕ по меню и НЕ по кнопке, и меню открыто -> закрыть
+    if (!menu.contains(event.target) && !btn.contains(event.target) && menu.classList.contains('show')) {
+        menu.classList.remove('show');
+    }
+});

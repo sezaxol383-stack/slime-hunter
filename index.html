@@ -20,11 +20,20 @@
             </div>
         </div>
 
-        <div class="nav-buttons">
+        <div class="nav-buttons desktop-nav">
             <button class="nav-btn active" onclick="switchTab('game')">Охота</button>
             <button class="nav-btn" onclick="switchTab('forge')">Кузница</button>
             <button class="nav-btn" onclick="switchTab('shop')">Гильдия</button>
             <button class="nav-btn" onclick="switchTab('collection')">Коллекция</button>
+        </div>
+
+        <button class="menu-btn mobile-nav" onclick="toggleMenu()">☰</button>
+
+        <div id="dropdownMenu" class="dropdown-menu">
+            <button class="menu-item active" onclick="selectMobileTab('game')">⚔️ Охота</button>
+            <button class="menu-item" onclick="selectMobileTab('forge')">🔥 Кузница</button>
+            <button class="menu-item" onclick="selectMobileTab('shop')">💰 Гильдия</button>
+            <button class="menu-item" onclick="selectMobileTab('collection')">💎 Коллекция</button>
         </div>
     </div>
 
