@@ -36,22 +36,22 @@ body {
 
     /* === ФОНЫ ЛОКАЦИЙ === */
     body.loc-forest {
-        background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('images/bg_forest.jpg');
+        background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('images/bg/bg_forest.jpg');
         --accent: #55ff55;
     }
 
     body.loc-fire {
-        background-image: linear-gradient(rgba(50,0,0,0.3), rgba(50,0,0,0.3)), url('images/bg_fire.jpg');
+        background-image: linear-gradient(rgba(50,0,0,0.3), rgba(50,0,0,0.3)), url('images/bg/bg_fire.jpg');
         --accent: #ffaa00;
     }
 
     body.loc-ice {
-        background-image: linear-gradient(rgba(0,30,60,0.3), rgba(0,30,60,0.3)), url('images/bg_ice.jpg');
+        background-image: linear-gradient(rgba(0,30,60,0.3), rgba(0,30,60,0.3)), url('images/bg/bg_ice.jpg');
         --accent: #00ccff;
     }
 
     body.loc-dark {
-        background-image: linear-gradient(rgba(20,0,40,0.5), rgba(20,0,40,0.5)), url('images/bg_dark.jpg');
+        background-image: linear-gradient(rgba(20,0,40,0.5), rgba(20,0,40,0.5)), url('images/bg/bg_dark.jpg');
         --accent: #aa00ff;
     }
 
@@ -145,7 +145,18 @@ body {
     height: 100%;
     box-sizing: border-box;
 }
+/* === ГЛАВНАЯ ЗОНА (Боевая сцена) === */
+.main-area {
+    width: 100%;
+    height: 100%;
+    /* ЭТО САМОЕ ВАЖНОЕ: */
+    position: relative; /* "Запираем" координаты внутри этого блока */
+    overflow: hidden; /* Обрезаем всё, что торчит */
 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
     .screen.active {
         display: flex;
     }
@@ -222,24 +233,36 @@ h2 {
     text-shadow: 1px 1px 2px black;
 }
 
+
+/* === СЛАЙМ И ТЕНЬ (ОБНОВЛЕНО) === */
 .slime-container {
-    position: relative;
+    position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    height: 350px;
-    width: 100%;
-    margin-bottom: 20px;
+    /* Задаем жесткий размер "коробки" слайма */
+    width: 180px;
+    height: 180px;
+    /* Центрирование по умолчанию */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    transition: top 0.2s, left 0.2s;
+    pointer-events: none; /* Чтобы клики вне картинки (в пустом углу контейнера) не считались */
 }
 
 .slime-img {
-    width: 180px;
+    /* Картинка заполняет ширину контейнера */
+    width: 100%;
     height: auto;
+    object-fit: contain;
     z-index: 2;
     transition: transform 0.1s;
     cursor: pointer;
     filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+    pointer-events: auto; /* Включаем клики только на самой картинке */
 }
 
     .slime-img:active {
@@ -271,15 +294,6 @@ h2 {
     }
 }
 
-/* === МАГАЗИН И КУЗНИЦА === */
-.shop-screen, .forge-screen {
-    flex-direction: row;
-    background: rgba(20, 24, 35, 0.9);
-    margin: 15px 15px 15px 0;
-    border-radius: 15px;
-    border: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-}
 
 .collection-screen {
     flex-direction: column;
@@ -291,21 +305,6 @@ h2 {
     overflow-y: auto;
 }
 
-.shop-column {
-    flex: 1;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow-y: auto;
-    padding-bottom: 60px;
-}
-
-.forge-screen {
-    flex-direction: column;
-    padding: 20px;
-    overflow-y: auto;
-}
 
 .upgrades-container {
     width: 100%;
@@ -659,11 +658,6 @@ h2 {
         display: block;
     }
 
-    .main-area {
-        order: 2;
-        min-height: 60vh;
-    }
-
     .screen {
         display: none;
         flex-direction: column;
@@ -674,34 +668,20 @@ h2 {
             display: flex;
         }
 
-    /* Исправление Кузницы и Магазина */
-    .shop-screen, .forge-screen, .collection-screen {
-        margin: 0;
-        border-radius: 0;
-        flex-direction: column;
-        min-height: auto;
-        border: none;
-        padding: 10px;
-    }
 
-    .shop-mode #shopScreen {
-        order: 2;
-    }
-
-    .shop-column {
-        width: 100%;
-        padding: 5px;
-        overflow: visible;
-        padding-bottom: 20px;
-    }
-
+    /* ИСПРАВЛЕНИЕ РАЗМЕРОВ ДЛЯ ТЕЛЕФОНА */
     .slime-container {
-        height: 250px;
-        margin-bottom: 10px;
+        /* Делаем коробку меньше, чтобы она влезала в экран */
+        width: 120px;
+        height: 120px;
+        /* Убираем старые отступы, так как теперь позиция задается через JS (top/left) */
+        margin-bottom: 0;
+        position: absolute; /* Гарантируем, что он "плавает" */
     }
 
     .slime-img {
-        width: 160px;
+        /* Картинка подстраивается под маленький контейнер */
+        width: 100%;
     }
 
     /* Инвентарь красивой сеткой */
@@ -804,5 +784,1376 @@ h2 {
     /* И ПОКАЗЫВАЕМ кнопку меню */
     .mobile-nav {
         display: flex !important;
+    }
+}
+/* ========================================= */
+/* === ЛОГИКА СКРЫТИЯ (ПК vs ТЕЛЕФОН) === */
+/* ========================================= */
+
+/* 1. НА ПК: Скрываем всё мобильное */
+.mobile-only, .mobile-nav, .dropdown-menu {
+    display: none !important;
+}
+
+/* 2. НА ТЕЛЕФОНЕ: Скрываем кнопки ПК и показываем мобильные */
+@media (max-width: 768px) {
+    /* Прячем обычные кнопки навигации */
+    .desktop-nav {
+        display: none !important;
+    }
+
+    /* Показываем мобильные кнопки */
+    .mobile-only {
+        display: flex !important;
+    }
+
+    .mobile-nav {
+        display: flex !important;
+    }
+}
+
+/* ========================================= */
+/* === СТИЛИ ДЛЯ ВЫПАДАЮЩЕГО МЕНЮ === */
+/* ========================================= */
+
+/* Кнопка меню (три полоски) */
+.menu-btn {
+    background: transparent;
+    border: 2px solid var(--accent);
+    color: var(--accent);
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 4px;
+}
+
+/* Само выпадающее меню */
+.dropdown-menu {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    width: 200px;
+    background: rgba(20, 24, 35, 0.95);
+    border: 1px solid var(--accent);
+    border-top: none;
+    border-radius: 0 0 0 15px;
+    flex-direction: column;
+    z-index: 2000;
+    box-shadow: -5px 5px 15px rgba(0,0,0,0.5);
+    overflow: hidden;
+    transform-origin: top right;
+    transform: scale(0);
+    transition: transform 0.2s ease-out;
+}
+
+    /* Класс для открытия меню (добавляется через JS) */
+    .dropdown-menu.show {
+        display: flex !important;
+        transform: scale(1);
+    }
+
+/* Пункты меню */
+.menu-item {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    padding: 15px;
+    text-align: left;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+    .menu-item:active {
+        background: var(--accent);
+        color: #000;
+    }
+/* === ВИДЕО ПЕРЕХОД === */
+.transition-layer {
+    display: none; /* Скрыто */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 9999; /* Поверх всего */
+    align-items: center;
+    justify-content: center;
+}
+
+    .transition-layer.active {
+        display: flex;
+        /* Было 0.5s, ставим 1.2s или даже 1.5s для очень медленного старта */
+        animation: fadeIn 1.2s ease-in-out forwards;
+    }
+
+    .transition-layer video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Чтобы видео заполнило экран без полос */
+    }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+/* Кнопка пропуска видео */
+.skip-btn {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: 1px solid white;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 10000;
+    border-radius: 30px;
+    font-family: monospace;
+    transition: background 0.2s;
+}
+
+    .skip-btn:hover {
+        background: white;
+        color: black;
+    }
+/* ========================================= */
+/* === GAME JUICE (СОЧНОСТЬ) === */
+/* ========================================= */
+
+/* 1. Эффект тряски (Screen Shake) */
+@keyframes shake {
+    0% {
+        transform: translate(1px, 1px) rotate(0deg);
+    }
+
+    10% {
+        transform: translate(-1px, -2px) rotate(-1deg);
+    }
+
+    20% {
+        transform: translate(-3px, 0px) rotate(1deg);
+    }
+
+    30% {
+        transform: translate(3px, 2px) rotate(0deg);
+    }
+
+    40% {
+        transform: translate(1px, -1px) rotate(1deg);
+    }
+
+    50% {
+        transform: translate(-1px, 2px) rotate(-1deg);
+    }
+
+    60% {
+        transform: translate(-3px, 1px) rotate(0deg);
+    }
+
+    70% {
+        transform: translate(3px, 1px) rotate(-1deg);
+    }
+
+    80% {
+        transform: translate(-1px, -1px) rotate(1deg);
+    }
+
+    90% {
+        transform: translate(1px, 2px) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(1px, -2px) rotate(-1deg);
+    }
+}
+
+.shake-effect {
+    animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+/* 2. Частицы слайма */
+.slime-particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    pointer-events: none; /* Чтобы не мешали кликать */
+    z-index: 100;
+    opacity: 0.8;
+}
+
+/* 3. Летящая монетка */
+.flying-coin {
+    position: fixed; /* Поверх всего */
+    width: 24px;
+    height: 24px;
+    z-index: 9999;
+    pointer-events: none;
+    transition: transform 0.8s ease-in-out, opacity 0.8s ease-in;
+}
+/* === СТИЛИ БОССА (ОБНОВЛЕННЫЕ) === */
+.slime-img.boss {
+    transform: scale(2.5); /* Был 1.6, стал 2.5 — ОГРОМНЫЙ */
+    filter: drop-shadow(0 0 25px #ff0000); /* Красное свечение */
+    z-index: 10; /* Поверх всего */
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Пружинистый эффект при появлении */
+}
+
+/* Пульсация дыхания (подстроена под новый размер) */
+.slime-img.boss {
+    animation: boss-pulse 2s infinite alternate;
+}
+
+@keyframes boss-pulse {
+    from {
+        transform: scale(2.5);
+        filter: drop-shadow(0 0 20px #ff0000);
+    }
+
+    to {
+        transform: scale(2.6);
+        filter: drop-shadow(0 0 40px #ff0000);
+    }
+}
+
+/* 2. Полоска здоровья босса */
+.hp-bar-fill.boss-hp {
+    background: linear-gradient(90deg, #ff0000, #800000);
+    box-shadow: 0 0 10px #ff0000;
+}
+
+/* 3. Надпись "BOSS FIGHT" */
+.boss-label {
+    position: absolute;
+    top: 80px; /* Чуть ниже HP */
+    width: 100%;
+    text-align: center;
+    color: #ff0000;
+    font-size: 24px;
+    font-weight: 900;
+    text-shadow: 2px 2px 0 #000;
+    letter-spacing: 2px;
+    display: none; /* Скрыто по умолчанию */
+    z-index: 5;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+/* === АНИМАЦИЯ УДАРА ПО БОССУ === */
+@keyframes bossDamageShake {
+    0%, 100% {
+        transform: scale(2.5); /* Сохраняем большой размер */
+        filter: drop-shadow(0 0 25px #ff0000);
+    }
+
+    25% {
+        transform: scale(2.4) rotate(-3deg); /* Чуть сжимаем */
+        filter: drop-shadow(0 0 15px #ff0000) hue-rotate(-20deg);
+    }
+
+    50% {
+        transform: scale(2.6) rotate(3deg); /* Чуть раздуваем */
+        filter: drop-shadow(0 0 35px #ff0000) hue-rotate(20deg);
+    }
+}
+
+.boss-hit-anim {
+    animation: bossDamageShake 0.15s ease-in-out;
+}
+/* === ПАРИРОВАНИЕ И HP ИГРОКА === */
+
+/* 1. Контейнер сердец */
+.player-hp-container {
+    position: absolute;
+    top: 120px; /* Под надписью BOSS FIGHT */
+    width: 100%;
+    text-align: center;
+    z-index: 20;
+    pointer-events: none;
+}
+
+.heart {
+    font-size: 24px;
+    margin: 0 5px;
+    filter: drop-shadow(0 0 5px red);
+    transition: filter 0.3s, opacity 0.3s;
+}
+
+    .heart.lost {
+        filter: grayscale(1) brightness(0.5);
+        opacity: 0.5;
+    }
+
+/* 2. Слой для линий (поверх всего) */
+.parry-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Чтобы клики проходили сквозь него к слайму */
+    z-index: 50;
+}
+
+/* 3. Сама линия атаки */
+.attack-line {
+    position: absolute;
+    background: linear-gradient(90deg, transparent, #ff0000, transparent);
+    box-shadow: 0 0 15px #ff0000, 0 0 30px #ff0000;
+    opacity: 0.9;
+    transform-origin: center;
+    pointer-events: none;
+}
+
+    /* Анимация сужения линии (таймер) */
+    .attack-line::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #fff;
+        opacity: 0.5;
+        transform: scaleX(1);
+        animation: shrinkLine 1.5s linear forwards;
+    }
+
+@keyframes shrinkLine {
+    to {
+        transform: scaleX(0);
+    }
+}
+
+/* Текст "PARRY!" */
+.parry-text {
+    position: absolute;
+    color: #00ffff;
+    font-size: 36px;
+    font-weight: 900;
+    font-style: italic;
+    text-shadow: 0 0 10px #00ffff;
+    pointer-events: none;
+    z-index: 100;
+    animation: floatUp 0.8s forwards;
+}
+/* === МАГИЧЕСКИЙ РИТУАЛ (СФЕРЫ 1-2-3) === */
+.ritual-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Сам слой прозрачный для кликов */
+    z-index: 50;
+}
+
+.ritual-orb {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: radial-gradient(circle, #00ffff 10%, #0055ff 90%);
+    border: 2px solid #fff;
+    border-radius: 50%;
+    color: white;
+    font-size: 28px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 15px #00ffff, inset 0 0 10px #ffffff;
+    cursor: pointer;
+    pointer-events: auto; /* А вот сферы кликабельны */
+    animation: orbPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    text-shadow: 0 0 5px #000;
+    z-index: 60;
+}
+
+/* Анимация появления */
+@keyframes orbPopIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Эффект исчезновения (при правильном клике) */
+.orb-popped {
+    animation: orbSuccess 0.2s forwards !important;
+    pointer-events: none;
+}
+
+@keyframes orbSuccess {
+    to {
+        transform: scale(1.5);
+        opacity: 0;
+        background: #55ff55;
+    }
+}
+
+/* Ошибка (красный) */
+.orb-error {
+    background: #ff0000 !important;
+    box-shadow: 0 0 20px #ff0000 !important;
+    animation: shake 0.3s !important;
+}
+
+
+
+/* === КУРСОРЫ (CUSTOM CURSORS) === */
+
+/* 1. Обычный курсор для всей игры */
+body {
+    /* Ссылка на картинку, 0 0 - это координаты острия (левый верхний угол), auto - запасной вариант */
+    cursor: url('images/cursors/cursor_hand.png') 0 0, auto;
+}
+
+/* 2. Атака (при наведении на Слайма или Босса) */
+.slime-container, .slime-img {
+    cursor: url('images/cursors/cursor_sword.png') 0 0, pointer;
+}
+
+/* 3. Интерфейс (Кнопки, Меню, Инвентарь) */
+button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
+    cursor: url('images/cursors/cursor_hand.png') 4 0, pointer;
+}
+
+/* 4. Магия (Сферы ритуала) */
+.ritual-orb {
+    cursor: url('images/cursors/cursor_magic.png') 16 16, crosshair; /* 16 16 - центр картинки 32x32 */
+}
+
+/* 5. Уязвимые точки (если вернешь их) */
+.weak-point {
+    cursor: url('images/cursors/cursor_magic.png') 16 16, crosshair;
+}
+/* === АКТИВНЫЙ ПИТОМЕЦ (ОБНОВЛЕННЫЙ) === */
+.pet-container {
+    position: absolute;
+    bottom: 20px; /* Прижат к низу */
+    left: 20px; /* Прижат к левому краю */
+    z-index: 5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px; /* Расстояние между котом и кнопкой */
+}
+
+.pet-visual {
+    position: relative;
+    width: 140px; /* БЫЛО 100px -> СТАЛО 140px (Больше) */
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pet-img {
+    width: 120px; /* БЫЛО 80px -> СТАЛО 120px */
+    height: 120px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(0,255,255,0.6));
+    animation: pet-idle 3s infinite ease-in-out;
+    pointer-events: none; /* Чтобы клики проходили сквозь картинку */
+}
+
+/* Тень */
+.pet-shadow {
+    position: absolute;
+    bottom: 10px;
+    width: 100px;
+    height: 20px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    filter: blur(8px);
+}
+
+/* Анимация дыхания */
+@keyframes pet-idle {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+
+    50% {
+        transform: translateY(-8px) scale(1.05);
+    }
+}
+
+/* Анимация атаки (рывок вправо) */
+.pet-attack-anim {
+    animation: pet-pounce 0.4s forwards !important;
+}
+
+@keyframes pet-pounce {
+    0% {
+        transform: translateX(0);
+    }
+
+    40% {
+        transform: translateX(60px) scale(1.2);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+/* --- КНОПКА НАВЫКА --- */
+.pet-controls {
+    position: relative;
+    width: 100%;
+    height: 40px;
+}
+
+.pet-skill-btn {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, #ff9900, #cc6600);
+    border: 2px solid #ffcc00;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    text-transform: uppercase;
+    text-shadow: 1px 1px 0 #000;
+    cursor: url('images/cursors/cursor_hand.png') 4 0, pointer;
+    box-shadow: 0 4px 0 #884400; /* Объемная кнопка */
+    transition: transform 0.1s;
+}
+
+    .pet-skill-btn:active {
+        transform: translateY(4px); /* Эффект нажатия */
+        box-shadow: 0 0 0 #884400;
+    }
+
+/* Перезарядка (Темная шторка поверх кнопки) */
+.pet-cooldown {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 8px;
+    display: none; /* Скрыто по умолчанию */
+    color: white;
+    font-size: 12px;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+    /* Полоска загрузки внутри кнопки (если хочешь) */
+    .pet-cooldown::after {
+        content: '⏳';
+        font-size: 20px;
+        animation: spin 1s infinite linear;
+    }
+
+/* Эффект царапины (Scratch) */
+.scratch-effect {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: url('images/fx/scratch.png') no-repeat center;
+    background-size: contain;
+    z-index: 20;
+    pointer-events: none;
+    animation: scratch-fade 0.3s forwards;
+}
+
+@keyframes scratch-fade {
+    from {
+        opacity: 1;
+        transform: scale(0.8) rotate(-10deg);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(1.2) rotate(10deg);
+    }
+}
+/* === ПАНЕЛЬ ПИТОМЦА (В САЙДБАРЕ) === */
+.pet-visual-box {
+    width: 100%;
+    height: 120px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.pet-bg-glow {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, rgba(0, 255, 255, 0.2), transparent 70%);
+    animation: pulseGlow 3s infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+}
+
+.pet-sidebar-img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    z-index: 2;
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+    animation: pet-float 3s infinite ease-in-out;
+}
+
+@keyframes pet-float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+/* СЕТКА НАВЫКОВ (3 слота) */
+.pet-skills-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr; /* 3 колонки */
+    gap: 10px;
+    width: 100%;
+}
+
+.skill-slot {
+    aspect-ratio: 1; /* Квадратные */
+    background: #1a1b26;
+    border: 2px solid #3d59a1;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    overflow: hidden;
+    padding: 0;
+}
+
+    .skill-slot:hover {
+        border-color: #7aa2f7;
+        background: #24283b;
+    }
+
+    .skill-slot:active {
+        transform: scale(0.95);
+    }
+
+    .skill-slot.locked {
+        background: rgba(0, 0, 0, 0.5);
+        border-color: #444;
+        cursor: default;
+        transform: none;
+    }
+
+.skill-icon {
+    font-size: 24px;
+}
+
+/* Перезарядка (Радиальная "Часы") */
+.skill-cooldown {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 6px;
+    z-index: 5;
+    pointer-events: none;
+    /* Магия CSS: Конический градиент делает "пирог" */
+    /* Изначально прозрачный, JS будет менять проценты */
+    background: conic-gradient(rgba(0,0,0,0.8) 0%, transparent 0%);
+    display: none; /* Скрыто, пока навык готов */
+}
+
+/* Цифра таймера по центру */
+.skill-timer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-weight: 900;
+    font-size: 18px;
+    text-shadow: 0 0 5px #000, 0 0 10px #000;
+    z-index: 6;
+    pointer-events: none;
+    display: none;
+}
+
+/* Когда кнопка нажата, она чуть темнеет сама по себе */
+.skill-slot:active img {
+    transform: scale(0.9);
+}
+
+/* Анимация удара в окошке */
+.pet-attack-sidebar {
+    animation: sidebar-pounce 0.2s forwards;
+}
+
+@keyframes sidebar-pounce {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2) rotate(10deg);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+/* === ФИКС ДЛЯ СОБЫТИЙ === */
+#logList {
+    height: 100px; /* Фиксированная высота */
+    overflow: hidden; /* Скрываем то, что вылазит */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Новые события появляются сверху */
+}
+.skill-icon-img {
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+    z-index: 1; /* Чтобы была под шторкой кулдауна, но над фоном */
+}
+/* === ОКНО ЭВОЛЮЦИИ === */
+.evo-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.85);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(5px);
+}
+
+.evo-modal {
+    background: #1f2233;
+    border: 2px solid #7aa2f7;
+    border-radius: 15px;
+    padding: 20px;
+    width: 90%;
+    max-width: 800px;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+
+.evo-choices {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.evo-card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid #444;
+    border-radius: 10px;
+    padding: 15px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s;
+    position: relative;
+}
+
+    .evo-card:hover {
+        transform: translateY(-5px);
+        border-color: #ffd700;
+    }
+
+.evo-img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.evo-cost-box {
+    background: rgba(0,0,0,0.4);
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: auto;
+    width: 100%;
+}
+
+.btn-evolve {
+    background: linear-gradient(to bottom, #00ff00, #00aa00);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-weight: bold;
+    margin-top: 10px;
+    cursor: pointer;
+    width: 100%;
+}
+
+    .btn-evolve:disabled {
+        filter: grayscale(1);
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+/* Кнопка сброса эволюции */
+.btn-reset-evo {
+    background: #555;
+    border: 1px solid #777;
+    color: #ccc;
+    padding: 4px 8px;
+    font-size: 10px;
+    border-radius: 4px;
+    margin-top: 5px;
+    cursor: pointer;
+}
+/* === ОБУЧЕНИЕ В САЙДБАРЕ (TUTORIAL) === */
+.tutorial-panel {
+    /* Сбрасываем стили обычной панели, чтобы сделать кнопку во всю ширину */
+    padding: 0 !important;
+    border: 2px solid #00ffcc;
+    border-radius: 15px;
+    background: rgba(20, 30, 40, 0.95) !important;
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+    margin-bottom: 10px; /* Отступ снизу от других панелей */
+    overflow: hidden; /* Чтобы контент обрезался при сворачивании */
+    transition: border-color 0.3s, box-shadow 0.3s;
+    display: block; /* Убеждаемся, что блок виден */
+}
+
+/* Заголовок-кнопка (Всегда виден) */
+.tut-header {
+    background: linear-gradient(90deg, #004d40, #002220);
+    padding: 10px 15px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    color: #00ffcc;
+    font-size: 14px;
+    user-select: none;
+    border-bottom: 1px solid rgba(0, 255, 204, 0.3);
+    transition: background 0.2s;
+}
+
+    .tut-header:hover {
+        background: linear-gradient(90deg, #006655, #003330);
+    }
+
+/* Стрелочка */
+#tutArrow {
+    transition: transform 0.3s;
+    display: inline-block;
+    font-size: 12px;
+}
+
+/* Выпадающая часть с заданием */
+.tut-body {
+    padding: 15px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    /* Анимация высоты и прозрачности */
+    max-height: 500px; /* С запасом для текста */
+    opacity: 1;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, padding 0.3s ease;
+}
+
+/* === СОСТОЯНИЕ: СВЕРНУТО (.collapsed) === */
+.tutorial-panel.collapsed {
+    border-color: #444; /* Тусклая рамка */
+    box-shadow: none;
+}
+
+    .tutorial-panel.collapsed .tut-header {
+        border-bottom: 1px solid transparent; /* Убираем линию */
+        color: #aaa; /* Тусклый текст */
+        background: rgba(30, 35, 50, 0.95);
+    }
+
+    .tutorial-panel.collapsed #tutArrow {
+        transform: rotate(-90deg); /* Поворот стрелки */
+    }
+
+    .tutorial-panel.collapsed .tut-body {
+        max-height: 0;
+        opacity: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        pointer-events: none;
+    }
+
+/* Внутренние элементы (Персонаж и текст) */
+.tutorial-character {
+    width: 50px;
+    height: 50px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 50%;
+    border: 1px solid #00ffcc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.tutorial-content {
+    flex: 1;
+    min-width: 0; /* Исправляет перенос текста во Flex */
+}
+
+    .tutorial-content h4 {
+        margin: 0;
+        color: #00ffcc;
+        font-size: 13px;
+        text-transform: uppercase;
+        text-align: left;
+        border: none;
+        padding: 0;
+    }
+
+    .tutorial-content p {
+        margin: 5px 0;
+        color: #fff;
+        font-size: 12px;
+        line-height: 1.3;
+    }
+
+/* Полоска прогресса */
+.tut-progress {
+    width: 100%;
+    height: 4px; /* Сделали тоньше и компактнее */
+    background: #444;
+    border-radius: 2px;
+    margin-top: 5px;
+    overflow: hidden;
+}
+
+.tut-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: #00ffcc;
+    transition: width 0.3s;
+}
+
+.tut-counter {
+    font-size: 10px;
+    color: #aaa;
+    text-align: right;
+    margin-top: 2px;
+}
+/* === НОВЫЙ ИНВЕНТАРЬ В ШАПКЕ === */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    overflow-x: auto; /* Чтобы на мобилках можно было листать, если не влезает */
+    padding-right: 10px;
+    scrollbar-width: none; /* Скрываем скроллбар */
+}
+
+    .header-left::-webkit-scrollbar {
+        display: none;
+    }
+
+.header-inventory {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.egg-counter {
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 3px 8px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 13px;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.egg-icon-small {
+    font-size: 16px;
+    margin-right: 4px;
+    text-shadow: 0 0 5px currentColor; /* Свечение цветом редкости */
+}
+
+/* Цвета для текста количества */
+.header-count {
+    color: #fff;
+}
+
+
+.egg-icon-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    margin-right: 5px;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+}
+
+.quest-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.quest-card {
+    background: linear-gradient(135deg, #2a2e40, #1f2233);
+    border: 1px solid #445577;
+    border-radius: 10px;
+    padding: 10px;
+    width: 100%; /* На мобилках на всю ширину */
+    max-width: 250px; /* На ПК компактно */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 5px rgba(0,0,0,0.3);
+    position: relative;
+    transition: transform 0.2s;
+}
+
+    .quest-card:hover {
+        transform: translateY(-2px);
+        border-color: #ffd700;
+    }
+
+.quest-title {
+    font-size: 13px;
+    color: #fff;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.quest-desc {
+    font-size: 11px;
+    color: #aaa;
+    margin-bottom: 8px;
+}
+
+/* Прогресс бар квеста */
+.quest-progress-bg {
+    width: 100%;
+    height: 6px;
+    background: #111;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.quest-progress-fill {
+    height: 100%;
+    background: #00ffcc;
+    width: 0%;
+    transition: width 0.3s;
+}
+
+.btn-claim-quest {
+    background: linear-gradient(90deg, #ffd700, #ffaa00);
+    border: none;
+    color: #000;
+    font-weight: bold;
+    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+    animation: pulseBtn 1s infinite;
+}
+
+.quest-completed-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: #00ff00;
+    font-weight: bold;
+    font-size: 18px;
+    z-index: 10;
+}
+
+@keyframes pulseBtn {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+/* === МАГАЗИН (СЕТКА - Grid Layout) === */
+.shop-screen {
+    /* Убрали display: grid отсюда */
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    align-content: start;
+    background: rgba(20, 24, 35, 0.9);
+    margin: 15px 15px 15px 0;
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    overflow-y: auto;
+    padding: 15px;
+    box-sizing: border-box;
+    width: 100%;
+    /* Добавляем display: none по умолчанию, чтобы не вылезал */
+    display: none;
+}
+
+    /* Добавляем правило: показывать сетку ТОЛЬКО если активен */
+    .shop-screen.active {
+        display: grid !important;
+    }
+
+/* Доска заданий: Растягиваем от 1-й линии сетки до последней (-1) */
+.guild-board-container {
+    grid-column: 1 / -1;
+    margin-bottom: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    padding: 15px;
+    border: 1px dashed #ffd700;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.shop-column {
+    background: rgba(0,0,0,0.2);
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Убираем ширину, сетка сама решит */
+    width: auto;
+}
+
+.forge-screen {
+    /* Убрали display: flex отсюда */
+    flex-direction: column;
+    background: rgba(20, 24, 35, 0.9);
+    margin: 15px 15px 15px 0;
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    padding: 20px;
+    overflow-y: auto;
+    display: none; /* Скрыто по умолчанию */
+}
+
+    /* Показывать флекс ТОЛЬКО если активен */
+    .forge-screen.active {
+        display: flex !important;
+    }
+
+/* АДАПТАЦИЯ ПОД ТЕЛЕФОН */
+@media (max-width: 768px) {
+    .shop-screen {
+        grid-template-columns: 1fr; /* Одна колонка на телефоне */
+        margin: 0;
+        border-radius: 0;
+        height: auto;
+        padding-bottom: 80px; /* Место под меню */
+    }
+}
+/* === ПАНЕЛЬ ПИТОМЦА (УМНАЯ) === */
+.pet-panel-hud {
+    /* Стили для ПК (Внутри Сайдбара) */
+    width: 100%;
+    background: rgba(20, 24, 35, 0.85); /* Цвет как у других панелей */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 15px;
+    box-sizing: border-box;
+    margin-bottom: 15px; /* Отступ от следующей панели */
+    position: relative;
+    z-index: 10;
+}
+
+/* Картинка и имя */
+.pet-hud-visual {
+    text-align: center;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+    .pet-hud-visual img {
+        width: 100px; /* Размер на ПК */
+        height: 100px;
+        object-fit: contain;
+        filter: drop-shadow(0 0 5px rgba(0,0,0,0.5));
+        animation: pet-float 3s infinite ease-in-out;
+    }
+
+    .pet-hud-visual h3 {
+        margin: 5px 0 0 0;
+        color: #ffd700;
+        font-size: 16px;
+        text-transform: uppercase;
+    }
+
+/* Кнопки скиллов (Сетка на ПК) */
+.pet-skills-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+}
+
+/* === АДАПТАЦИЯ ПОД ТЕЛЕФОН === */
+@media (max-width: 768px) {
+    .pet-panel-hud {
+        /* Превращаем панель в прозрачный слой снизу */
+        position: absolute;
+        bottom: 85px; /* Над меню */
+        left: 50%;
+        transform: translateX(-50%);
+        width: auto; /* Ширина по содержимому */
+        min-width: 300px;
+        background: transparent; /* Без фона */
+        border: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column; /* Вертикально: Сначала кот, потом кнопки */
+        align-items: center;
+        pointer-events: none; /* Чтобы клики мимо кнопок проходили к слайму */
+    }
+
+    /* Возвращаем отображение кота! */
+    .pet-hud-visual {
+        display: flex !important; /* Принудительно показываем */
+        margin-bottom: 5px;
+        pointer-events: none; /* Кот не мешает кликать */
+    }
+
+        /* Делаем кота на телефоне поменьше */
+        .pet-hud-visual img {
+            width: 70px;
+            height: 70px;
+            filter: drop-shadow(0 0 2px #000); /* Тень для контраста */
+        }
+
+        /* Скрываем имя на телефоне (мешает) */
+        .pet-hud-visual h3 {
+            display: none;
+        }
+
+    /* Кнопки в ряд */
+    .pet-skills-grid {
+        display: flex !important;
+        justify-content: center;
+        gap: 20px;
+        pointer-events: auto; /* А вот кнопки кликабельны */
+    }
+
+    .skill-slot {
+        width: 55px;
+        height: 55px;
+        background: rgba(0, 0, 0, 0.6); /* Полупрозрачный фон кружков */
+        border: 2px solid #ffd700;
+        border-radius: 50%;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    .skill-icon-img {
+        width: 30px;
+        height: 30px;
+    }
+}
+/* Компактный вид яиц для телефона */
+@media (max-width: 768px) {
+    /* Уменьшаем отступы в шапке */
+    .header-left {
+        gap: 4px;
+    }
+
+    /* Уменьшаем сами плашки с яйцами */
+    .egg-counter {
+        padding: 2px 6px;
+        font-size: 11px;
+        border-radius: 8px;
+        min-width: auto; /* Убираем минимальную ширину */
+    }
+
+    /* Уменьшаем иконки яиц */
+    .egg-icon-img {
+        width: 16px;
+        height: 16px;
+        margin-right: 3px;
+    }
+
+    /* Чуть уменьшаем отображение золота, чтобы дать место яйцам */
+    .gold-display {
+        font-size: 14px;
+        padding: 3px 8px;
     }
 }

@@ -9,14 +9,16 @@
 <body>
 
     <div class="header">
-        <div style="display: flex; gap: 10px; align-items: center;">
+        <div class="header-left">
             <button id="btnSound" class="sound-btn" onclick="toggleSound()">🔊</button>
-
             <button id="btnBackpack" class="sound-btn mobile-only" onclick="toggleBackpack()">🎒</button>
 
             <div class="gold-display" onclick="onDevSecretClick()" style="cursor: pointer; user-select: none;">
-                <img src="images/coin.png" class="coin-icon" alt="Gold">
+                <img src="images/ui/coin.png" class="coin-icon" alt="Gold">
                 <span id="goldCount">0</span>
+            </div>
+
+            <div id="headerInventory" class="header-inventory">
             </div>
         </div>
 
@@ -40,14 +42,58 @@
     <div class="game-container">
 
         <div class="sidebar desktop-only">
+
             <div class="panel">
-                <h2>Инвентарь</h2>
-                <div id="inventoryList"></div>
-            </div>
-            <div class="panel" style="margin-top: 10px;">
                 <h2>События</h2>
                 <div id="logList"></div>
             </div>
+
+            <div id="tutorialPanel" class="panel tutorial-panel">
+                <div class="tut-header" onclick="toggleTutorial()">
+                    <span id="tutTitleHeader">ОБУЧЕНИЕ</span>
+                    <span id="tutArrow">▼</span>
+                </div>
+
+                <div id="tutBody" class="tut-body">
+                    <div class="tutorial-character">
+                        <img src="images/ui/guide_slime.png" style="width: 50px; height: 50px; object-fit: contain;">
+                    </div>
+                    <div class="tutorial-content">
+                        <h4 id="tutTitle">Задание</h4>
+                        <p id="tutText">Текст задания...</p>
+                        <div class="tut-progress">
+                            <div id="tutBar" class="tut-bar-fill"></div>
+                        </div>
+                        <div id="tutCounter" class="tut-counter">0 / 1</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="activeQuestPanel" class="panel tutorial-panel" style="display: none; border-color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);">
+                <div class="tut-header" style="background: linear-gradient(90deg, #664400, #332200); color: #ffd700;">
+                    <span>📜 ТЕКУЩАЯ ЦЕЛЬ</span>
+                </div>
+                <div class="tut-body">
+                    <div class="tutorial-character">
+                        <span style="font-size: 24px;">📜</span>
+                    </div>
+                    <div class="tutorial-content">
+                        <h4 id="actQuestTitle" style="color: #ffd700;">Нет задания</h4>
+                        <p id="actQuestDesc" style="color: #fff;">Зайдите в гильдию, чтобы взять контракт.</p>
+
+                        <div class="tut-progress">
+                            <div id="actQuestBar" class="tut-bar-fill" style="background: #ffd700;"></div>
+                        </div>
+                        <div id="actQuestCounter" class="tut-counter">0 / 0</div>
+
+                        <button id="btnClaimSidebar" onclick="claimActiveQuest()"
+                                style="display: none; width: 100%; margin-top: 5px; background: #ffd700; border: none; font-weight: bold; cursor: pointer; padding: 5px; border-radius: 4px;">
+                            ЗАБРАТЬ НАГРАДУ
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <div id="gameScreen" class="screen active">
@@ -59,14 +105,50 @@
                     </div>
                 </div>
 
+                <div id="bossLabel" class="boss-label">⚠️ BOSS FIGHT ⚠️</div>
+
+                <div id="playerHpContainer" class="player-hp-container" style="display: none;">
+                    <span class="heart">❤️</span><span class="heart">❤️</span><span class="heart">❤️</span>
+                </div>
+
+                <div id="ritualLayer" class="ritual-layer"></div>
+
                 <div class="stats-overlay">Убито: <span id="killCount">0</span></div>
 
                 <div class="slime-container" id="slimeArea" onclick="clickSlime(event)">
                     <div class="slime-shadow"></div>
-                    <img src="images/slime_green_1.png" class="slime-img" alt="Слайм">
+                    <img src="images/slimes/slime_green_1.png" class="slime-img" alt="Слайм">
                 </div>
 
-                <div class="mobile-hint">Инвентарь внизу ⬇️</div>
+                <div id="petPanel" class="pet-panel-hud" style="display: none;">
+                    <div class="pet-hud-visual">
+                        <h3 id="petNameTitle">Имя Питомца</h3>
+                        <img id="sidebarPetImg" src="images/pets/pet_blob.png">
+                    </div>
+
+                    <div class="pet-skills-grid">
+                        <button id="skillSlot1" class="skill-slot" onclick="activatePetSkill(1)">
+                            <img src="images/ui/skill_slash.png" class="skill-icon-img"
+                                 onerror="this.style.display='none'; this.parentNode.insertAdjacentHTML('afterbegin', '<span class=\'skill-icon\'>⚔️</span>')">
+                            <div id="skillCd1" class="skill-cooldown"></div>
+                            <span id="skillTimer1" class="skill-timer"></span>
+                        </button>
+
+                        <button id="skillSlot2" class="skill-slot" onclick="activatePetSkill(2)">
+                            <img src="images/ui/skill_spit.png" class="skill-icon-img"
+                                 onerror="this.style.display='none'; this.parentNode.insertAdjacentHTML('afterbegin', '<span class=\'skill-icon\'>💧</span>')">
+                            <div id="skillCd2" class="skill-cooldown"></div>
+                            <span id="skillTimer2" class="skill-timer"></span>
+                        </button>
+
+                        <button id="skillSlot3" class="skill-slot" onclick="activatePetSkill(3)">
+                            <img src="images/ui/skill_fury.png" class="skill-icon-img"
+                                 onerror="this.style.display='none'; this.parentNode.insertAdjacentHTML('afterbegin', '<span class=\'skill-icon\'>🔥</span>')">
+                            <div id="skillCd3" class="skill-cooldown"></div>
+                            <span id="skillTimer3" class="skill-timer"></span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -79,6 +161,15 @@
         </div>
 
         <div id="shopScreen" class="screen shop-screen">
+            <div id="guildBoard" class="guild-board-container" style="display: none;">
+                <h2 style="color: #ffd700; text-shadow: 0 0 10px #ffaa00;">📜 Контракты Гильдии</h2>
+                <div id="questList" class="quest-list">
+                </div>
+                <div id="questTimer" style="color: #aaa; font-size: 11px; margin-top: 5px; text-align: center;">
+                    Новые задания доступны сразу после выполнения текущего
+                </div>
+            </div>
+
             <div class="shop-column">
                 <h2>Лавка Гильдии</h2>
                 <div class="sell-all-container">
@@ -86,13 +177,14 @@
                 </div>
                 <div id="sellList" class="scrollable-list"></div>
             </div>
+
             <div class="shop-column">
                 <h2>Загадочная лавка</h2>
                 <div class="shop-card lootbox-card">
                     <h3>Мистический Сундук</h3>
-                    <img src="images/lootbox.png" class="lootbox-img" alt="Сундук">
+                    <img src="images/ui/lootbox.png" class="lootbox-img" alt="Сундук">
                     <p>Испытай удачу!</p>
-                    <button class="btn-buy" onclick="buyLootbox()">Купить (100 <img src="images/coin.png" style="width:22px; vertical-align:middle;">)</button>
+                    <button class="btn-buy" onclick="buyLootbox()">Купить (100 <img src="images/ui/coin.png" style="width:22px; vertical-align:middle;">)</button>
                 </div>
             </div>
         </div>
@@ -103,16 +195,48 @@
 
     </div>
 
-    <script src="data.js"></script>
-    <script src="game.js"></script>
+    <div id="transitionLayer" class="transition-layer">
+        <video id="transVideo" src="video/transition.mp4" muted playsinline></video>
+        <button class="skip-btn" onclick="skipTransition()">SKIP >></button>
+    </div>
 
     <div id="devPanel" class="dev-panel" style="display: none;">
         <h3>🛠 GOD MODE 🛠</h3>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button onclick="devModKills(-10)">💀 -10 Kills</button>
+            <button onclick="devModKills(10)">💀 +10 Kills</button>
+        </div>
         <button onclick="devAddGold()">💰 +5000 Золота</button>
         <button onclick="devAddLoot()">🥚 +10 Яиц (Всех)</button>
+        <button onclick="devUnlockCollections()">💎 Все Предметы</button>
+
         <button onclick="devReset()">❌ Сброс Прогресса</button>
         <button onclick="toggleDevPanel()" style="background: #555; margin-top: 20px;">Закрыть</button>
     </div>
+
+    <div id="evoModal" class="evo-modal-overlay" style="display: none;">
+        <div class="evo-modal">
+            <h2 id="evoTitle">Эволюция</h2>
+            <p class="evo-subtitle">Выберите путь развития. Пути назад не будет (без золота)!</p>
+            <div class="evo-choices" id="evoChoicesContainer"></div>
+            <button class="evo-close-btn" onclick="closeEvoModal()">Отмена</button>
+        </div>
+    </div>
+
+    <div id="loreModal" class="evo-modal-overlay" style="display: none;" onclick="closeLoreModal()">
+        <div class="evo-modal" style="border-color: #ffcc00; max-width: 400px;" onclick="event.stopPropagation()">
+            <h2 id="loreTitle" style="color: #ffcc00;">Название</h2>
+            <img id="loreImg" src="" style="width: 120px; height: 120px; object-fit: contain; margin: 10px 0;">
+            <p id="loreFlavor" style="font-style: italic; color: #aaa; margin-bottom: 15px;">"Художественный текст..."</p>
+            <div id="loreBuff" style="background: rgba(255, 215, 0, 0.1); padding: 10px; border-radius: 5px; color: #fff; font-weight: bold;">
+                Эффект
+            </div>
+            <button class="evo-close-btn" onclick="closeLoreModal()" style="margin-top: 15px;">Закрыть</button>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="game.js"></script>
 
 </body>
 </html>
