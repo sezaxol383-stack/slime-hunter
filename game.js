@@ -9,7 +9,10 @@ let gameState = {
     activeQuests: [],
     questOptions: [], // Три задания на выбор в Гильдии
     activeQuest: null, // Одно выбранное задание
+    selectedLocation: null,
 
+
+    // Проверка
     // --- ПИТОМЦЫ ---
     pets: [],
     equippedPet: null,
@@ -378,6 +381,7 @@ function switchTab(tabName) {
     }
    
     if (tabName === 'forge') updateForgeUI();
+    if (tabName === 'map') updateMapUI();
     checkTutorialProgress('tab', tabName);
 }
 
@@ -1141,15 +1145,31 @@ function spawnDamageNumber(x, y, amount, isCrit, isAuto = false) {
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 800);
 }
-
-function changeSlimeSkin() {
-    let newIndex = 0;
+// Возвращает индекс локации, которая должна быть сейчас
+function getTargetLocationIndex() {
+    // 1. Считаем, какая локация МАКСИМАЛЬНО доступна по убийствам
+    let maxIndex = 0;
     for (let i = locations.length - 1; i >= 0; i--) {
         if (gameState.kills >= locations[i].minKills) {
-            newIndex = i;
+            maxIndex = i;
             break;
         }
     }
+
+    // 2. Если игрок выбрал локацию вручную (через Карту), проверяем, открыта ли она
+    if (gameState.selectedLocation !== null) {
+        // Не даем выбрать закрытую локацию (на всякий случай)
+        if (gameState.selectedLocation <= maxIndex) {
+            return gameState.selectedLocation;
+        }
+    }
+
+    // 3. Иначе возвращаем максимальную доступную (авто-режим)
+    return maxIndex;
+}
+function changeSlimeSkin() {
+    // Используем нашу новую функцию для выбора уровня
+    let newIndex = getTargetLocationIndex();
 
     if (newIndex !== currentLocationIndex) {
         let videoPath = 'video/transition.mp4';
@@ -2256,6 +2276,83 @@ function checkLayout() {
         }
     }
 }
+
+
+// ==========================================
+// === СИСТЕМА КАРТЫ (ПОРТАЛ) ===
+// ==========================================
+
+function updateMapUI() {
+    const grid = document.getElementById('mapGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    // Определяем максимальную открытую локацию по убийствам
+    let maxIndex = 0;
+    for (let i = locations.length - 1; i >= 0; i--) {
+        if (gameState.kills >= locations[i].minKills) {
+            maxIndex = i;
+            break;
+        }
+    }
+
+    locations.forEach((loc, index) => {
+        const isLocked = index > maxIndex;
+        const isActive = currentLocationIndex === index;
+
+        const card = document.createElement('div');
+        // Добавляем классы: locked если закрыто, active-loc если мы там
+        card.className = `location-card ${isLocked ? 'locked' : ''} ${isActive ? 'active-loc' : ''}`;
+
+        // Иконки для красоты (можешь поменять на свои эмодзи)
+        const icons = ['🌲', '🌋', '❄️', '🏰'];
+        const icon = icons[index] || '❓';
+
+        card.innerHTML = `
+            <div class="loc-icon">${icon}</div>
+            <div class="loc-info">
+                <h4>${loc.name}</h4>
+                <p>${isLocked ? `Нужно убить ${loc.minKills} монстров` : 'Открыто'}</p>
+            </div>
+            ${isActive ? '<div class="current-badge">ВЫ ЗДЕСЬ</div>' : ''}
+        `;
+
+        // Клик работает только если локация открыта
+        if (!isLocked) {
+            card.onclick = () => travelToLocation(index);
+        }
+
+        grid.appendChild(card);
+    });
+}
+
+function travelToLocation(index) {
+    if (currentLocationIndex === index) return; // Мы уже здесь, ничего не делаем
+
+    // Запоминаем выбор игрока в сохранении
+    gameState.selectedLocation = index;
+
+    // Принудительно запускаем смену скина и музыки
+    changeSlimeSkin();
+
+    // Закрываем карту и возвращаемся в игру
+    switchTab('game');
+
+    // Показываем сообщение
+    const locName = locations[index].name;
+    // alert(`✈️ Вы отправились в: ${locName}`); // Можешь раскомментировать, если хочешь
+    saveGame();
+}
+
+
+
+
+
+
+
+
+
+
 
 // Слушаем изменение размера окна
 window.addEventListener('resize', checkLayout);

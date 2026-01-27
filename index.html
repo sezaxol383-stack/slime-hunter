@@ -27,6 +27,7 @@
             <button class="nav-btn" onclick="switchTab('forge')">Кузница</button>
             <button class="nav-btn" onclick="switchTab('shop')">Гильдия</button>
             <button class="nav-btn" onclick="switchTab('collection')">Коллекция</button>
+            <button class="nav-btn" onclick="switchTab('map')">Карта</button>
         </div>
 
         <button class="menu-btn mobile-nav" onclick="toggleMenu()">☰</button>
@@ -36,6 +37,7 @@
             <button class="menu-item" onclick="selectMobileTab('forge')">🔥 Кузница</button>
             <button class="menu-item" onclick="selectMobileTab('shop')">💰 Гильдия</button>
             <button class="menu-item" onclick="selectMobileTab('collection')">💎 Коллекция</button>
+            <button class="menu-item" onclick="selectMobileTab('map')">🗺️ Карта Мира</button>
         </div>
     </div>
 
@@ -192,7 +194,14 @@
         <div id="collectionScreen" class="screen collection-screen">
             <div class="collection-grid" id="collectionGrid"></div>
         </div>
-
+        <div id="mapScreen" class="screen map-screen" style="display: none;">
+            <div class="map-header">
+                <h2>🗺️ Портал Миров 🗺️</h2>
+                <p style="color: #aaa; text-align: center;">Выбирай, где охотиться</p>
+            </div>
+            <div id="mapGrid" class="map-grid">
+            </div>
+        </div>
     </div>
 
     <div id="transitionLayer" class="transition-layer">
