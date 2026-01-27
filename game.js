@@ -968,29 +968,55 @@ function updateGameUI() {
     document.getElementById('maxHp').innerText = currentSlime.maxHp;
     document.getElementById('killCount').innerText = gameState.kills;
 
-    // --- ОБНОВЛЕНИЕ ИНВЕНТАРЯ В ШАПКЕ ---
+    // Внутри функции updateGameUI()...
+
+    // --- ОБНОВЛЕНИЕ ИНВЕНТАРЯ ---
+
+    // 1. Считаем общую сумму яиц
+    let totalEggs = 0;
+    rarities.forEach(r => {
+        totalEggs += (gameState.inventory[r.id] || 0);
+    });
+
+    // Обновляем цифру в мобильной шапке
+    const totalEl = document.getElementById('totalEggCountHtml');
+    if (totalEl) totalEl.innerText = totalEggs;
+
+    // 2. Обновляем ленту в шапке (для ПК)
     const headerInv = document.getElementById('headerInventory');
     if (headerInv) {
         headerInv.innerHTML = '';
-
-        // Разворачиваем, чтобы Common был первым
-        const reversedRarities = [...rarities].reverse();
-
-        reversedRarities.forEach(r => {
+        // На ПК показываем как раньше (развернуто)
+        [...rarities].reverse().forEach(r => {
             const count = gameState.inventory[r.id] || 0;
-
             const div = document.createElement('div');
-            // Если 0, добавляем класс empty (скроет на телефоне)
-            div.className = `egg-counter ${count === 0 ? 'empty' : ''}`;
-
-            // ВСТАВЛЯЕМ КАРТИНКУ
-            // Если картинки нет, сработает onerror и покажет 🥚
+            div.className = `egg-counter`;
             div.innerHTML = `
-                <img src="${r.image}" class="egg-icon-img" onerror="this.style.display='none'; this.parentNode.insertAdjacentHTML('afterbegin', '🥚')">
+                <img src="${r.image}" class="egg-icon-img" onerror="this.style.display='none'">
                 <span class="header-count">${count}</span>
             `;
-
             headerInv.appendChild(div);
+        });
+    }
+
+    // 3. Обновляем РЮКЗАК В САЙДБАРЕ (Детальный список)
+    const sidebarList = document.getElementById('sidebarInventoryList');
+    if (sidebarList) {
+        sidebarList.innerHTML = '';
+        rarities.forEach(r => {
+            const count = gameState.inventory[r.id] || 0;
+            // Показываем, даже если 0, чтобы игрок видел, чего нет
+            const row = document.createElement('div');
+            row.className = 'sidebar-inv-row';
+            // Добавляем цвет названия в зависимости от редкости
+            row.innerHTML = `
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <img src="${r.image}" style="width:24px; height:24px; object-fit:contain;">
+                    <span class="${r.class}">${r.name}</span>
+                </div>
+                <span style="font-weight:bold; color:#fff;">x${count}</span>
+            `;
+            sidebarList.appendChild(row);
         });
     }
 }

@@ -17,7 +17,10 @@
                 <img src="images/ui/coin.png" class="coin-icon" alt="Gold">
                 <span id="goldCount">0</span>
             </div>
-
+            <div id="mobileEggTotal" class="egg-total-badge mobile-only">
+                <img src="images/items/egg_common.png" style="width: 20px; height: 20px;">
+                <span id="totalEggCountHtml">0</span>
+            </div>
             <div id="headerInventory" class="header-inventory">
             </div>
         </div>
@@ -44,6 +47,12 @@
     <div class="game-container">
 
         <div class="sidebar desktop-only">
+
+            <div class="panel">
+                <h2>🎒 Рюкзак</h2>
+                <div id="sidebarInventoryList" class="sidebar-inv-grid">
+                </div>
+            </div>
 
             <div class="panel">
                 <h2>События</h2>
@@ -194,6 +203,7 @@
         <div id="collectionScreen" class="screen collection-screen">
             <div class="collection-grid" id="collectionGrid"></div>
         </div>
+
         <div id="mapScreen" class="screen map-screen" style="display: none;">
             <div class="map-header">
                 <h2>🗺️ Портал Миров 🗺️</h2>

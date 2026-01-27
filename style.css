@@ -2255,3 +2255,47 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     border-radius: 4px;
     font-weight: bold;
 }
+/* === ОБЩИЙ СЧЕТЧИК ЯИЦ (МОБИЛКИ) === */
+.egg-total-badge {
+    display: none; /* Скрыто на ПК */
+    align-items: center;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 5px 10px;
+    border-radius: 12px;
+    border: 1px solid #fff;
+    margin-right: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #fff;
+    gap: 5px;
+}
+
+/* === ИНВЕНТАРЬ В САЙДБАРЕ === */
+.sidebar-inv-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
+
+.sidebar-inv-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+/* === АДАПТАЦИЯ (ПЕРЕКЛЮЧЕНИЕ) === */
+@media (max-width: 768px) {
+    /* 1. Показываем общий счетчик */
+    .egg-total-badge {
+        display: flex !important;
+    }
+
+    /* 2. СКРЫВАЕМ детальную ленту яиц в шапке */
+    .header-inventory {
+        display: none !important;
+    }
+}
