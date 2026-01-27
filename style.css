@@ -677,6 +677,14 @@ h2 {
         /* Убираем старые отступы, так как теперь позиция задается через JS (top/left) */
         margin-bottom: 0;
         position: absolute; /* Гарантируем, что он "плавает" */
+        top: 40% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+    }
+    /* Если это БОСС, делаем его чуть меньше на телефоне, чтобы не вылезал */
+    .slime-img.boss {
+        /* На ПК он scale(2.5), на телефоне сделаем поменьше */
+        transform: scale(1.8) !important;
     }
 
     .slime-img {
@@ -2073,10 +2081,10 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     .pet-panel-hud {
         /* Превращаем панель в прозрачный слой снизу */
         position: absolute;
-        bottom: 85px; /* Над меню */
+        bottom: 70px; /* Над меню */
         left: 50%;
-        transform: translateX(-50%);
-        width: auto; /* Ширина по содержимому */
+        transform: translateX(-50%) scale(0.8);
+        width: 100%; /* Ширина по содержимому */
         min-width: 300px;
         background: transparent; /* Без фона */
         border: none;
@@ -2090,9 +2098,10 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
 
     /* Возвращаем отображение кота! */
     .pet-hud-visual {
-        display: flex !important; /* Принудительно показываем */
-        margin-bottom: 5px;
-        pointer-events: none; /* Кот не мешает кликать */
+        margin-bottom: -10px; /* Отрицательный отступ стянет элементы */
+        position: relative;
+        z-index: 0; /* Убираем на задний план */
+        opacity: 0.8; /* Делаем полупрозрачным, чтобы видеть слайма сквозь него */
     }
 
         /* Делаем кота на телефоне поменьше */
@@ -2131,17 +2140,24 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
 }
 /* Компактный вид яиц для телефона */
 @media (max-width: 768px) {
-    /* Уменьшаем отступы в шапке */
+    /* Внутри @media (max-width: 768px) */
+
     .header-left {
-        gap: 4px;
+        /* Разрешаем скролл, если не влезает */
+        overflow-x: auto;
+        justify-content: flex-start; /* Прижимаем влево */
+        padding-right: 10px;
     }
 
-    /* Уменьшаем сами плашки с яйцами */
     .egg-counter {
-        padding: 2px 6px;
-        font-size: 11px;
-        border-radius: 8px;
-        min-width: auto; /* Убираем минимальную ширину */
+        /* ЗАПРЕЩАЕМ сжиматься */
+        flex-shrink: 0;
+        margin-right: 5px;
+    }
+
+    /* Скрываем полосу прокрутки, чтобы было красиво */
+    .header-left::-webkit-scrollbar {
+        display: none;
     }
 
     /* Уменьшаем иконки яиц */
