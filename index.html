@@ -25,22 +25,16 @@
             </div>
         </div>
 
-        <div class="nav-buttons desktop-nav">
-            <button class="nav-btn active" onclick="switchTab('game')">Охота</button>
-            <button class="nav-btn" onclick="switchTab('forge')">Кузница</button>
-            <button class="nav-btn" onclick="switchTab('shop')">Гильдия</button>
-            <button class="nav-btn" onclick="switchTab('collection')">Коллекция</button>
-            <button class="nav-btn" onclick="switchTab('map')">Карта</button>
-        </div>
+
 
         <button class="menu-btn mobile-nav" onclick="toggleMenu()">☰</button>
 
         <div id="dropdownMenu" class="dropdown-menu">
             <button class="menu-item active" onclick="selectMobileTab('game')">⚔️ Охота</button>
-            <button class="menu-item" onclick="selectMobileTab('forge')">🔥 Кузница</button>
+            <button class="menu-item" onclick="selectMobileTab('forge')">🔥 Дом</button>
             <button class="menu-item" onclick="selectMobileTab('shop')">💰 Гильдия</button>
             <button class="menu-item" onclick="selectMobileTab('collection')">💎 Коллекция</button>
-            <button class="menu-item" onclick="selectMobileTab('map')">🗺️ Карта Мира</button>
+            <button class="menu-item" onclick="selectMobileTab('map')">🗺️ Мир</button>
         </div>
     </div>
 
@@ -48,10 +42,8 @@
 
         <div class="sidebar desktop-only">
 
-            <div class="panel mobile-only">
-                <h2>🎒 Рюкзак</h2>
-                <div id="sidebarInventoryList" class="sidebar-inv-grid">
-                </div>
+            <div class="panel mobile-only"> <h2>🎒 Рюкзак</h2>
+                <div id="sidebarInventoryList" class="sidebar-inv-grid"> </div>
             </div>
 
             <div class="panel">
@@ -165,7 +157,7 @@
 
         <div id="forgeScreen" class="screen forge-screen">
             <div class="forge-header">
-                <h2 style="color: #ff5500; font-size: 24px;">🔥 Великая Кузница 🔥</h2>
+                <h2 style="color: #ff5500; font-size: 24px;">Наковальня</h2>
                 <p style="color: #aaa; margin-top: -10px;">Куй железо, пока горячо!</p>
             </div>
             <div id="upgradesList" class="upgrades-container"></div>
@@ -203,7 +195,17 @@
         <div id="collectionScreen" class="screen collection-screen">
             <div class="collection-grid" id="collectionGrid"></div>
         </div>
+        <div class="sidebar right-sidebar desktop-only">
+            <h2 style="color: #fff; margin-bottom: 10px;">МЕНЮ</h2>
 
+            <div class="nav-vertical">
+                <button class="nav-btn active" onclick="switchTab('game')">⚔️ Охота</button>
+                <button class="nav-btn" onclick="switchTab('forge')">🔥 Дом</button>
+                <button class="nav-btn" onclick="switchTab('shop')">💰 Гильдия</button>
+                <button class="nav-btn" onclick="switchTab('collection')">💎 Коллекция</button>
+                <button class="nav-btn" onclick="switchTab('map')">🗺️ Мир</button>
+            </div>
+        </div>
         <div id="mapScreen" class="screen map-screen" style="display: none;">
             <div class="map-header">
                 <h2>🗺️ Портал Миров 🗺️</h2>
@@ -212,6 +214,7 @@
             <div id="mapGrid" class="map-grid">
             </div>
         </div>
+
     </div>
 
     <div id="transitionLayer" class="transition-layer">

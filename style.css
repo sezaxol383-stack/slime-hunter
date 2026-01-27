@@ -58,7 +58,7 @@ body {
 /* === ШАПКА === */
 .header {
     width: 100%;
-    max-width: 900px;
+    max-width: 1280px;
     height: 60px;
     display: flex;
     justify-content: space-between;
@@ -108,7 +108,7 @@ body {
 /* === ИГРОВОЙ КОНТЕЙНЕР (ОБЩИЙ) === */
 .game-container {
     width: 100%;
-    max-width: 900px;
+    max-width: 1280px;
     display: flex;
     flex-direction: row;
     align-items: stretch;
@@ -631,16 +631,9 @@ h2 {
             display: flex;
         }
 
-    /* 3. ИСКЛЮЧЕНИЕ: В магазине показываем сайдбар встроенным */
+    /* 3. ИСКЛЮЧЕНИЕ: В магазине СКРЫВАЕМ сайдбар полностью */
     .game-container.shop-mode .sidebar {
-        display: flex;
-        position: relative;
-        top: 0;
-        height: auto;
-        background: transparent;
-        z-index: 1;
-        margin-bottom: 20px;
-        order: 1;
+        display: none !important; /* <--- БЫЛО display: flex, СТАЛО none */
     }
 
     .game-container.shop-mode ~ .header #btnBackpack {
@@ -2296,6 +2289,66 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
 
     /* 2. СКРЫВАЕМ детальную ленту яиц в шапке */
     .header-inventory {
+        display: none !important;
+    }
+}
+/* === ПРАВОЕ МЕНЮ (ПК) === */
+.right-sidebar {
+    width: 220px; /* Фиксированная ширина */
+    flex-shrink: 0; /* Запрещаем сжиматься */
+    border-left: 1px solid rgba(255,255,255,0.1);
+    padding: 10px 15px 10px 0; /* Отступы зеркально левому */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+}
+
+.nav-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+/* Растягиваем кнопки на всю ширину колонки */
+.right-sidebar .nav-btn {
+    width: 100%;
+    text-align: left; /* Текст слева */
+    padding: 12px 15px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px; /* Отступ от иконки */
+}
+
+    /* Активная кнопка подсвечивается ярче */
+    .right-sidebar .nav-btn.active {
+        background: linear-gradient(90deg, var(--accent), transparent);
+        border-left: 4px solid #fff;
+        border-radius: 4px;
+    }
+
+/* Чистим шапку, так как кнопок там больше нет */
+.header {
+    justify-content: center; /* Центрируем ресурсы */
+}
+
+.header-left {
+    justify-content: center; /* Центрируем контент внутри левой части */
+    flex: initial; /* Не растягивать */
+    width: auto;
+}
+/* === СКРЫВАЕМ ПРАВОЕ МЕНЮ НА ТЕЛЕФОНЕ === */
+@media (max-width: 768px) {
+    .right-sidebar {
+        display: none !important;
+    }
+}
+/* === СКРЫТИЕ МОБИЛЬНЫХ ЭЛЕМЕНТОВ НА ПК === */
+@media (min-width: 769px) {
+    .mobile-only {
         display: none !important;
     }
 }

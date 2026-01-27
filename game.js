@@ -1052,7 +1052,7 @@ function updateCollectionUI() {
     const bossSection = document.createElement('div');
     bossSection.style.textAlign = 'center';
     bossSection.style.width = '100%';
-    bossSection.innerHTML = `<h3 style="color: #ff3333; text-transform: uppercase;">💀 Трофеи Боссов 💀</h3>`;
+    bossSection.innerHTML = `<h3 style="color: #ff3333; text-transform: uppercase;">Трофеи</h3>`;
 
     const bossContainer = document.createElement('div');
     bossContainer.className = 'collection-grid';
@@ -1080,7 +1080,7 @@ function updateCollectionUI() {
 
     const collectionSection = document.createElement('div');
     collectionSection.style.textAlign = 'center'; collectionSection.style.width = '100%';
-    collectionSection.innerHTML = `<h3 style="color: #aaddff">Коллекция Слаймов</h3>`;
+    collectionSection.innerHTML = `<h3 style="color: #aaddff">Коллекция</h3>`;
 
     const standardContainer = document.createElement('div');
     standardContainer.className = 'collection-grid';
@@ -1103,12 +1103,12 @@ function updateCollectionUI() {
     const ritualSection = document.createElement('div');
     ritualSection.style.margin = "20px 0"; ritualSection.style.textAlign = "center";
     const canRitual = gameState.unlockedCollectibles.length >= 5;
-    ritualSection.innerHTML = `<button onclick="performRitual()" style="background: linear-gradient(45deg, #ff0055, #ff00cc); border: 3px solid #fff; color: white; padding: 15px 40px; border-radius: 50px; font-weight: bold; cursor: pointer; opacity: ${canRitual ? '1' : '0.5'}; filter: ${canRitual ? 'none' : 'grayscale(1)'};">🔮 Провести Ритуал 🔮</button>`;
+    ritualSection.innerHTML = `<button onclick="performRitual()" style="background: linear-gradient(45deg, #ff0055, #ff00cc); border: 3px solid #fff; color: white; padding: 15px 40px; border-radius: 50px; font-weight: bold; cursor: pointer; opacity: ${canRitual ? '1' : '0.5'}; filter: ${canRitual ? 'none' : 'grayscale(1)'};">Ритуал </button>`;
     grid.appendChild(ritualSection);
 
     const artifactSection = document.createElement('div');
     artifactSection.style.textAlign = 'center'; artifactSection.style.width = '100%';
-    artifactSection.innerHTML = `<h3 style="color: #ffcc00">Древние Артефакты</h3>`;
+    artifactSection.innerHTML = `<h3 style="color: #ffcc00">Артефакты</h3>`;
     const artContainer = document.createElement('div');
     artContainer.className = 'collection-grid';
     artContainer.style.justifyContent = 'center';
