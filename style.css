@@ -282,17 +282,6 @@ h2 {
     animation: shadow-pulse 2s ease-in-out infinite;
 }
 
-@keyframes shadow-pulse {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 0.4;
-    }
-
-    50% {
-        transform: scale(1.1);
-        opacity: 0.2;
-    }
-}
 
 
 .collection-screen {
@@ -520,28 +509,7 @@ h2 {
     text-shadow: 0 0 10px #ff4500;
 }
 
-@keyframes floatUp {
-    to {
-        opacity: 0;
-        transform: translateY(-80px);
-    }
-}
 
-@keyframes damageShake {
-    0%, 100% {
-        transform: scale(1);
-        filter: none;
-    }
-
-    25% {
-        transform: scale(0.95) rotate(-5deg);
-        filter: sepia(1) hue-rotate(-50deg) saturate(4);
-    }
-
-    50% {
-        transform: scale(1.05) rotate(5deg);
-    }
-}
 
 .slime-hit-anim {
     animation: damageShake 0.15s ease-in-out;
@@ -600,158 +568,6 @@ h2 {
         font-family: monospace;
     }
 
-/* === МОБИЛЬНАЯ АДАПТАЦИЯ (ИСПРАВЛЕННАЯ) === */
-.mobile-only {
-    display: none;
-}
-/* Скрыто на ПК */
-
-@media (max-width: 768px) {
-    .mobile-only {
-        display: flex !important;
-    }
-
-    /* 1. ГЛАВНОЕ: По умолчанию СКРЫВАЕМ сайдбар на телефоне */
-    .sidebar {
-        display: none;
-        position: fixed;
-        top: 60px;
-        left: 0;
-        width: 100%;
-        height: calc(100% - 60px);
-        background: rgba(20, 24, 35, 0.98);
-        z-index: 1000;
-        padding: 20px;
-        box-sizing: border-box;
-        overflow-y: auto;
-    }
-
-        /* 2. Показываем сайдбар, если нажата кнопка Рюкзака */
-        .sidebar.active {
-            display: flex;
-        }
-
-    /* 3. ИСКЛЮЧЕНИЕ: В магазине СКРЫВАЕМ сайдбар полностью */
-    .game-container.shop-mode .sidebar {
-        display: none !important; /* <--- БЫЛО display: flex, СТАЛО none */
-    }
-
-    .game-container.shop-mode ~ .header #btnBackpack {
-        display: none !important;
-    }
-
-    /* Перестраиваем в колонку */
-    .game-container {
-        flex-direction: column;
-        padding-top: 0;
-        position: fixed;
-        top: 60px;
-        bottom: 0;
-        overflow-y: auto;
-        display: block;
-    }
-
-    .screen {
-        display: none;
-        flex-direction: column;
-        padding-bottom: 80px;
-    }
-
-        .screen.active {
-            display: flex;
-        }
-
-
-    /* ИСПРАВЛЕНИЕ РАЗМЕРОВ ДЛЯ ТЕЛЕФОНА */
-    .slime-container {
-        /* Делаем коробку меньше, чтобы она влезала в экран */
-        width: 120px;
-        height: 120px;
-        /* Убираем старые отступы, так как теперь позиция задается через JS (top/left) */
-        margin-bottom: 0;
-        position: absolute; /* Гарантируем, что он "плавает" */
-        top: 40% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-    }
-    /* Если это БОСС, делаем его чуть меньше на телефоне, чтобы не вылезал */
-    .slime-img.boss {
-        /* На ПК он scale(2.5), на телефоне сделаем поменьше */
-        transform: scale(1.8) !important;
-    }
-
-    .slime-img {
-        /* Картинка подстраивается под маленький контейнер */
-        width: 100%;
-    }
-
-    /* Инвентарь красивой сеткой */
-    #inventoryList {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
-
-        #inventoryList div {
-            background: rgba(255,255,255,0.05);
-            padding: 8px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-    .mobile-hint {
-        display: none !important;
-    }
-}
-/* === МОБИЛЬНОЕ МЕНЮ (БУРГЕР) === */
-
-/* По умолчанию прячем мобильные элементы */
-.mobile-nav, .dropdown-menu {
-    display: none;
-}
-
-/* Кнопка меню (три полоски) */
-.menu-btn {
-    background: transparent;
-    border: 2px solid var(--accent);
-    color: var(--accent);
-    font-size: 24px;
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-bottom: 4px; /* Чуть поднять символ */
-}
-
-/* Выпадающий список */
-.dropdown-menu {
-    position: absolute;
-    top: 60px; /* Сразу под шапкой */
-    right: 0;
-    width: 200px;
-    background: rgba(20, 24, 35, 0.95); /* Темный фон */
-    border: 1px solid var(--accent);
-    border-top: none;
-    border-radius: 0 0 0 15px; /* Закругляем левый нижний угол */
-    flex-direction: column;
-    z-index: 2000; /* Поверх всего */
-    box-shadow: -5px 5px 15px rgba(0,0,0,0.5);
-    overflow: hidden;
-    /* Анимация появления */
-    transform-origin: top right;
-    transform: scale(0);
-    transition: transform 0.2s ease-out;
-}
-
-    /* Класс для открытия меню */
-    .dropdown-menu.show {
-        display: flex;
-        transform: scale(1);
-    }
 
 /* Пункты меню */
 .menu-item {
@@ -775,88 +591,8 @@ h2 {
         color: #000;
     }
 
-/* === АДАПТАЦИЯ === */
-@media (max-width: 768px) {
-    /* На телефоне ПРЯЧЕМ обычные кнопки */
-    .desktop-nav {
-        display: none !important;
-    }
 
-    /* И ПОКАЗЫВАЕМ кнопку меню */
-    .mobile-nav {
-        display: flex !important;
-    }
-}
-/* ========================================= */
-/* === ЛОГИКА СКРЫТИЯ (ПК vs ТЕЛЕФОН) === */
-/* ========================================= */
 
-/* 1. НА ПК: Скрываем всё мобильное */
-.mobile-only, .mobile-nav, .dropdown-menu {
-    display: none !important;
-}
-
-/* 2. НА ТЕЛЕФОНЕ: Скрываем кнопки ПК и показываем мобильные */
-@media (max-width: 768px) {
-    /* Прячем обычные кнопки навигации */
-    .desktop-nav {
-        display: none !important;
-    }
-
-    /* Показываем мобильные кнопки */
-    .mobile-only {
-        display: flex !important;
-    }
-
-    .mobile-nav {
-        display: flex !important;
-    }
-}
-
-/* ========================================= */
-/* === СТИЛИ ДЛЯ ВЫПАДАЮЩЕГО МЕНЮ === */
-/* ========================================= */
-
-/* Кнопка меню (три полоски) */
-.menu-btn {
-    background: transparent;
-    border: 2px solid var(--accent);
-    color: var(--accent);
-    font-size: 24px;
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-bottom: 4px;
-}
-
-/* Само выпадающее меню */
-.dropdown-menu {
-    position: absolute;
-    top: 60px;
-    right: 0;
-    width: 200px;
-    background: rgba(20, 24, 35, 0.95);
-    border: 1px solid var(--accent);
-    border-top: none;
-    border-radius: 0 0 0 15px;
-    flex-direction: column;
-    z-index: 2000;
-    box-shadow: -5px 5px 15px rgba(0,0,0,0.5);
-    overflow: hidden;
-    transform-origin: top right;
-    transform: scale(0);
-    transition: transform 0.2s ease-out;
-}
-
-    /* Класс для открытия меню (добавляется через JS) */
-    .dropdown-menu.show {
-        display: flex !important;
-        transform: scale(1);
-    }
 
 /* Пункты меню */
 .menu-item {
@@ -901,15 +637,7 @@ h2 {
         object-fit: cover; /* Чтобы видео заполнило экран без полос */
     }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
 
-    to {
-        opacity: 1;
-    }
-}
 /* Кнопка пропуска видео */
 .skip-btn {
     position: absolute;
@@ -1019,17 +747,7 @@ h2 {
     animation: boss-pulse 2s infinite alternate;
 }
 
-@keyframes boss-pulse {
-    from {
-        transform: scale(2.5);
-        filter: drop-shadow(0 0 20px #ff0000);
-    }
 
-    to {
-        transform: scale(2.6);
-        filter: drop-shadow(0 0 40px #ff0000);
-    }
-}
 
 /* 2. Полоска здоровья босса */
 .hp-bar-fill.boss-hp {
@@ -1053,32 +771,7 @@ h2 {
     animation: blink 1s infinite;
 }
 
-@keyframes blink {
-    0%, 100% {
-        opacity: 1;
-    }
 
-    50% {
-        opacity: 0.5;
-    }
-}
-/* === АНИМАЦИЯ УДАРА ПО БОССУ === */
-@keyframes bossDamageShake {
-    0%, 100% {
-        transform: scale(2.5); /* Сохраняем большой размер */
-        filter: drop-shadow(0 0 25px #ff0000);
-    }
-
-    25% {
-        transform: scale(2.4) rotate(-3deg); /* Чуть сжимаем */
-        filter: drop-shadow(0 0 15px #ff0000) hue-rotate(-20deg);
-    }
-
-    50% {
-        transform: scale(2.6) rotate(3deg); /* Чуть раздуваем */
-        filter: drop-shadow(0 0 35px #ff0000) hue-rotate(20deg);
-    }
-}
 
 .boss-hit-anim {
     animation: bossDamageShake 0.15s ease-in-out;
@@ -1142,11 +835,7 @@ h2 {
         animation: shrinkLine 1.5s linear forwards;
     }
 
-@keyframes shrinkLine {
-    to {
-        transform: scaleX(0);
-    }
-}
+
 
 /* Текст "PARRY!" */
 .parry-text {
@@ -1192,18 +881,7 @@ h2 {
     z-index: 60;
 }
 
-/* Анимация появления */
-@keyframes orbPopIn {
-    from {
-        transform: scale(0);
-        opacity: 0;
-    }
 
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
 
 /* Эффект исчезновения (при правильном клике) */
 .orb-popped {
@@ -1211,13 +889,7 @@ h2 {
     pointer-events: none;
 }
 
-@keyframes orbSuccess {
-    to {
-        transform: scale(1.5);
-        opacity: 0;
-        background: #55ff55;
-    }
-}
+
 
 /* Ошибка (красный) */
 .orb-error {
@@ -1296,35 +968,14 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     filter: blur(8px);
 }
 
-/* Анимация дыхания */
-@keyframes pet-idle {
-    0%, 100% {
-        transform: translateY(0) scale(1);
-    }
 
-    50% {
-        transform: translateY(-8px) scale(1.05);
-    }
-}
 
 /* Анимация атаки (рывок вправо) */
 .pet-attack-anim {
     animation: pet-pounce 0.4s forwards !important;
 }
 
-@keyframes pet-pounce {
-    0% {
-        transform: translateX(0);
-    }
 
-    40% {
-        transform: translateX(60px) scale(1.2);
-    }
-
-    100% {
-        transform: translateX(0);
-    }
-}
 
 /* --- КНОПКА НАВЫКА --- */
 .pet-controls {
@@ -1423,17 +1074,6 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     animation: pulseGlow 3s infinite;
 }
 
-@keyframes pulseGlow {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 0.5;
-    }
-
-    50% {
-        transform: scale(1.2);
-        opacity: 0.8;
-    }
-}
 
 .pet-sidebar-img {
     width: 90px;
@@ -1444,15 +1084,7 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     animation: pet-float 3s infinite ease-in-out;
 }
 
-@keyframes pet-float {
-    0%, 100% {
-        transform: translateY(0);
-    }
 
-    50% {
-        transform: translateY(-5px);
-    }
-}
 
 /* СЕТКА НАВЫКОВ (3 слота) */
 .pet-skills-grid {
@@ -1934,19 +1566,7 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     z-index: 10;
 }
 
-@keyframes pulseBtn {
-    0% {
-        transform: scale(1);
-    }
 
-    50% {
-        transform: scale(1.05);
-    }
-
-    100% {
-        transform: scale(1);
-    }
-}
 /* === МАГАЗИН (СЕТКА - Grid Layout) === */
 .shop-screen {
     /* Убрали display: grid отсюда */
@@ -2012,16 +1632,7 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
         display: flex !important;
     }
 
-/* АДАПТАЦИЯ ПОД ТЕЛЕФОН */
-@media (max-width: 768px) {
-    .shop-screen {
-        grid-template-columns: 1fr; /* Одна колонка на телефоне */
-        margin: 0;
-        border-radius: 0;
-        height: auto;
-        padding-bottom: 80px; /* Место под меню */
-    }
-}
+
 /* === ПАНЕЛЬ ПИТОМЦА (УМНАЯ) === */
 .pet-panel-hud {
     /* Стили для ПК (Внутри Сайдбара) */
@@ -2069,103 +1680,7 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     width: 100%;
 }
 
-/* === АДАПТАЦИЯ ПОД ТЕЛЕФОН === */
-@media (max-width: 768px) {
-    .pet-panel-hud {
-        /* Превращаем панель в прозрачный слой снизу */
-        position: absolute;
-        bottom: 70px; /* Над меню */
-        left: 50%;
-        transform: translateX(-50%) scale(0.8);
-        width: 100%; /* Ширина по содержимому */
-        min-width: 300px;
-        background: transparent; /* Без фона */
-        border: none;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column; /* Вертикально: Сначала кот, потом кнопки */
-        align-items: center;
-        pointer-events: none; /* Чтобы клики мимо кнопок проходили к слайму */
-    }
 
-    /* Возвращаем отображение кота! */
-    .pet-hud-visual {
-        margin-bottom: -10px; /* Отрицательный отступ стянет элементы */
-        position: relative;
-        z-index: 0; /* Убираем на задний план */
-        opacity: 0.8; /* Делаем полупрозрачным, чтобы видеть слайма сквозь него */
-    }
-
-        /* Делаем кота на телефоне поменьше */
-        .pet-hud-visual img {
-            width: 70px;
-            height: 70px;
-            filter: drop-shadow(0 0 2px #000); /* Тень для контраста */
-        }
-
-        /* Скрываем имя на телефоне (мешает) */
-        .pet-hud-visual h3 {
-            display: none;
-        }
-
-    /* Кнопки в ряд */
-    .pet-skills-grid {
-        display: flex !important;
-        justify-content: center;
-        gap: 20px;
-        pointer-events: auto; /* А вот кнопки кликабельны */
-    }
-
-    .skill-slot {
-        width: 55px;
-        height: 55px;
-        background: rgba(0, 0, 0, 0.6); /* Полупрозрачный фон кружков */
-        border: 2px solid #ffd700;
-        border-radius: 50%;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
-
-    .skill-icon-img {
-        width: 30px;
-        height: 30px;
-    }
-}
-/* Компактный вид яиц для телефона */
-@media (max-width: 768px) {
-    /* Внутри @media (max-width: 768px) */
-
-    .header-left {
-        /* Разрешаем скролл, если не влезает */
-        overflow-x: auto;
-        justify-content: flex-start; /* Прижимаем влево */
-        padding-right: 10px;
-    }
-
-    .egg-counter {
-        /* ЗАПРЕЩАЕМ сжиматься */
-        flex-shrink: 0;
-        margin-right: 5px;
-    }
-
-    /* Скрываем полосу прокрутки, чтобы было красиво */
-    .header-left::-webkit-scrollbar {
-        display: none;
-    }
-
-    /* Уменьшаем иконки яиц */
-    .egg-icon-img {
-        width: 16px;
-        height: 16px;
-        margin-right: 3px;
-    }
-
-    /* Чуть уменьшаем отображение золота, чтобы дать место яйцам */
-    .gold-display {
-        font-size: 14px;
-        padding: 3px 8px;
-    }
-}
 /* === ЭКРАН КАРТЫ === */
 .map-screen {
     /* Используем Grid для красивой сетки */
@@ -2280,18 +1795,7 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     font-size: 13px;
 }
 
-/* === АДАПТАЦИЯ (ПЕРЕКЛЮЧЕНИЕ) === */
-@media (max-width: 768px) {
-    /* 1. Показываем общий счетчик */
-    .egg-total-badge {
-        display: flex !important;
-    }
 
-    /* 2. СКРЫВАЕМ детальную ленту яиц в шапке */
-    .header-inventory {
-        display: none !important;
-    }
-}
 /* === ПРАВОЕ МЕНЮ (ПК) === */
 .right-sidebar {
     width: 220px; /* Фиксированная ширина */
@@ -2339,16 +1843,4 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     justify-content: center; /* Центрируем контент внутри левой части */
     flex: initial; /* Не растягивать */
     width: auto;
-}
-/* === СКРЫВАЕМ ПРАВОЕ МЕНЮ НА ТЕЛЕФОНЕ === */
-@media (max-width: 768px) {
-    .right-sidebar {
-        display: none !important;
-    }
-}
-/* === СКРЫТИЕ МОБИЛЬНЫХ ЭЛЕМЕНТОВ НА ПК === */
-@media (min-width: 769px) {
-    .mobile-only {
-        display: none !important;
-    }
 }

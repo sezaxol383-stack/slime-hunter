@@ -1,0 +1,186 @@
+@keyframes shadow-pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.4;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.2;
+    }
+}
+@keyframes floatUp {
+    to {
+        opacity: 0;
+        transform: translateY(-80px);
+    }
+}
+
+@keyframes damageShake {
+    0%, 100% {
+        transform: scale(1);
+        filter: none;
+    }
+
+    25% {
+        transform: scale(0.95) rotate(-5deg);
+        filter: sepia(1) hue-rotate(-50deg) saturate(4);
+    }
+
+    50% {
+        transform: scale(1.05) rotate(5deg);
+    }
+}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes boss-pulse {
+    from {
+        transform: scale(2.5);
+        filter: drop-shadow(0 0 20px #ff0000);
+    }
+
+    to {
+        transform: scale(2.6);
+        filter: drop-shadow(0 0 40px #ff0000);
+    }
+}
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+/* === АНИМАЦИЯ УДАРА ПО БОССУ === */
+@keyframes bossDamageShake {
+    0%, 100% {
+        transform: scale(2.5); /* Сохраняем большой размер */
+        filter: drop-shadow(0 0 25px #ff0000);
+    }
+
+    25% {
+        transform: scale(2.4) rotate(-3deg); /* Чуть сжимаем */
+        filter: drop-shadow(0 0 15px #ff0000) hue-rotate(-20deg);
+    }
+
+    50% {
+        transform: scale(2.6) rotate(3deg); /* Чуть раздуваем */
+        filter: drop-shadow(0 0 35px #ff0000) hue-rotate(20deg);
+    }
+}
+
+@keyframes shrinkLine {
+    to {
+        transform: scaleX(0);
+    }
+}
+
+/* Анимация появления */
+@keyframes orbPopIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+
+@keyframes orbSuccess {
+    to {
+        transform: scale(1.5);
+        opacity: 0;
+        background: #55ff55;
+    }
+}
+
+/* Анимация дыхания */
+@keyframes pet-idle {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+
+    50% {
+        transform: translateY(-8px) scale(1.05);
+    }
+}
+
+@keyframes pet-pounce {
+    0% {
+        transform: translateX(0);
+    }
+
+    40% {
+        transform: translateX(60px) scale(1.2);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes pet-float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+
+@keyframes pulseGlow {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+}
+
+
+@keyframes pulseBtn {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
