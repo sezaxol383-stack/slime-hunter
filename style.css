@@ -1844,3 +1844,127 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     flex: initial; /* Не растягивать */
     width: auto;
 }
+/* === ЭКРАН МАГИИ === */
+.magic-screen {
+    flex-direction: column;
+    background: rgba(20, 24, 35, 0.95);
+    border-radius: 15px;
+    padding: 20px;
+    margin: 15px 15px 15px 0;
+    overflow-y: auto;
+}
+
+/* Сетка ресурсов */
+.materials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); /* Адаптивная сетка */
+    gap: 15px;
+    width: 100%;
+    max-width: 800px;
+    justify-items: center;
+}
+
+/* Карточка одного ресурса */
+.material-card {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid #444;
+    border-radius: 10px;
+    width: 100%;
+    aspect-ratio: 1; /* Квадрат */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    position: relative;
+    transition: transform 0.2s;
+}
+
+    .material-card:hover {
+        transform: translateY(-5px);
+        border-color: #b08dff; /* Фиолетовая подсветка */
+        background: rgba(100, 50, 255, 0.1);
+    }
+
+    .material-card img {
+        width: 60%;
+        height: 60%;
+        object-fit: contain;
+        margin-bottom: 5px;
+    }
+
+.material-count {
+    font-size: 12px;
+    color: #fff;
+    font-weight: bold;
+    background: rgba(0,0,0,0.6);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Если ресурса 0 штук */
+.material-card.empty {
+    opacity: 0.4;
+    filter: grayscale(1);
+}
+/* Список рецептов */
+.recipes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Карточка одного рецепта */
+.recipe-card {
+    background: linear-gradient(90deg, #1a1b26, #2a2e40);
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.recipe-info h4 {
+    margin: 0;
+    color: #ffd700;
+    font-size: 16px;
+}
+
+.recipe-info p {
+    margin: 5px 0 0 0;
+    color: #aaa;
+    font-size: 12px;
+}
+
+.recipe-cost {
+    font-size: 11px;
+    color: #ccc;
+    margin-top: 5px;
+}
+
+.recipe-btn {
+    background: #7aa2f7;
+    border: none;
+    color: #000;
+    font-weight: bold;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    min-width: 80px;
+}
+
+    .recipe-btn:disabled {
+        background: #444;
+        color: #777;
+        cursor: not-allowed;
+    }
+
+/* Если крафт выполнен */
+.recipe-done {
+    border-color: #00ff00;
+    opacity: 0.7;
+}

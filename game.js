@@ -278,6 +278,9 @@ function loadGame() {
     if (!gameState.pets) gameState.pets = [];
     if (!gameState.autoDps) gameState.autoDps = 0;
     if (!gameState.bossTrophies) gameState.bossTrophies = [];
+    if (!gameState.materials) {
+        gameState.materials = {};
+    }
 
     const isBossStage = (gameState.kills + 1) % 10 === 0;
     currentSlime.isBoss = isBossStage;
@@ -436,8 +439,9 @@ function rollLoot() {
         advanceTutorial();
         return;
     }
+    // 1. Дроп Яиц (Старая логика)
     let chanceMultiplier = 1;
-    if (gameState.artifacts.includes('a2')) chanceMultiplier = 2;
+    if (gameState.artifacts && gameState.artifacts.includes('a2')) chanceMultiplier = 2;
 
     for (let item of rarities) {
         if (Math.random() < (item.chance * chanceMultiplier)) {
@@ -445,12 +449,35 @@ function rollLoot() {
             checkQuestProgress('collect', item.id);
             playSound('drop');
             logEvent(`Выпало: ${item.name}!`, item.class);
-            if (navigator.vibrate) navigator.vibrate(50);
-            updateAllUI();
-            return;
+            // Вибрацию и обновление UI делаем в конце
+            break; // Если выпало яйцо, прерываем цикл яиц (но не функцию!)
         }
     }
-    logEvent("Пусто...", "");
+
+    // 2. Дроп Материалов (НОВАЯ ЛОГИКА) 🧪
+    // Определяем ID текущей локации (forest, fire, ice, dark)
+    const currentLocId = locations[currentLocationIndex].id;
+
+    // Фильтруем предметы, которые могут упасть ИМЕННО ЗДЕСЬ
+    const possibleDrops = craftingMaterials.filter(m => m.location === currentLocId);
+
+    possibleDrops.forEach(mat => {
+        // Кидаем кубик для каждого возможного предмета
+        if (Math.random() < mat.chance) {
+            // Если ресурса еще нет в инвентаре, создаем запись
+            if (!gameState.materials[mat.id]) gameState.materials[mat.id] = 0;
+
+            gameState.materials[mat.id]++;
+
+            // Пишем в лог (желтым цветом)
+            logEvent(`Лут: ${mat.name} (+1)`, 'rarity-legendary');
+            playSound('drop');
+        }
+    });
+
+    // Обновляем всё в конце
+    if (navigator.vibrate) navigator.vibrate(50);
+    updateAllUI();
 }
 
 // --- КУЗНИЦА ---
@@ -1564,7 +1591,42 @@ function travelToLocation(index) {
     saveGame();
 }
 
+function craftItem(recipeId) {
+    const recipe = recipes.find(r => r.id === recipeId);
+    if (!recipe) return;
 
+    // 1. Проверка: уже есть такой артефакт?
+    if (recipe.type === 'artifact' && gameState.artifacts.includes(recipe.resultId)) {
+        alert("У вас уже есть этот артефакт!");
+        return;
+    }
+
+    // 2. Проверка: хватает ли ресурсов?
+    for (let matId in recipe.cost) {
+        const required = recipe.cost[matId];
+        const owned = gameState.materials[matId] || 0;
+        if (owned < required) {
+            alert("Не хватает ресурсов!");
+            return;
+        }
+    }
+
+    // 3. Списываем ресурсы
+    for (let matId in recipe.cost) {
+        gameState.materials[matId] -= recipe.cost[matId];
+    }
+
+    // 4. Выдаем награду
+    if (recipe.type === 'artifact') {
+        gameState.artifacts.push(recipe.resultId);
+        alert(`✨ УСПЕХ! Вы создали: ${recipe.name}`);
+    }
+
+    // 5. Сохраняем и обновляем
+    playSound('upgrade'); // Или звук магии, если есть
+    saveGame();
+    updateAllUI(); // Обновит и ресурсы, и кнопки рецептов
+}
 
 
 

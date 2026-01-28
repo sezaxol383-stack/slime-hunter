@@ -161,7 +161,7 @@ const craftingMaterials = [
     { id: 'mat_leaf', name: 'Магический лист', image: 'images/items/mat_leaf.png', location: 'forest', chance: 0.10 },
 
     // ОГОНЬ (Fire)
-    { id: 'mat_ash', name: 'Вулканический пепел', image: 'images/items/mat_ash.png', location: 'fire', chance: 0.40 },
+    { id: 'mat_ash', name: 'Вулканическое ядро', image: 'images/items/mat_ash.png', location: 'fire', chance: 0.40 },
     { id: 'mat_ember', name: 'Живой уголь', image: 'images/items/mat_ember.png', location: 'fire', chance: 0.10 },
 
     // ЛЕД (Ice)
@@ -171,4 +171,73 @@ const craftingMaterials = [
     // ТЬМА (Dark)
     { id: 'mat_bone', name: 'Кость демона', image: 'images/items/mat_bone.png', location: 'dark', chance: 0.40 },
     { id: 'mat_shadow', name: 'Эссенция тьмы', image: 'images/items/mat_shadow.png', location: 'dark', chance: 0.10 }
+];
+// === РЕЦЕПТЫ ДЛЯ АЛТАРЯ ===
+const recipes = [
+    {
+        id: 'rcp_chalice',
+        name: 'Чаша Вечности',
+        type: 'artifact',   // Тип создаваемого предмета
+        resultId: 'a1',     // ID артефакта из списка artifacts
+        desc: 'Дает +5 монет/сек',
+        cost: {             // Требуемые ресурсы
+            'mat_slime': 10,
+            'mat_leaf': 5
+        }
+    },
+    {
+        id: 'rcp_book',
+        name: 'Книга Тайн',
+        type: 'artifact',
+        resultId: 'a2',
+        desc: 'Шанс лута x2',
+        cost: {
+            'mat_ash': 10,
+            'mat_ember': 5
+        }
+    },
+    {
+        id: 'rcp_amulet',
+        name: 'Амулет Дракона',
+        type: 'artifact',
+        resultId: 'a3',
+        desc: 'Урон x2',
+        cost: {
+            'mat_bone': 20,
+            'mat_shadow': 3
+        }
+    }
+];
+// === ШАБЛОНЫ ЗАДАНИЙ ГИЛЬДИИ ===
+const questTemplates = [
+    {
+        type: 'kill',
+        min: 10,
+        max: 30,
+        text: 'Убить {n} слаймов',
+        rewardBase: 5
+    },
+    {
+        type: 'collect',
+        subtype: 'common',
+        min: 3,
+        max: 10,
+        text: 'Найти {n} обычных яиц',
+        rewardBase: 15
+    },
+    {
+        type: 'collect',
+        subtype: 'rare',
+        min: 1,
+        max: 5,
+        text: 'Найти {n} редких яиц',
+        rewardBase: 40
+    },
+    {
+        type: 'boss',
+        min: 1,
+        max: 1,
+        text: 'Победить Босса',
+        rewardBase: 200
+    }
 ];

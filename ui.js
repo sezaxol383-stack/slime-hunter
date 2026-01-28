@@ -6,6 +6,7 @@ function updateAllUI() {
     updateCollectionUI();
     updateQuestUI();
     updateSidebarQuestUI();
+    updateMagicUI();
 }
 function updateGameUI() {
     const percent = (currentSlime.currentHp / currentSlime.maxHp) * 100;
@@ -708,7 +709,7 @@ function switchTab(tabName) {
         sidebar.classList.remove('active');
         if (backpackBtn) backpackBtn.innerText = '🎒';
     }
-
+    if (tabName === 'magic') updateMagicUI();
     if (tabName === 'forge') updateForgeUI();
     if (tabName === 'map') updateMapUI();
     checkTutorialProgress('tab', tabName);
@@ -834,4 +835,84 @@ function playTransition(videoFile, callback) {
     video.onended = () => {
         closeTransition();
     };
+}
+// === ИНТЕРФЕЙС МАГИИ ===
+function updateMagicUI() {
+    const grid = document.getElementById('materialsGrid');
+    if (!grid) return;
+
+    grid.innerHTML = '';
+
+    // Перебираем все возможные материалы из data.js
+    craftingMaterials.forEach(mat => {
+        // Проверяем, сколько их у игрока (если нет записи, то 0)
+        const count = gameState.materials[mat.id] || 0;
+
+        const card = document.createElement('div');
+        card.className = `material-card ${count === 0 ? 'empty' : ''}`;
+
+        // Подсказка при наведении (Title)
+        card.title = `${mat.name}\nШанс дропа: ${Math.round(mat.chance * 100)}%`;
+
+        card.innerHTML = `
+            <img src="${mat.image}" onerror="this.src='images/items/egg_common.png'">
+            <div class="material-count">x${count}</div>
+            <div style="font-size: 9px; color: #aaa; margin-top: 3px; text-align: center;">${mat.name}</div>
+        `;
+
+        grid.appendChild(card);
+    });
+    // === ОТРИСОВКА РЕЦЕПТОВ ===
+    const recipesGrid = document.getElementById('recipesGrid');
+    if (recipesGrid) {
+        recipesGrid.innerHTML = '';
+
+        recipes.forEach(rcp => {
+            const div = document.createElement('div');
+            // Проверяем, создан ли уже предмет
+            const isCrafted = (rcp.type === 'artifact' && gameState.artifacts.includes(rcp.resultId));
+
+            div.className = `recipe-card ${isCrafted ? 'recipe-done' : ''}`;
+
+            // Формируем текст стоимости (Слизь: 5/10)
+            let costHtml = '';
+            let canCraft = true;
+
+            for (let matId in rcp.cost) {
+                const req = rcp.cost[matId];
+                const own = gameState.materials[matId] || 0;
+
+                // Находим имя материала по ID
+                const matName = craftingMaterials.find(m => m.id === matId)?.name || matId;
+
+                // Цвет: зеленый если хватает, красный если нет
+                const color = own >= req ? '#00ff00' : '#ff5555';
+                if (own < req) canCraft = false;
+
+                costHtml += `<div style="color:${color}">${matName}: ${own} / ${req}</div>`;
+            }
+
+            // Кнопка
+            let btnText = "СОЗДАТЬ";
+            let btnDisabled = !canCraft;
+
+            if (isCrafted) {
+                btnText = "ГОТОВО";
+                btnDisabled = true;
+            }
+
+            div.innerHTML = `
+                <div class="recipe-info">
+                    <h4>${rcp.name}</h4>
+                    <p>${rcp.desc}</p>
+                    <div class="recipe-cost">${costHtml}</div>
+                </div>
+                <button class="recipe-btn" onclick="craftItem('${rcp.id}')" ${btnDisabled ? 'disabled' : ''}>
+                    ${btnText}
+                </button>
+            `;
+
+            recipesGrid.appendChild(div);
+        });
+    }
 }

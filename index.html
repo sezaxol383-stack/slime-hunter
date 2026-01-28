@@ -27,8 +27,6 @@
             </div>
         </div>
 
-
-
         <button class="menu-btn mobile-nav" onclick="toggleMenu()">☰</button>
 
         <div id="dropdownMenu" class="dropdown-menu">
@@ -37,6 +35,7 @@
             <button class="menu-item" onclick="selectMobileTab('shop')">💰 Гильдия</button>
             <button class="menu-item" onclick="selectMobileTab('collection')">💎 Коллекция</button>
             <button class="menu-item" onclick="selectMobileTab('map')">🗺️ Мир</button>
+            <button class="menu-item" onclick="selectMobileTab('magic')">🔮 Магия</button>
         </div>
     </div>
 
@@ -198,6 +197,32 @@
         <div id="collectionScreen" class="screen collection-screen">
             <div class="collection-grid" id="collectionGrid"></div>
         </div>
+
+        <div id="magicScreen" class="screen magic-screen">
+            <div class="forge-header">
+                <h2 style="color: #b08dff;">🔮 Лавка Чародея</h2>
+                <p style="color: #aaa;">Собирай ресурсы с монстров</p>
+            </div>
+
+            <h3 style="width:100%; text-align:center; color:#fff; margin-top:20px;">Ваши Ресурсы</h3>
+            <div id="materialsGrid" class="materials-grid"></div>
+
+            <div class="forge-header" style="margin-top: 30px; border-top: 1px solid #444; padding-top: 20px;">
+                <h2 style="color: #ffd700;">📜 Древние Рецепты</h2>
+            </div>
+
+            <div id="recipesGrid" class="recipes-list"></div>
+        </div>
+
+        <div id="mapScreen" class="screen map-screen">
+            <div class="map-header">
+                <h2>🗺️ Портал Миров 🗺️</h2>
+                <p style="color: #aaa; text-align: center;">Выбирай, где охотиться</p>
+            </div>
+            <div id="mapGrid" class="map-grid">
+            </div>
+        </div>
+
         <div class="sidebar right-sidebar desktop-only">
             <h2 style="color: #fff; margin-bottom: 10px;">МЕНЮ</h2>
 
@@ -207,14 +232,7 @@
                 <button class="nav-btn" onclick="switchTab('shop')">💰 Гильдия</button>
                 <button class="nav-btn" onclick="switchTab('collection')">💎 Коллекция</button>
                 <button class="nav-btn" onclick="switchTab('map')">🗺️ Мир</button>
-            </div>
-        </div>
-        <div id="mapScreen" class="screen map-screen" style="display: none;">
-            <div class="map-header">
-                <h2>🗺️ Портал Миров 🗺️</h2>
-                <p style="color: #aaa; text-align: center;">Выбирай, где охотиться</p>
-            </div>
-            <div id="mapGrid" class="map-grid">
+                <button class="nav-btn" onclick="switchTab('magic')">🔮 Магия</button>
             </div>
         </div>
 
