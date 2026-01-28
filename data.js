@@ -152,17 +152,23 @@ const petsBase = [
             }
         ]
     }
+];
 
-    /* <--- НАЧАЛО КОММЕНТАРИЯ (Скрываем волка)
-    ,
-    {
-        id: 'pet_wolf',
-        name: 'Призрачный Волк',
-        image: 'images/pets/pet_wolf.png',
-        cost: 2000,
-        dps: 10,
-        // У волка пока нет эволюций
-        evolutions: []
-    }
-    КОНЕЦ КОММЕНТАРИЯ ---> */
+// === МАТЕРИАЛЫ ДЛЯ КРАФТА ===
+const craftingMaterials = [
+    // ЛЕС (Forest)
+    { id: 'mat_slime', name: 'Кусок слизи', image: 'images/items/mat_slime.png', location: 'forest', chance: 0.40 }, // 40% шанс
+    { id: 'mat_leaf', name: 'Магический лист', image: 'images/items/mat_leaf.png', location: 'forest', chance: 0.10 },
+
+    // ОГОНЬ (Fire)
+    { id: 'mat_ash', name: 'Вулканический пепел', image: 'images/items/mat_ash.png', location: 'fire', chance: 0.40 },
+    { id: 'mat_ember', name: 'Живой уголь', image: 'images/items/mat_ember.png', location: 'fire', chance: 0.10 },
+
+    // ЛЕД (Ice)
+    { id: 'mat_ice', name: 'Осколок льда', image: 'images/items/mat_ice.png', location: 'ice', chance: 0.40 },
+    { id: 'mat_snow', name: 'Вечная снежинка', image: 'images/items/mat_snow.png', location: 'ice', chance: 0.10 },
+
+    // ТЬМА (Dark)
+    { id: 'mat_bone', name: 'Кость демона', image: 'images/items/mat_bone.png', location: 'dark', chance: 0.40 },
+    { id: 'mat_shadow', name: 'Эссенция тьмы', image: 'images/items/mat_shadow.png', location: 'dark', chance: 0.10 }
 ];
