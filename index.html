@@ -60,57 +60,63 @@
                 <div id="logList"></div>
             </div>
 
-            <div id="tutorialPanel" class="panel tutorial-panel">
-                <div class="tut-header" onclick="toggleTutorial()">
-                    <span id="tutTitleHeader">ОБУЧЕНИЕ</span>
-                    <span id="tutArrow">▼</span>
-                </div>
 
-                <div id="tutBody" class="tut-body">
-                    <div class="tutorial-character">
-                        <img src="images/ui/guide_slime.png" style="width: 50px; height: 50px; object-fit: contain;">
-                    </div>
-                    <div class="tutorial-content">
-                        <h4 id="tutTitle">Задание</h4>
-                        <p id="tutText">Текст задания...</p>
-                        <div class="tut-progress">
-                            <div id="tutBar" class="tut-bar-fill"></div>
-                        </div>
-                        <div id="tutCounter" class="tut-counter">0 / 1</div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="activeQuestPanel" class="panel tutorial-panel" style="display: none; border-color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);">
-                <div class="tut-header" style="background: linear-gradient(90deg, #664400, #332200); color: #ffd700;">
-                    <span>📜 ТЕКУЩАЯ ЦЕЛЬ</span>
-                </div>
-                <div class="tut-body">
-                    <div class="tutorial-character">
-                        <span style="font-size: 24px;">📜</span>
-                    </div>
-                    <div class="tutorial-content">
-                        <h4 id="actQuestTitle" style="color: #ffd700;">Нет задания</h4>
-                        <p id="actQuestDesc" style="color: #fff;">Зайдите в гильдию, чтобы взять контракт.</p>
-
-                        <div class="tut-progress">
-                            <div id="actQuestBar" class="tut-bar-fill" style="background: #ffd700;"></div>
-                        </div>
-                        <div id="actQuestCounter" class="tut-counter">0 / 0</div>
-
-                        <button id="btnClaimSidebar" onclick="claimActiveQuest()"
-                                style="display: none; width: 100%; margin-top: 5px; background: #ffd700; border: none; font-weight: bold; cursor: pointer; padding: 5px; border-radius: 4px;">
-                            ЗАБРАТЬ НАГРАДУ
-                        </button>
-                    </div>
-                </div>
-            </div>
 
         </div>
 
         <div id="gameScreen" class="screen active">
             <div class="main-area">
                 <div class="enemy-info">
+
+                    <div id="tutorialPanel" class="panel tutorial-panel collapsed mobile-floating">
+                        <div class="tut-header" onclick="toggleTutorial()">
+                            <span id="tutTitleHeader">ОБУЧЕНИЕ</span>
+                            <span id="tutArrow">▼</span>
+                        </div>
+
+                        <div id="tutBody" class="tut-body">
+                            <div class="tutorial-character">
+                                <img src="images/ui/guide_slime.png" style="width: 50px; height: 50px; object-fit: contain;">
+                            </div>
+                            <div class="tutorial-content">
+                                <h4 id="tutTitle">Задание</h4>
+                                <p id="tutText">Текст задания...</p>
+                                <div class="tut-progress">
+                                    <div id="tutBar" class="tut-bar-fill"></div>
+                                </div>
+                                <div id="tutCounter" class="tut-counter">0 / 1</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="activeQuestPanel" class="panel tutorial-panel mobile-floating" onclick="this.classList.toggle('collapsed')"
+                         style="display: none; border-color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);">
+                        <div class="tut-header" style="background: linear-gradient(90deg, #664400, #332200); color: #ffd700;">
+                            <span>📜 ТЕКУЩАЯ ЦЕЛЬ</span>
+                        </div>
+                        <div class="tut-body">
+                            <div class="tutorial-character">
+                                <span style="font-size: 24px;">📜</span>
+                            </div>
+                            <div class="tutorial-content">
+                                <h4 id="actQuestTitle" style="color: #ffd700;">Нет задания</h4>
+                                <p id="actQuestDesc" style="color: #fff;">Зайдите в гильдию, чтобы взять контракт.</p>
+
+                                <div class="tut-progress">
+                                    <div id="actQuestBar" class="tut-bar-fill" style="background: #ffd700;"></div>
+                                </div>
+                                <div id="actQuestCounter" class="tut-counter">0 / 0</div>
+
+                                <button id="btnClaimSidebar" onclick="claimActiveQuest()"
+                                        style="display: none; width: 100%; margin-top: 5px; background: #ffd700; border: none; font-weight: bold; cursor: pointer; padding: 5px; border-radius: 4px;">
+                                    ЗАБРАТЬ НАГРАДУ
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+
+
                     <div id="enemyName" class="enemy-name">Слайм</div>
 
                     <div id="enemyHpContainer" class="hp-container">

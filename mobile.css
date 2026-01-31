@@ -369,3 +369,93 @@
         display: none !important;
     }
 }
+
+/* === ПЛАВАЮЩИЕ КВЕСТЫ (FIXED) === */
+@media (max-width: 768px) {
+
+    /* Базовый стиль для плавающей кнопки/панели */
+    .mobile-floating {
+        position: absolute !important; /* ГЛАВНОЕ: Вырываем из потока */
+        top: 10px; /* Отступ от верха игровой зоны */
+        left: 10px; /* Отступ слева */
+        width: auto !important;
+        max-width: 80%; /* Не даем растянуться на весь экран */
+        z-index: 500; /* Поверх врагов и эффектов */
+
+        background: rgba(0, 0, 0, 0.7) !important;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px !important; /* Круглая кнопка */
+        backdrop-filter: blur(3px);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        /* Убираем любые отступы, которые могли двигать контент */
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+        /* === СТИЛЬ ЗАГОЛОВКА (Это и есть наша кнопка) === */
+        .mobile-floating .tut-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: bold;
+            color: #fff;
+            cursor: pointer;
+            /* Убираем старые фоны заголовков */
+            background: transparent !important;
+            border: none !important;
+            white-space: nowrap;
+        }
+
+            /* Стрелочка */
+            .mobile-floating #tutArrow,
+            .mobile-floating .tut-header span:last-child {
+                font-size: 10px;
+                opacity: 0.7;
+            }
+
+        /* === РАЗВЕРНУТОЕ СОСТОЯНИЕ (Открытая панель) === */
+        .mobile-floating:not(.collapsed) {
+            background: rgba(20, 24, 35, 0.95) !important;
+            border-color: #ffd700;
+            border-radius: 10px !important;
+            width: 90% !important; /* Становится широким */
+            left: 50% !important; /* Центрируем */
+            transform: translateX(-50%); /* Центрируем */
+            top: 60px; /* Чуть ниже, чтобы не перекрывать имя босса совсем */
+            z-index: 1000;
+        }
+
+            .mobile-floating:not(.collapsed) .tut-header {
+                border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+                font-size: 14px;
+                padding: 10px;
+                justify-content: space-between;
+            }
+
+            .mobile-floating:not(.collapsed) .tut-body {
+                display: flex !important;
+                padding: 10px;
+            }
+
+        /* === СВЕРНУТОЕ СОСТОЯНИЕ (Только кнопка) === */
+        .mobile-floating.collapsed .tut-body {
+            display: none !important;
+        }
+
+        .mobile-floating.collapsed #tutArrow {
+            transform: rotate(-90deg);
+        }
+
+    /* Особый стиль для квеста Гильдии (Желтый) */
+    #activeQuestPanel.mobile-floating {
+        top: 50px; /* Сдвигаем ниже обучения, если они оба активны */
+    }
+
+    /* Если обучение скрыто, поднимаем квест выше (опционально) */
+    #tutorialPanel[style*="none"] + #activeQuestPanel.mobile-floating {
+        top: 10px;
+    }
+}

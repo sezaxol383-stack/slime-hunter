@@ -379,19 +379,22 @@ function updateQuestUI() {
         list.appendChild(div);
     });
 }
-// Отрисовка панели в САЙДБАРЕ (Текущий прогресс)
+// Отрисовка панели в САЙДБАРЕ (Текущий прогресс квеста Гильдии)
 function updateSidebarQuestUI() {
     const panel = document.getElementById('activeQuestPanel');
     const tutPanel = document.getElementById('tutorialPanel');
 
+    // Находим заголовок (чтобы не было ошибки)
+    const titleHeader = document.getElementById('actQuestTitleHeader');
+
     // Показываем только если обучение закончено
     if (gameState.tutorialStep !== -1) {
-        panel.style.display = 'none';
+        if (panel) panel.style.display = 'none';
         if (tutPanel) tutPanel.style.display = 'block';
         return;
     } else {
         if (tutPanel) tutPanel.style.display = 'none'; // Скрываем туториал навсегда
-        panel.style.display = 'block';
+        if (panel) panel.style.display = 'block';
     }
 
     const title = document.getElementById('actQuestTitle');
@@ -402,32 +405,76 @@ function updateSidebarQuestUI() {
 
     if (!gameState.activeQuest) {
         // Если квеста нет
-        title.innerText = "Нет контракта";
-        desc.innerText = "Зайдите в Гильдию и выберите задание!";
-        counter.innerText = "";
-        bar.style.width = "0%";
-        btn.style.display = 'none';
+        if (title) title.innerText = "Нет контракта";
+        if (desc) desc.innerText = "Зайдите в Гильдию и выберите задание!";
+        if (counter) counter.innerText = "";
+        if (bar) bar.style.width = "0%";
+        if (btn) btn.style.display = 'none';
+        if (titleHeader) titleHeader.innerText = "📜 Взять квест";
+
+        // Добавляем кнопку "В ГИЛЬДИЮ", если квеста нет
+        if (counter) {
+            counter.innerHTML = `<button class="quest-nav-btn" onclick="selectMobileTab('shop'); event.stopPropagation();">🚀 В ГИЛЬДИЮ</button>`;
+        }
+
     } else {
-        // Если квест есть
+        // Если квест ЕСТЬ
         const q = gameState.activeQuest;
-        title.innerText = "В ПРОЦЕССЕ";
-        desc.innerText = q.desc;
+        if (title) title.innerText = "В ПРОЦЕССЕ";
+        if (desc) desc.innerText = q.desc;
 
         const pct = Math.min(100, (q.current / q.target) * 100);
-        bar.style.width = `${pct}%`;
-        counter.innerText = `${q.current} / ${q.target}`;
+        if (bar) bar.style.width = `${pct}%`;
+
+        // === ЛОГИКА УМНОЙ КНОПКИ ===
+        let navBtn = "";
+
+        // Если квест "Собрать", а мы не в коллекции - кнопка "В КОЛЛЕКЦИЮ" (там видно ресурсы)
+        // Если квест "Купить/Продать" (тип определяется по смыслу, но у тебя простые типы)
+        // В твоем генераторе квестов типы: 'kill', 'collect', 'boss'.
+
+        const currentScreen = document.querySelector('.screen.active');
+
+        // Если надо собрать яйца/ресурсы, предлагаем пойти в Магию или Инвентарь
+        if (q.type === 'collect' && currentScreen.id !== 'magicScreen') {
+            // Можно отправить в Магию, чтобы видеть ресурсы, или просто оставить без кнопки (фарм идет в бою)
+        }
+
+        // Если квест выполнен -> кнопка "ЗАБРАТЬ" (уже есть ниже)
+        // Если квест "Убить босса", а мы не на боссе -> можно добавить кнопку, но это сложнее.
+
+        if (counter) counter.innerHTML = `${q.current} / ${q.target} ${navBtn}`;
 
         // Если выполнен
         if (q.current >= q.target) {
-            title.innerText = "✅ ВЫПОЛНЕНО!";
-            title.style.color = "#00ff00";
-            btn.style.display = 'block'; // Показываем кнопку "Забрать"
+            if (title) {
+                title.innerText = "✅ ВЫПОЛНЕНО!";
+                title.style.color = "#00ff00";
+            }
+            if (btn) btn.style.display = 'block'; // Показываем кнопку "Забрать"
         } else {
-            title.style.color = "#ffd700";
-            btn.style.display = 'none';
+            if (title) title.style.color = "#ffd700";
+            if (btn) btn.style.display = 'none';
+        }
+
+        // ОБНОВЛЕНИЕ ЗАГОЛОВКА (ДЛЯ СВЕРНУТОЙ КНОПКИ)
+        if (titleHeader) {
+            if (window.innerWidth < 768) {
+                let icon = q.type === 'kill' ? '💀' : (q.type === 'collect' ? '🥚' : '👹');
+                titleHeader.innerText = `${icon} ${q.current}/${q.target}`;
+                if (q.current >= q.target) titleHeader.innerText = "✅ ЗАБРАТЬ!";
+            } else {
+                titleHeader.innerText = "📜 ТЕКУЩАЯ ЦЕЛЬ";
+            }
         }
     }
 }
+
+
+
+
+
+
 function updateMapUI() {
     const grid = document.getElementById('mapGrid');
     if (!grid) return;
@@ -481,7 +528,7 @@ function updateTutorialUI() {
     const text = document.getElementById('tutText');
     const bar = document.getElementById('tutBar');
     const counter = document.getElementById('tutCounter');
-    const barContainer = document.querySelector('.tut-progress'); // Получаем контейнер полоски
+    const barContainer = document.querySelector('.tut-progress');
 
     if (tutorialState.step >= tutorialSteps.length) {
         completeTutorial();
@@ -495,11 +542,53 @@ function updateTutorialUI() {
     title.innerText = currentTask.title;
     text.innerText = currentTask.text;
 
-    // === ИСПРАВЛЕНИЕ: КНОПКА ЗАВЕРШЕНИЯ ===
-    if (currentTask.type === 'finish') {
-        // Если это последний шаг - прячем прогресс бар и показываем кнопку
-        if (barContainer) barContainer.style.display = 'none';
+    // === ЛОГИКА КНОПКИ ПЕРЕХОДА ===
+    let navButtonHtml = '';
 
+    // Карта привязки типов заданий к вкладкам
+    const targetMap = {
+        'shop': 'shop',          // Если цель - магазин
+        'buy_lootbox': 'shop',   // Покупка сундука - в магазин
+        'sell_egg': 'shop',      // Продажа - в магазин
+        'forge': 'forge',        // Если цель - кузница
+        'upgrade_dmg': 'forge',  // Прокачка - в кузницу
+        'collection': 'collection', // Коллекция
+        'perform_ritual': 'collection',
+        'click_artifact': 'collection'
+    };
+
+    // Определяем, куда идти
+    let destination = null;
+
+    // 1. Если тип задания 'tab' (Перейти на вкладку), берем цель напрямую
+    if (currentTask.type === 'tab') {
+        destination = currentTask.target;
+    }
+    // 2. Иначе ищем в нашей карте по типу задания
+    else if (targetMap[currentTask.type]) {
+        destination = targetMap[currentTask.type];
+    }
+
+    // Если мы нашли, куда идти, и мы НЕ на этой вкладке сейчас
+    // (Проверка экрана нужна, чтобы кнопка исчезала, когда мы уже пришли)
+    const currentScreen = document.querySelector('.screen.active');
+    const isAlreadyThere = currentScreen && currentScreen.id === (destination + 'Screen');
+
+    if (destination && !isAlreadyThere) {
+        let locName = "";
+        if (destination === 'shop') locName = "В ГИЛЬДИЮ";
+        if (destination === 'forge') locName = "В КУЗНИЦУ";
+        if (destination === 'collection') locName = "В КОЛЛЕКЦИЮ";
+
+        // Добавляем HTML кнопки
+        // Важно: selectMobileTab переключит вкладку
+        navButtonHtml = `<button class="quest-nav-btn" onclick="selectMobileTab('${destination}'); event.stopPropagation();">🚀 ${locName}</button>`;
+    }
+    // ==============================
+
+    // === ОТОБРАЖЕНИЕ (ФИНАЛ ИЛИ ОБЫЧНЫЙ ШАГ) ===
+    if (currentTask.type === 'finish') {
+        if (barContainer) barContainer.style.display = 'none';
         counter.innerHTML = `
             <button onclick="completeTutorial()" 
                 style="background: linear-gradient(90deg, #00ffcc, #00aa99); 
@@ -510,16 +599,15 @@ function updateTutorialUI() {
             </button>
         `;
     } else {
-        // Для обычных шагов
         if (barContainer) barContainer.style.display = 'block';
-
         let pct = 0;
         if (currentTask.target > 0) {
             pct = (tutorialState.progress / currentTask.target) * 100;
             if (pct > 100) pct = 100;
-            counter.innerText = `${tutorialState.progress} / ${currentTask.target}`;
+            // Вставляем кнопку навигации ПОСЛЕ счетчика
+            counter.innerHTML = `${tutorialState.progress} / ${currentTask.target} ${navButtonHtml}`;
         } else {
-            counter.innerText = "";
+            counter.innerHTML = navButtonHtml; // Если нет цели (просто текст), только кнопка
         }
         bar.style.width = `${pct}%`;
     }

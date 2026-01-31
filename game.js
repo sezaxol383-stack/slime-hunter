@@ -261,50 +261,79 @@ function gameLoop() {
 }
 
 // --- ЗАПУСК ---
+// --- ЗАПУСК ---
 function loadGame() {
-    // 1. Пытаемся достать сохранения
     const saved = localStorage.getItem('slimeHunterMobile_v1');
-
-    // Флаг: загрузили ли мы врага из файла?
     let enemyLoadedFromSave = false;
 
     if (saved) {
-        const parsed = JSON.parse(saved);
-        gameState = { ...gameState, ...parsed };
+        try {
+            const parsed = JSON.parse(saved);
+            gameState = { ...gameState, ...parsed };
 
-        if (parsed.inventory) gameState.inventory = { ...gameState.inventory, ...parsed.inventory };
-        if (parsed.materials) gameState.materials = { ...gameState.materials, ...parsed.materials };
+            if (parsed.inventory) gameState.inventory = { ...gameState.inventory, ...parsed.inventory };
+            if (parsed.materials) gameState.materials = { ...gameState.materials, ...parsed.materials };
 
-        // === ГЛАВНАЯ ПРОВЕРКА ===
-        if (parsed.savedEnemy) {
-            // Если есть сохраненный враг — БЕРЕМ ЕГО
-            currentSlime.currentHp = parsed.savedEnemy.currentHp;
-            currentSlime.maxHp = parsed.savedEnemy.maxHp;
-            currentSlime.isBoss = parsed.savedEnemy.isBoss;
-            currentLocationIndex = parsed.savedEnemy.locationIndex || 0;
-            currentSlime.skin = parsed.savedEnemy.skin || null;
-            currentSlime.name = parsed.savedEnemy.name || null;
+            // === 1. ГЛАВНЫЙ САНИТАР (Лечим базовые статы) ===
+            // Сначала чиним убийства и золото, чтобы формулы ниже работали
+            if (typeof gameState.kills !== 'number' || isNaN(gameState.kills) || gameState.kills < 0) {
+                console.warn("🐛 Fix: Kills corrupted, resetting to 0");
+                gameState.kills = 0;
+            }
+            if (typeof gameState.gold !== 'number' || isNaN(gameState.gold)) {
+                gameState.gold = 0;
+            }
+            if (typeof gameState.clickPower !== 'number' || isNaN(gameState.clickPower) || gameState.clickPower < 1) {
+                gameState.clickPower = 1;
+            }
+            // ===============================================
 
-            enemyLoadedFromSave = true; // Ставим галочку, что загрузка прошла успешно
+            // Пробуем загрузить врага
+            if (parsed.savedEnemy) {
+                currentSlime.currentHp = parsed.savedEnemy.currentHp;
+                currentSlime.maxHp = parsed.savedEnemy.maxHp;
+                currentSlime.isBoss = parsed.savedEnemy.isBoss;
+                currentLocationIndex = parsed.savedEnemy.locationIndex || 0;
+                currentSlime.skin = parsed.savedEnemy.skin || null;
+                currentSlime.name = parsed.savedEnemy.name || null;
+
+                // Если выбор локации был сохранен
+                if (gameState.selectedLocation !== null) {
+                    currentLocationIndex = gameState.selectedLocation;
+                }
+
+                // === 2. ПРОВЕРКА ЗДОРОВЬЯ ===
+                // Если здоровье сломано (NaN, 0, null) — помечаем как "не загружен"
+                if (!currentSlime.maxHp || isNaN(currentSlime.maxHp) || currentSlime.maxHp <= 0) {
+                    console.warn("🐛 Fix: Enemy HP corrupted, spawning new one");
+                    enemyLoadedFromSave = false;
+                } else if (isNaN(currentSlime.currentHp)) {
+                    // Если макс норм, а текущее NaN — лечим текущее
+                    currentSlime.currentHp = currentSlime.maxHp;
+                    enemyLoadedFromSave = true;
+                } else {
+                    enemyLoadedFromSave = true;
+                }
+            }
+        } catch (e) {
+            console.error("Save file corrupted, starting fresh", e);
+            localStorage.removeItem('slimeHunterMobile_v1');
         }
     }
 
-    // 2. Если врага в сохранениях НЕ БЫЛО (или это новая игра) — создаем нового
+    // 2. Если врага не было или он был битым — создаем нового
     if (!enemyLoadedFromSave) {
-        // Рассчитываем, должен ли быть босс по количеству убийств
         const isBossStage = (gameState.kills + 1) % 10 === 0;
         currentSlime.isBoss = isBossStage;
 
-        // Считаем ХП с нуля
+        // Теперь gameState.kills точно число, формула сработает
         let baseHp = Math.floor(10 * Math.pow(1.05, gameState.kills));
-        if (isBossStage) {
-            currentSlime.maxHp = baseHp * 10;
-        } else {
-            currentSlime.maxHp = baseHp;
-        }
+        // Защита от бесконечности
+        if (!isFinite(baseHp) || isNaN(baseHp)) baseHp = 10;
+
+        currentSlime.maxHp = isBossStage ? baseHp * 10 : baseHp;
         currentSlime.currentHp = currentSlime.maxHp;
 
-        // Сбрасываем скин, чтобы сгенерировался новый
         currentSlime.skin = null;
         currentSlime.name = null;
 
@@ -319,7 +348,7 @@ function loadGame() {
     // 4. Обновление Визуала
     updatePetUI();
     updateBackground();
-    changeSlimeSkin(); // Поставит скин (загруженный или новый)
+    changeSlimeSkin();
     respawnSlime();
 
     // 5. Запуск систем
@@ -329,14 +358,21 @@ function loadGame() {
     bgMusic.src = musicTracks[currentLocationIndex];
     manageMusic();
 
-    // 6. Таймеры
+    // 6. Сворачиваем панели на телефоне при старте
+    if (window.innerWidth < 768) {
+        const qPanel = document.getElementById('activeQuestPanel');
+        const tPanel = document.getElementById('tutorialPanel');
+        if (qPanel) qPanel.classList.add('collapsed');
+        if (tPanel) tPanel.classList.add('collapsed');
+    }
+
+    // 7. Таймеры
     if (window.gameInterval) clearInterval(window.gameInterval);
     if (window.saveInterval) clearInterval(window.saveInterval);
 
     window.gameInterval = setInterval(gameLoop, 1000);
     window.saveInterval = setInterval(saveGame, 10000);
 }
-
 function saveGame() {
     if (isResetting) return; // Если идет сброс, НЕ СОХРАНЯЕМ!
     // Сохраняем всё о текущем враге: ХП, Босс ли он, КАРТИНКУ и ИМЯ
