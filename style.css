@@ -1985,18 +1985,23 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     position: absolute;
     width: 60px;
     height: 60px;
-    border-radius: 50%;
-    border: 3px solid #555;
-    background: #000; /* Изначально черные */
-    display: none; /* Скрыты пока не зарядились */
+    /* Убираем старые CSS рамки и фон */
+    border-radius: 0;
+    border: none;
+    background: transparent;
+    display: none;
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    color: white;
+    color: transparent; /* Скрываем текст, если он там был */
     cursor: pointer;
-    pointer-events: auto; /* Сами руны кликабельны */
-    transition: all 0.3s;
-    box-shadow: 0 0 10px #000;
+    pointer-events: auto;
+    transition: transform 0.3s, filter 0.3s;
+    /* Настройки для картинок */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: drop-shadow(0 0 5px rgba(0,0,0,0.5)); /* Тень от картинки */
 }
 
 /* Позиции треугольником */
@@ -2019,42 +2024,43 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
 
 /* === СОСТОЯНИЯ РУН === */
 
-/* 1. Заряжается (Черная с белой обводкой) */
+/* 1. Заряжается (Серая картинка) */
 .rune-charging {
     display: flex;
-    background: #111;
-    border-color: #888;
+    background-image: url('images/ui/rune_grey.png');
     animation: pulseBtn 2s infinite;
+    opacity: 0.7; /* Чуть прозрачная, пока копится */
 }
 
-/* 2. Готова (Цветная) */
+/* 2. Готова (Общий стиль готовности) */
 .rune-ready {
-    border-color: #fff;
-    box-shadow: 0 0 20px currentColor; /* Светится своим цветом */
+    opacity: 1;
     animation: runeFloat 2s infinite ease-in-out;
 }
 
-/* Цвета для фазы готовности */
+/* Цвета заменяем на картинки */
 .rune-red {
-    background: radial-gradient(circle, #ff5555, #990000);
-    color: #ff5555;
+    background-image: url('images/ui/rune_red1.png');
+    /* Красное свечение вокруг картинки */
+    filter: drop-shadow(0 0 10px #ff5555);
 }
 
 .rune-green {
-    background: radial-gradient(circle, #55ff55, #009900);
-    color: #55ff55;
+    background-image: url('images/ui/rune_green.png');
+    filter: drop-shadow(0 0 10px #55ff55);
 }
 
 .rune-blue {
-    background: radial-gradient(circle, #5555ff, #000099);
-    color: #5555ff;
+    background-image: url('images/ui/rune_blue.png');
+    filter: drop-shadow(0 0 10px #5555ff);
 }
 
 /* 3. Активирована (Нажата) */
+/* 3. Активирована (Нажата) */
 .rune-active {
-    filter: brightness(1.5);
+    filter: brightness(1.5) drop-shadow(0 0 15px white);
     transform: scale(1.2);
-    border: 3px solid #fff;
+    border: none; /* Убираем рамку, если была */
 }
 
 /* Текст комбо (например: "ОГОНЬ + ВОДА...") */

@@ -925,3 +925,23 @@ function updateMagicUI() {
         });
     }
 }
+
+function spawnSpellEffect(type) {
+    const container = document.querySelector('.main-area'); // Ищем игровую зону
+
+    // Создаем элемент эффекта
+    const effect = document.createElement('div');
+    effect.className = `spell-vfx vfx-${type}`; // Классы: spell-vfx + vfx-fire (например)
+
+    // Добавляем в центр экрана
+    // (Позиционирование настроим в CSS)
+    container.appendChild(effect);
+
+    // Удаляем через 1 секунду (когда анимация пройдет)
+    setTimeout(() => {
+        effect.remove();
+    }, 1000);
+
+    // Звуки (если хочешь)
+    if (type === 'fire') playSound('hit'); // Или звук взрыва
+}

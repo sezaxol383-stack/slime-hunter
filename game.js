@@ -1,4 +1,6 @@
 
+
+let isResetting = false; // Флаг для сброса
 let gameState = {
     kills: 0,
     gold: 0,
@@ -78,7 +80,6 @@ function startRitual() {
     for (let i = 1; i <= 3; i++) {
         const orb = document.createElement('div');
         orb.className = 'ritual-orb';
-        orb.innerText = i;
         orb.dataset.num = i;
 
         orb.style.left = `calc(50% + ${positions[i - 1].x}px - 25px)`;
@@ -261,79 +262,94 @@ function gameLoop() {
 
 // --- ЗАПУСК ---
 function loadGame() {
+    // 1. Пытаемся достать сохранения
     const saved = localStorage.getItem('slimeHunterMobile_v1');
+
+    // Флаг: загрузили ли мы врага из файла?
+    let enemyLoadedFromSave = false;
+
     if (saved) {
         const parsed = JSON.parse(saved);
         gameState = { ...gameState, ...parsed };
-        if (parsed.inventory) {
-            gameState.inventory = { ...gameState.inventory, ...parsed.inventory };
+
+        if (parsed.inventory) gameState.inventory = { ...gameState.inventory, ...parsed.inventory };
+        if (parsed.materials) gameState.materials = { ...gameState.materials, ...parsed.materials };
+
+        // === ГЛАВНАЯ ПРОВЕРКА ===
+        if (parsed.savedEnemy) {
+            // Если есть сохраненный враг — БЕРЕМ ЕГО
+            currentSlime.currentHp = parsed.savedEnemy.currentHp;
+            currentSlime.maxHp = parsed.savedEnemy.maxHp;
+            currentSlime.isBoss = parsed.savedEnemy.isBoss;
+            currentLocationIndex = parsed.savedEnemy.locationIndex || 0;
+            currentSlime.skin = parsed.savedEnemy.skin || null;
+            currentSlime.name = parsed.savedEnemy.name || null;
+
+            enemyLoadedFromSave = true; // Ставим галочку, что загрузка прошла успешно
         }
     }
 
+    // 2. Если врага в сохранениях НЕ БЫЛО (или это новая игра) — создаем нового
+    if (!enemyLoadedFromSave) {
+        // Рассчитываем, должен ли быть босс по количеству убийств
+        const isBossStage = (gameState.kills + 1) % 10 === 0;
+        currentSlime.isBoss = isBossStage;
+
+        // Считаем ХП с нуля
+        let baseHp = Math.floor(10 * Math.pow(1.05, gameState.kills));
+        if (isBossStage) {
+            currentSlime.maxHp = baseHp * 10;
+        } else {
+            currentSlime.maxHp = baseHp;
+        }
+        currentSlime.currentHp = currentSlime.maxHp;
+
+        // Сбрасываем скин, чтобы сгенерировался новый
+        currentSlime.skin = null;
+        currentSlime.name = null;
+
+        if (!gameState.materials) gameState.materials = {};
+    }
+
+    // 3. Инициализация массивов (защита от null)
     if (!gameState.equippedPet) gameState.equippedPet = null;
-    updatePetUI(); // Показать питомца при загрузке
-
-    rarities.forEach(r => {
-        if (typeof gameState.inventory[r.id] === 'undefined') {
-            gameState.inventory[r.id] = 0;
-        }
-    });
     if (!gameState.pets) gameState.pets = [];
-    if (!gameState.autoDps) gameState.autoDps = 0;
     if (!gameState.bossTrophies) gameState.bossTrophies = [];
-    if (!gameState.materials) {
-        gameState.materials = {};
-    }
 
-    const isBossStage = (gameState.kills + 1) % 10 === 0;
-    currentSlime.isBoss = isBossStage;
-
-    let baseHp = Math.floor(10 * Math.pow(1.05, gameState.kills));
-    if (isBossStage) {
-        currentSlime.maxHp = baseHp * 10;
-    } else {
-        currentSlime.maxHp = baseHp;
-    }
-    currentSlime.currentHp = currentSlime.maxHp;
-
-    let startIndex = 0;
-    for (let i = locations.length - 1; i >= 0; i--) {
-        if (gameState.kills >= locations[i].minKills) {
-            startIndex = i;
-            break;
-        }
-    }
-    currentLocationIndex = startIndex;
-
+    // 4. Обновление Визуала
+    updatePetUI();
     updateBackground();
+    changeSlimeSkin(); // Поставит скин (загруженный или новый)
+    respawnSlime();
 
-    const loc = locations[currentLocationIndex];
-    const randomSkin = loc.slimes[Math.floor(Math.random() * loc.slimes.length)];
-    const slimeImg = document.querySelector('.slime-img');
-    if (slimeImg) {
-        slimeImg.src = randomSkin;
-        const container = document.querySelector('.slime-container');
-        if (container) {
-            if (currentSlime.isBoss) {
-                container.style.transform = 'translate(-50%, -50%)';
-                container.style.left = '50%';
-                container.style.top = '50%';
-            } else {
-                container.style.transform = 'none';
-            }
-        }
-    }
+    // 5. Запуск систем
     initTutorial();
     updateAllUI();
     updateSoundButton();
     bgMusic.src = musicTracks[currentLocationIndex];
     manageMusic();
 
-    setInterval(gameLoop, 1000);
-    setInterval(saveGame, 10000);
+    // 6. Таймеры
+    if (window.gameInterval) clearInterval(window.gameInterval);
+    if (window.saveInterval) clearInterval(window.saveInterval);
+
+    window.gameInterval = setInterval(gameLoop, 1000);
+    window.saveInterval = setInterval(saveGame, 10000);
 }
 
 function saveGame() {
+    if (isResetting) return; // Если идет сброс, НЕ СОХРАНЯЕМ!
+    // Сохраняем всё о текущем враге: ХП, Босс ли он, КАРТИНКУ и ИМЯ
+    gameState.savedEnemy = {
+        currentHp: currentSlime.currentHp,
+        maxHp: currentSlime.maxHp,
+        isBoss: currentSlime.isBoss,
+        locationIndex: currentLocationIndex,
+        // === НОВОЕ ===
+        skin: currentSlime.skin,
+        name: currentSlime.name
+    };
+
     localStorage.setItem('slimeHunterMobile_v1', JSON.stringify(gameState));
 }
 
@@ -435,13 +451,20 @@ function onSlimeDeath() {
     currentSlime.maxHp = isNextBoss ? baseHp * 10 : baseHp;
     currentSlime.currentHp = currentSlime.maxHp;
 
-    saveGame();
-    updateAllUI();
+    currentSlime.skin = null;
+    currentSlime.name = null;
 
     changeSlimeSkin();
     respawnSlime();
+
+    saveGame();
+    updateAllUI();
+
     if (navigator.vibrate) navigator.vibrate(50);
 }
+
+
+
 
 function rollLoot() {
     if (tutorialState.isActive && tutorialState.step === 2) {
@@ -820,22 +843,21 @@ function getTargetLocationIndex() {
         }
     }
 
-    // 2. Если игрок выбрал локацию вручную (через Карту), проверяем, открыта ли она
+    // 2. Если игрок (или разработчик) выбрал локацию вручную, ИСПОЛЬЗУЕМ ЕЁ.
+    // УБРАЛИ проверку (<= maxIndex), чтобы Dev Mode и сохранения работали корректно.
     if (gameState.selectedLocation !== null) {
-        // Не даем выбрать закрытую локацию (на всякий случай)
-        if (gameState.selectedLocation <= maxIndex) {
-            return gameState.selectedLocation;
-        }
+        return gameState.selectedLocation;
     }
 
     // 3. Иначе возвращаем максимальную доступную (авто-режим)
     return maxIndex;
 }
 
+
 function changeSlimeSkin() {
     let newIndex = getTargetLocationIndex();
 
-    // 1. Смена локации
+    // 1. Смена локации (если перешли в другой мир)
     if (newIndex !== currentLocationIndex) {
         let videoPath = 'video/transition.mp4';
         if (newIndex === 1) videoPath = 'video/trans_fire.mp4';
@@ -846,74 +868,74 @@ function changeSlimeSkin() {
             currentLocationIndex = newIndex;
             updateBackground();
             changeMusic(newIndex);
-
-            const newLoc = locations[newIndex];
-            const slimeImg = document.querySelector('.slime-img');
-            if (slimeImg) {
-                slimeImg.src = newLoc.slimes[0];
-                respawnSlime();
-            }
+            // При смене локации точно генерируем нового моба
+            currentSlime.skin = null;
+            currentSlime.name = null;
+            changeSlimeSkin(); // Рекурсивный вызов уже с новой локацией
+            respawnSlime();
         });
-    } else {
-        const loc = locations[currentLocationIndex];
-        const randomSkin = loc.slimes[Math.floor(Math.random() * loc.slimes.length)];
-        const slimeImg = document.querySelector('.slime-img');
-        if (slimeImg) slimeImg.src = randomSkin;
+        return; // Прерываем, ждем конца видео
     }
 
-    // === 2. НАСТРОЙКА UI ===
+    // === 2. ВЫБОР СКИНА И ИМЕНИ ===
+    const loc = locations[currentLocationIndex];
 
+    // Если у нас еще нет сохраненного скина (новый моб)
+    if (!currentSlime.skin) {
+        if (currentSlime.isBoss) {
+            // --- ГЕНЕРАЦИЯ БОССА ---
+            const possibleBosses = bossEnemies.filter(b => b.location === loc.id);
+            if (possibleBosses.length > 0) {
+                const randomBoss = possibleBosses[Math.floor(Math.random() * possibleBosses.length)];
+                currentSlime.skin = randomBoss.image;
+                currentSlime.name = randomBoss.name;
+            } else {
+                // Заглушка, если боссов нет
+                currentSlime.skin = loc.slimes[0];
+                currentSlime.name = "БОСС";
+            }
+        } else {
+            // --- ГЕНЕРАЦИЯ ОБЫЧНОГО МОБА ---
+            const randomSkin = loc.slimes[Math.floor(Math.random() * loc.slimes.length)];
+            currentSlime.skin = randomSkin;
+            currentSlime.name = `${loc.name} Слайм`;
+        }
+    }
+
+    // === 3. ПРИМЕНЕНИЕ К UI ===
     const slimeImg = document.querySelector('.slime-img');
-    // const bossLabel = ... <--- УДАЛЕНО
     const nameLabel = document.getElementById('enemyName');
-
     const hpContainer = document.getElementById('enemyHpContainer');
     const hpFill = document.getElementById('hpFill');
     const hpFrame = document.getElementById('hpFrame');
 
-    const loc = locations[currentLocationIndex];
+    // Ставим картинку
+    if (slimeImg) slimeImg.src = currentSlime.skin;
 
-    if (currentSlime.isBoss) {
-        // --- РЕЖИМ БОССА ---
-        slimeImg.classList.add('boss');
-
-        // if (bossLabel) bossLabel.style.display = 'block'; <--- УДАЛЕНО
-
-        const currentLocId = loc.id;
-        const possibleBosses = bossEnemies.filter(b => b.location === currentLocId);
-        let bossName = "БОСС";
-
-        if (possibleBosses.length > 0) {
-            const randomBoss = possibleBosses[Math.floor(Math.random() * possibleBosses.length)];
-            if (slimeImg) slimeImg.src = randomBoss.image;
-            bossName = randomBoss.name;
-
-            // if (bossLabel) ... <--- УДАЛЕНО (Блок с установкой текста и цвета)
-        }
-
-        if (nameLabel) {
-            nameLabel.innerText = `☠️ ${bossName} ☠️`;
+    // Ставим имя (используем сохраненное имя, если это босс)
+    if (nameLabel) {
+        if (currentSlime.isBoss) {
+            nameLabel.innerText = `☠️ ${currentSlime.name} ☠️`;
             nameLabel.classList.add('name-boss');
+        } else {
+            nameLabel.innerText = currentSlime.name;
+            nameLabel.classList.remove('name-boss');
         }
+    }
 
+    // Стилизация HP бара
+    if (currentSlime.isBoss) {
+        slimeImg.classList.add('boss');
         if (hpContainer) hpContainer.classList.add('boss-style');
         if (hpFill) hpFill.classList.add('boss-fill');
         if (hpFrame) hpFrame.classList.add('active');
-
     } else {
-        // --- ОБЫЧНЫЙ МОБ ---
         slimeImg.classList.remove('boss');
-        // if (bossLabel) bossLabel.style.display = 'none'; <--- УДАЛЕНО
-
-        if (nameLabel) {
-            nameLabel.innerText = `${loc.name} Слайм`;
-            nameLabel.classList.remove('name-boss');
-        }
-
         if (hpContainer) hpContainer.classList.remove('boss-style');
         if (hpFill) hpFill.classList.remove('boss-fill');
         if (hpFrame) hpFrame.classList.remove('active');
 
+        // Очистка ритуала для обычных мобов
         if (window.bossAttackInterval) clearInterval(window.bossAttackInterval);
         clearRitual();
         ritualState.active = false;
@@ -960,11 +982,31 @@ function devAddLoot() {
 }
 
 function devReset() {
-    if (confirm("Точно удалить весь прогресс?")) {
+    if (confirm("🧨 УНИЧТОЖИТЬ ВЕСЬ ПРОГРЕСС? Это нельзя отменить.")) {
+        isResetting = true; // Включаем защиту от авто-сохранения
+
+        // Очищаем интервалы
+        if (window.gameInterval) clearInterval(window.gameInterval);
+        if (window.saveInterval) clearInterval(window.saveInterval);
+
+        // Полная очистка
         localStorage.removeItem('slimeHunterMobile_v1');
+
+        // Перезагрузка
         location.reload();
     }
 }
+
+function devKillCurrent() {
+    currentSlime.currentHp = 0;
+    updateGameUI();
+    onSlimeDeath(); // Вызываем стандартную логику смерти
+    toggleDevPanel();
+}
+
+
+
+
 
 
 
@@ -973,8 +1015,6 @@ function updateBackground() {
     document.body.classList.remove('loc-forest', 'loc-fire', 'loc-ice', 'loc-dark');
     document.body.classList.add(loc.cssClass);
 }
-
-
 
 
 
@@ -1706,8 +1746,6 @@ function activateRitualReadyState() {
     isRitualReady = true;
     currentCombo = []; // Очищаем прошлый ввод
 
-    document.getElementById('comboDisplay').innerText = "ВЫБЕРИ КОМБИНАЦИЮ!";
-
     // Превращаем черные руны в цветные
     // Слот 1 = Красный, Слот 2 = Зеленый, Слот 3 = Синий
     const r1 = document.getElementById('runeSlot1');
@@ -1748,72 +1786,63 @@ function clickRune(slotId, color) {
 }
 
 function updateComboText() {
-    // Превращаем ['red', 'blue'] в "🔴 🔵"
-    const icons = { 'red': '🔴', 'green': '🟢', 'blue': '🔵' };
-    const text = currentCombo.map(c => icons[c]).join(' + ');
-    document.getElementById('comboDisplay').innerText = text;
+
 }
 
 function castComboAbility() {
     const comboString = currentCombo.join('-');
     let damage = 0;
-    let effectName = "";
-    let textColor = "#fff"; // Цвет текста урона
+    let effectType = ""; // Тип эффекта (fire, ice, nature, magic)
 
     // Базовый урон от комбо
     switch (comboString) {
         case 'red-green-blue':
         case 'red-blue-green':
-            effectName = "🔥 МЕТЕОРИТ 🔥";
+            // 🔥 МЕТЕОРИТ
             damage = Math.floor(currentSlime.maxHp * 0.25);
-            textColor = "#ff4400";
+            effectType = "fire";
             break;
 
         case 'green-red-blue':
         case 'green-blue-red':
-            effectName = "🌿 ГНЕВ ЛЕСА 🌿";
+            // 🌿 ГНЕВ ЛЕСА
             damage = Math.floor(currentSlime.maxHp * 0.2);
             gameState.gold += 50;
-            textColor = "#55ff55";
+            effectType = "nature";
             break;
 
         case 'blue-red-green':
         case 'blue-green-red':
-            effectName = "❄️ АБСОЛЮТНЫЙ НОЛЬ ❄️";
+            // ❄️ АБСОЛЮТНЫЙ НОЛЬ
             damage = Math.floor(currentSlime.maxHp * 0.15);
-            textColor = "#00ccff";
+            effectType = "ice";
             break;
 
         default:
-            effectName = "✨ МАГИЧЕСКИЙ ВЫБРОС ✨";
+            // ✨ МАГИЧЕСКИЙ ВЫБРОС
             damage = Math.floor(currentSlime.maxHp * 0.1);
-            textColor = "#ffffff";
+            effectType = "magic";
     }
 
-    // Защита: Урон не может быть меньше 1
     if (damage < 1) damage = 1;
 
-    // Наносим урон
     currentSlime.currentHp -= damage;
 
-    // Проверка на смерть (чтобы не ушло в минус)
     if (currentSlime.currentHp <= 0) {
         currentSlime.currentHp = 0;
-        // Важно: Вызываем смерть вручную, если убили способностью
         onSlimeDeath();
     } else {
-        updateGameUI(); // Обновляем полоску только если жив
+        updateGameUI();
     }
 
-    // Эффекты
-    // Передаем true (как крит), чтобы цифры были большими
-    // И передаем textColor, но твоя функция spawnDamageNumber пока не принимает цвет.
-    // Давай пока просто спавнить как крит.
-    spawnDamageNumber(window.innerWidth / 2, window.innerHeight / 2, `${effectName}: ${damage}`, true);
+    // === ЗАПУСКАЕМ АНИМАЦИЮ ===
+    spawnSpellEffect(effectType);
+    // ===========================
 
+    // Цифры урона (можно оставить, чтобы видеть сколько сняло)
+    spawnDamageNumber(window.innerWidth / 2, window.innerHeight / 2, `-${damage}`, true);
     triggerShake();
 
-    // Сброс через секунду
     setTimeout(resetRitual, 1000);
 }
 
@@ -1849,7 +1878,45 @@ setInterval(() => {
     }
 }, 1000 / 60);
 
+function devSpawnBoss(locIndex) {
+    // 1. Фиксируем выбор локации, чтобы getTargetLocationIndex не выкинул нас обратно
+    gameState.selectedLocation = locIndex;
+    currentLocationIndex = locIndex;
 
+    // 2. Включаем режим босса
+    currentSlime.isBoss = true;
+
+    // 3. Задаем HP
+    let hp = 5000 * (locIndex + 1);
+    currentSlime.maxHp = hp;
+    currentSlime.currentHp = hp;
+
+    // 4. Сбрасываем старый скин
+    currentSlime.skin = null;
+    currentSlime.name = null;
+
+    // 5. Обновляем всё
+    updateBackground();
+    changeMusic(locIndex);
+    changeSlimeSkin();
+    respawnSlime();
+    updateAllUI();
+
+    toggleDevPanel();
+    alert(`👹 ПРИЗВАН БОСС ЛОКАЦИИ ${locIndex + 1}!`);
+
+    // 6. Сохраняем, чтобы F5 не сбросил прогресс
+    saveGame();
+}
+
+
+
+
+
+// Сохранять игру автоматически перед закрытием вкладки
+window.addEventListener('beforeunload', () => {
+    saveGame();
+});
 
 
 // Слушаем изменение размера окна
@@ -1859,3 +1926,4 @@ setTimeout(checkLayout, 100);
 
 // Запуск при старте (ПЕРЕНЕСЛИ В САМЫЙ КОНЕЦ)
 loadGame();
+
