@@ -1060,52 +1060,66 @@ document.addEventListener('click', function (event) {
     }
 });
 
+
 function respawnSlime() {
     const container = document.querySelector('.slime-container');
-    const area = document.querySelector('.main-area');
+    if (!container) return;
 
-    if (!container || !area) return;
+    const isMobile = window.innerWidth < 768;
 
-    // Сбрасываем стили перед расчетом
-    container.style.transform = 'none';
+    // === СБРОС КООРДИНАТ ===
+    // Обязательно очищаем top, чтобы он не конфликтовал с bottom
+    container.style.top = 'auto';
+    container.style.margin = '0';
+    container.style.position = 'absolute';
 
-    // Если босс - всегда центр
+    // === 1. БОСС (Всегда по центру, прижат к низу) ===
     if (currentSlime.isBoss) {
-        container.style.top = '50%';
         container.style.left = '50%';
-        container.style.transform = 'translate(-50%, -50%)';
+
+        // Меняем transform! Теперь мы центрируем только по X. 
+        // По Y мы не сдвигаем, пусть он "растет" вверх от точки bottom.
+        container.style.transform = 'translate(-50%, 0)';
+
+        // На ПК ставим на 15% от низа экрана. На мобилке — 25% (над меню)
+        container.style.bottom = isMobile ? '25%' : '15%';
+
+        console.log("Boss Spawn: Anchored to Bottom");
         return;
     }
 
-    // Получаем размеры зоны боя
-    const areaRect = area.getBoundingClientRect();
+    // === 2. ОБЫЧНЫЕ МОБЫ (Рандом по низу) ===
+    let minX, maxX, minBottom, maxBottom;
 
-    // Размеры самого слайма (примерно 150-180px, но лучше брать с запасом для телефона)
-    // На телефоне слаймы должны быть чуть меньше
-    const isMobile = window.innerWidth < 768;
-    const slimeSize = isMobile ? 120 : 180;
+    if (isMobile) {
+        // МОБИЛКА
+        minX = 15; maxX = 85;
+        // Спавним на высоте от 25% до 45% от пола (над меню)
+        minBottom = 25; maxBottom = 45;
+    } else {
+        // ПК
+        // Держим ближе к центру (40-60%)
+        minX = 40; maxX = 60;
+        // Прижимаем к полу: от 10% до 25% снизу
+        minBottom = 10; maxBottom = 25;
+    }
 
-    // Отступы, чтобы не прилипал к краям
-    const padding = 20;
-    // Верхний отступ (чтобы не залез на HP бар и шапку)
-    const topOffset = isMobile ? 150 : 100;
-    // Нижний отступ (чтобы не залез на скиллы питомца)
-    const bottomOffset = isMobile ? 160 : 50;
+    // Генерация
+    const randomX = Math.floor(minX + Math.random() * (maxX - minX));
+    const randomBottom = Math.floor(minBottom + Math.random() * (maxBottom - minBottom));
 
-    // Расчет безопасной зоны
-    const safeWidth = areaRect.width - slimeSize - (padding * 2);
-    const safeHeight = areaRect.height - slimeSize - topOffset - bottomOffset;
+    // Применение
+    container.style.left = `${randomX}%`;
+    container.style.bottom = `${randomBottom}%`;
 
-    // Защита от отрицательных значений (если экран слишком маленький)
-    const maxX = Math.max(0, safeWidth);
-    const maxY = Math.max(0, safeHeight);
+    // Центрируем только по горизонтали!
+    container.style.transform = 'translate(-50%, 0)';
 
-    const randomX = Math.random() * maxX + padding;
-    const randomY = Math.random() * maxY + topOffset;
-
-    container.style.left = `${randomX}px`;
-    container.style.top = `${randomY}px`;
+    console.log(`Mob Spawn: Bottom ${randomBottom}%`);
 }
+
+
+
 
 function devModKills(amount) {
     gameState.kills += amount;

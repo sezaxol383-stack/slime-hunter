@@ -59,19 +59,19 @@
             display: flex;
         }
 
-
     /* ИСПРАВЛЕНИЕ РАЗМЕРОВ ДЛЯ ТЕЛЕФОНА */
     .slime-container {
-        /* Делаем коробку меньше, чтобы она влезала в экран */
-        width: 120px;
-        height: 120px;
-        /* Убираем старые отступы, так как теперь позиция задается через JS (top/left) */
+        width: 140px;
+        height: 140px;
         margin-bottom: 0;
-        position: absolute; /* Гарантируем, что он "плавает" */
-        top: 40% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
+        position: absolute;
+        /* УБРАЛИ !important */
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
     }
+
+
     /* Если это БОСС, делаем его чуть меньше на телефоне, чтобы не вылезал */
     .slime-img.boss {
         /* На ПК он scale(2.5), на телефоне сделаем поменьше */

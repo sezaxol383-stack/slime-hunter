@@ -12,6 +12,7 @@
 }
 
 /* === ГЛОБАЛЬНЫЕ НАСТРОЙКИ === */
+/* === ГЛОБАЛЬНЫЕ НАСТРОЙКИ (FIXED) === */
 body {
     margin: 0;
     font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -19,19 +20,42 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh;
+    
+    /* Исправление высоты для мобилок */
+    min-height: 100vh;
+    min-height: 100dvh; /* dynamic viewport height - современное решение */
+    height: 100%;
+    
     overflow: hidden;
+    
     /* Фоны и переходы */
     background-color: #1a1b26;
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
-    background-attachment: fixed;
+    
+    /* Убираем fixed, так как на iPhone это ломает фон. 
+       Лучше пусть фон скроллится или фиксируем его через ::before */
+    /* background-attachment: fixed;  <-- УБРАЛИ */
+    
     transition: background-image 1s ease-in-out, background-color 1s ease-in-out;
+    
     /* Запрет выделения */
     -webkit-user-select: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+}
+
+/* Фикс фона через псевдо-элемент (Самый надежный способ) */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: -1;
+    background: inherit; /* Берет картинку у body */
+    background-size: cover;
+    background-position: center;
 }
 
     /* === ФОНЫ ЛОКАЦИЙ === */
@@ -234,23 +258,24 @@ h2 {
 }
 
 
-/* === СЛАЙМ И ТЕНЬ (ОБНОВЛЕНО) === */
+/* === СЛАЙМ И ТЕНЬ (FIXED) === */
+/* === СЛАЙМ И ТЕНЬ (FIXED JS) === */
 .slime-container {
     position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    /* Задаем жесткий размер "коробки" слайма */
-    width: 180px;
-    height: 180px;
-    /* Центрирование по умолчанию */
-    top: 50%;
+    width: 200px;
+    height: 200px;
+    /* УБРАЛИ !important, чтобы JS мог двигать */
+    top: 55%;
     left: 50%;
+    /* Оставляем translate, чтобы координаты указывали на ЦЕНТР слайма */
     transform: translate(-50%, -50%);
     z-index: 2;
-    transition: top 0.2s, left 0.2s;
-    pointer-events: none; /* Чтобы клики вне картинки (в пустом углу контейнера) не считались */
+    pointer-events: none;
+    transition: top 0.1s, left 0.1s; /* Плавность прыжка */
 }
 
 .slime-img {
@@ -611,54 +636,7 @@ h2 {
         background: var(--accent);
         color: #000;
     }
-/* === ВИДЕО ПЕРЕХОД === */
-.transition-layer {
-    display: none; /* Скрыто */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    z-index: 9999; /* Поверх всего */
-    align-items: center;
-    justify-content: center;
-}
 
-    .transition-layer.active {
-        display: flex;
-        /* Было 0.5s, ставим 1.2s или даже 1.5s для очень медленного старта */
-        animation: fadeIn 1.2s ease-in-out forwards;
-    }
-
-    .transition-layer video {
-        width: 100%;
-        height: 100%;
-        object-fit: cover; /* Чтобы видео заполнило экран без полос */
-    }
-
-
-/* Кнопка пропуска видео */
-.skip-btn {
-    position: absolute;
-    bottom: 30px;
-    right: 30px;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    border: 1px solid white;
-    padding: 10px 20px;
-    font-weight: bold;
-    cursor: pointer;
-    z-index: 10000;
-    border-radius: 30px;
-    font-family: monospace;
-    transition: background 0.2s;
-}
-
-    .skip-btn:hover {
-        background: white;
-        color: black;
-    }
 /* ========================================= */
 /* === GAME JUICE (СОЧНОСТЬ) === */
 /* ========================================= */
@@ -2235,4 +2213,36 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     .kill-display span:last-child {
         color: #fff; /* Сами цифры белые */
     }
+
+/* Только для ПК (экраны шире 769px) */
+@media (min-width: 769px) {
+    /* Увеличиваем контейнер обычного слайма */
+    .slime-container {
+        width: 260px; /* Было 200 */
+        height: 260px; /* Было 200 */
+    }
+
+    /* Но Босса держим в рамках, чтобы не стал гигантским (у него свой scale) */
+    .slime-img.boss {
+        /* Масштаб 1.6 относительно нового размера 260px будет огромным,
+           поэтому чуть уменьшаем scale, чтобы компенсировать рост контейнера */
+        transform: scale(1.3);
+    }
+}
+
+/* style.css (в самый конец) */
+
+.slime-container {
+    /* Сбрасываем старые привязки, чтобы JS мог управлять через bottom */
+    top: auto !important;
+    margin-top: 0 !important;
+    /* Убеждаемся, что z-index ниже, чем у интерфейса */
+    z-index: 5;
+}
+
+/* Гарантируем, что панели всегда поверх слайма */
+.header, .panel, .boss-hp-wrapper, .tutorial-panel {
+    z-index: 100 !important;
+    position: relative;
+}
 
