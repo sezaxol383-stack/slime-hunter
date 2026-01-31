@@ -1969,59 +1969,116 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     opacity: 0.7;
 }
 /* === РИТУАЛЬНЫЕ РУНЫ === */
-.ritual-container {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 10px; /* Отступ от полоски здоровья */
-    position: relative;
-    height: 50px; /* Фиксируем высоту */
+/* === РУНЫ ВОКРУГ БОССА === */
+.ritual-orbit {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 300px;
+    height: 300px;
+    pointer-events: none; /* Чтобы контейнер не мешал кликать по боссу */
+    z-index: 20;
 }
 
-.rune-slot {
-    width: 40px;
-    height: 40px;
-    border: 2px solid #555;
-    border-radius: 50%; /* Круглые */
-    background: rgba(0, 0, 0, 0.5);
-    transition: all 0.3s ease;
-    /* Центрируем содержимое (если захочешь цифры внутри) */
-    display: flex;
+.rune-orbit-slot {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 3px solid #555;
+    background: #000; /* Изначально черные */
+    display: none; /* Скрыты пока не зарядились */
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    color: transparent; /* Скрываем цифру пока не активно */
-}
-
-/* Активная руна (заряжена) */
-.rune-active {
-    background: #00ffea; /* Голубое свечение */
-    border-color: #fff;
-    box-shadow: 0 0 10px #00ffea;
-    transform: scale(1.1);
-    color: #000; /* Цифра становится видна */
-}
-
-/* Когда готовы все 3 - они пульсируют */
-.runes-ready .rune-slot {
-    background: #ff0055; /* Красный боевой цвет */
-    box-shadow: 0 0 15px #ff0055;
-    animation: pulseRune 1s infinite;
+    color: white;
     cursor: pointer;
+    pointer-events: auto; /* Сами руны кликабельны */
+    transition: all 0.3s;
+    box-shadow: 0 0 10px #000;
 }
 
-.ritual-ready-text {
-    display: none; /* Скрыто */
+/* Позиции треугольником */
+.slot-left {
+    top: 20%;
+    left: 10%;
+}
+/* Слева сверху */
+.slot-right {
+    top: 20%;
+    right: 10%;
+}
+/* Справа сверху */
+.slot-bottom {
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+/* Снизу */
+
+/* === СОСТОЯНИЯ РУН === */
+
+/* 1. Заряжается (Черная с белой обводкой) */
+.rune-charging {
+    display: flex;
+    background: #111;
+    border-color: #888;
+    animation: pulseBtn 2s infinite;
+}
+
+/* 2. Готова (Цветная) */
+.rune-ready {
+    border-color: #fff;
+    box-shadow: 0 0 20px currentColor; /* Светится своим цветом */
+    animation: runeFloat 2s infinite ease-in-out;
+}
+
+/* Цвета для фазы готовности */
+.rune-red {
+    background: radial-gradient(circle, #ff5555, #990000);
+    color: #ff5555;
+}
+
+.rune-green {
+    background: radial-gradient(circle, #55ff55, #009900);
+    color: #55ff55;
+}
+
+.rune-blue {
+    background: radial-gradient(circle, #5555ff, #000099);
+    color: #5555ff;
+}
+
+/* 3. Активирована (Нажата) */
+.rune-active {
+    filter: brightness(1.5);
+    transform: scale(1.2);
+    border: 3px solid #fff;
+}
+
+/* Текст комбо (например: "ОГОНЬ + ВОДА...") */
+.combo-display {
     position: absolute;
-    top: -35px;
+    top: 65%; /* Под боссом */
+    left: 50%;
+    transform: translateX(-50%);
     font-size: 20px;
-    font-weight: 900;
-    color: #ff0055;
-    text-shadow: 2px 2px 0 #000;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 5px #000;
     pointer-events: none;
-    animation: bounce 0.5s infinite alternate;
-    width: 100%; /* Растягиваем, чтобы text-align работал */
-    text-align: center; /* Центрируем текст */
+    z-index: 25;
+}
+
+@keyframes runeFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
 }
 
 @keyframes pulseRune {
@@ -2173,3 +2230,4 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     .kill-display span:last-child {
         color: #fff; /* Сами цифры белые */
     }
+

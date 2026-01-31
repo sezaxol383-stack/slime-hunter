@@ -36,11 +36,8 @@ let petSkillTimer = null;
 let currentSlime = { maxHp: 10, currentHp: 10, isBoss: false };
 let currentLocationIndex = 0;
 // Переменные для Ритуала
-let ritualCharges = 0;          // Сколько рун заряжено (0, 1, 2, 3)
-let ritualChargeProgress = 0;   // Прогресс накопления текущей руны (0-100)
-const RITUAL_CHARGE_MAX = 100;  // Максимум прогресса для одной руны
-const PASSIVE_CHARGE_SPEED = 0.5; // Сколько добавляется само по себе (каждый тик)
-const CLICK_CHARGE_BONUS = 5;     // Сколько добавляет клик
+let currentCombo = []; // Массив для хранения нажатий (напр. ['red', 'blue', 'green'])
+let isRitualReady = false; // Флаг, можно ли нажимать руны
 
 // ==========================================
 // === МИНИ-ИГРА: РИТУАЛ (СФЕРЫ 1-2-3) ===
@@ -1660,13 +1657,13 @@ function craftItem(recipeId) {
 // === НОВАЯ ЛОГИКА РИТУАЛА ===
 
 function updateRitual() {
-    // Если уже 3 заряда, ничего не копим, ждем активации
-    if (ritualCharges >= 3) return;
+    // Если уже готовы к бою, таймер не нужен
+    if (isRitualReady) return;
 
     // Пассивное накопление
     ritualChargeProgress += PASSIVE_CHARGE_SPEED;
 
-    // Если накопили на целую руну
+    // Если накопили на одну руну
     if (ritualChargeProgress >= RITUAL_CHARGE_MAX) {
         ritualChargeProgress = 0;
         addRitualCharge();
@@ -1674,78 +1671,166 @@ function updateRitual() {
 }
 
 function addRitualCharge() {
+    if (ritualCharges >= 3) return;
+
     ritualCharges++;
 
-    // Включаем визуально руну
-    const runeEl = document.getElementById(`rune${ritualCharges}`);
+    // Включаем черную руну
+    const runeEl = document.getElementById(`runeSlot${ritualCharges}`);
     if (runeEl) {
-        runeEl.classList.add('rune-active');
-        runeEl.innerText = ritualCharges; // Пишем цифру 1, 2 или 3
-        playSound('coin'); // Звук "дзынь"
+        runeEl.style.display = 'flex';
+        runeEl.className = 'rune-orbit-slot rune-charging'; // Черный стиль
+
+        // Позиционируем в зависимости от номера (классы slot-left и т.д. уже в HTML)
+        if (ritualCharges === 1) runeEl.classList.add('slot-left');
+        if (ritualCharges === 2) runeEl.classList.add('slot-right');
+        if (ritualCharges === 3) runeEl.classList.add('slot-bottom');
+
+        playSound('drop'); // Звук появления
     }
 
-    // Если собрали все 3
+    // Если собрали все 3 — АКТИВАЦИЯ ЦВЕТОВ
     if (ritualCharges === 3) {
         activateRitualReadyState();
     }
 }
 
 function activateRitualReadyState() {
-    const container = document.getElementById('ritualContainer');
-    const text = document.getElementById('ritualReadyText');
+    isRitualReady = true;
+    currentCombo = []; // Очищаем прошлый ввод
 
-    container.classList.add('runes-ready');
-    text.style.display = 'block';
+    document.getElementById('comboDisplay').innerText = "ВЫБЕРИ КОМБИНАЦИЮ!";
 
-    // Делаем контейнер кликабельным для активации способности
-    container.onclick = castRitualAbility;
+    // Превращаем черные руны в цветные
+    // Слот 1 = Красный, Слот 2 = Зеленый, Слот 3 = Синий
+    const r1 = document.getElementById('runeSlot1');
+    const r2 = document.getElementById('runeSlot2');
+    const r3 = document.getElementById('runeSlot3');
 
-    playSound('upgrade'); // Звук готовности
+    r1.className = 'rune-orbit-slot slot-left rune-ready rune-red';
+    r2.className = 'rune-orbit-slot slot-right rune-ready rune-green';
+    r3.className = 'rune-orbit-slot slot-bottom rune-ready rune-blue';
+
+    playSound('upgrade');
 }
 
-function castRitualAbility() {
-    // ИСПРАВЛЕНО: currentEnemy -> currentSlime
-    const damage = Math.floor(currentSlime.maxHp * 0.2);
+// Обработка клика по руне
+function clickRune(slotId, color) {
+    // Нажимать можно только когда все 3 заряжены
+    if (!isRitualReady) return;
 
+    const runeEl = document.getElementById(`runeSlot${slotId}`);
+
+    // Если эта руна уже нажата (в этом комбо), не даем нажать второй раз
+    if (runeEl.classList.contains('rune-active')) return;
+
+    // Визуально "нажимаем"
+    runeEl.classList.add('rune-active');
+    playSound('hit');
+
+    // Добавляем в комбо
+    currentCombo.push(color);
+
+    // Обновляем текст на экране
+    updateComboText();
+
+    // Если нажали 3 руны — БАБАХ!
+    if (currentCombo.length === 3) {
+        castComboAbility();
+    }
+}
+
+function updateComboText() {
+    // Превращаем ['red', 'blue'] в "🔴 🔵"
+    const icons = { 'red': '🔴', 'green': '🟢', 'blue': '🔵' };
+    const text = currentCombo.map(c => icons[c]).join(' + ');
+    document.getElementById('comboDisplay').innerText = text;
+}
+
+function castComboAbility() {
+    const comboString = currentCombo.join('-');
+    let damage = 0;
+    let effectName = "";
+    let textColor = "#fff"; // Цвет текста урона
+
+    // Базовый урон от комбо
+    switch (comboString) {
+        case 'red-green-blue':
+        case 'red-blue-green':
+            effectName = "🔥 МЕТЕОРИТ 🔥";
+            damage = Math.floor(currentSlime.maxHp * 0.25);
+            textColor = "#ff4400";
+            break;
+
+        case 'green-red-blue':
+        case 'green-blue-red':
+            effectName = "🌿 ГНЕВ ЛЕСА 🌿";
+            damage = Math.floor(currentSlime.maxHp * 0.2);
+            gameState.gold += 50;
+            textColor = "#55ff55";
+            break;
+
+        case 'blue-red-green':
+        case 'blue-green-red':
+            effectName = "❄️ АБСОЛЮТНЫЙ НОЛЬ ❄️";
+            damage = Math.floor(currentSlime.maxHp * 0.15);
+            textColor = "#00ccff";
+            break;
+
+        default:
+            effectName = "✨ МАГИЧЕСКИЙ ВЫБРОС ✨";
+            damage = Math.floor(currentSlime.maxHp * 0.1);
+            textColor = "#ffffff";
+    }
+
+    // Защита: Урон не может быть меньше 1
+    if (damage < 1) damage = 1;
+
+    // Наносим урон
     currentSlime.currentHp -= damage;
-    if (currentSlime.currentHp < 0) currentSlime.currentHp = 0;
 
-    // Спавним красивый текст урона
-    spawnDamageNumber(window.innerWidth / 2, window.innerHeight / 2, `ULTIMATE: ${damage}!`, true);
-
-    // Обновляем UI (иначе полоска не сдвинется до следующего клика)
-    updateGameUI();
+    // Проверка на смерть (чтобы не ушло в минус)
+    if (currentSlime.currentHp <= 0) {
+        currentSlime.currentHp = 0;
+        // Важно: Вызываем смерть вручную, если убили способностью
+        onSlimeDeath();
+    } else {
+        updateGameUI(); // Обновляем полоску только если жив
+    }
 
     // Эффекты
-    playSound('hit');
-    triggerShake(); // Добавим тряску экрана для эпичности
+    // Передаем true (как крит), чтобы цифры были большими
+    // И передаем textColor, но твоя функция spawnDamageNumber пока не принимает цвет.
+    // Давай пока просто спавнить как крит.
+    spawnDamageNumber(window.innerWidth / 2, window.innerHeight / 2, `${effectName}: ${damage}`, true);
 
-    // Сброс ритуала
-    resetRitual();
+    triggerShake();
 
-    // Проверка смерти (вдруг ульта убила босса)
-    if (currentSlime.currentHp <= 0) onSlimeDeath();
+    // Сброс через секунду
+    setTimeout(resetRitual, 1000);
 }
+
 
 function resetRitual() {
     ritualCharges = 0;
     ritualChargeProgress = 0;
+    isRitualReady = false;
+    currentCombo = [];
 
-    // Сброс визуала
-    const container = document.getElementById('ritualContainer');
-    const text = document.getElementById('ritualReadyText');
+    document.getElementById('comboDisplay').innerText = "";
 
-    container.classList.remove('runes-ready');
-    container.onclick = null; // Убираем клик
-    text.style.display = 'none';
-
-    // Очищаем руны
+    // Скрываем все руны и сбрасываем классы
     for (let i = 1; i <= 3; i++) {
-        const rune = document.getElementById(`rune${i}`);
-        rune.classList.remove('rune-active');
-        rune.innerText = '';
+        const rune = document.getElementById(`runeSlot${i}`);
+        rune.style.display = 'none';
+        rune.className = 'rune-orbit-slot'; // Сброс цветов
+        // Возвращаем позиционные классы, так как мы их затерли
+        if (i === 1) rune.classList.add('slot-left');
+        if (i === 2) rune.classList.add('slot-right');
+        if (i === 3) rune.classList.add('slot-bottom');
     }
 }
+
 // === ЗАПУСК ТАЙМЕРА РИТУАЛА ===
 setInterval(() => {
     // Ритуал работает только на боссах (чтобы на обычных мобах не отвлекал)

@@ -8,48 +8,52 @@ function updateAllUI() {
     updateSidebarQuestUI();
     updateMagicUI();
 }
-function updateGameUI() {
-    // 1. Обновляем ширину полоски
-    const percent = Math.max(0, (currentSlime.currentHp / currentSlime.maxHp) * 100);
-    const hpFill = document.getElementById('hpFill');
-    if (hpFill) hpFill.style.width = `${percent}%`;
 
-    // 2. === ИСПРАВЛЕНИЕ === 
-    // В новой верстке у нас нет отдельных id="currentHp" и id="maxHp".
-    // У нас теперь общий id="hpText".
+
+
+function updateGameUI() {
+    // === 1. ОБНОВЛЕНИЕ HP БАРА ===
+    const hpFill = document.getElementById('hpFill');
     const hpText = document.getElementById('hpText');
-    if (hpText) {
-        hpText.innerText = `${Math.ceil(currentSlime.currentHp)} / ${currentSlime.maxHp}`;
+
+    if (hpFill && hpText) {
+        // Защита от отрицательных чисел и деления на ноль
+        const current = Math.max(0, currentSlime.currentHp);
+        const max = Math.max(1, currentSlime.maxHp);
+
+        // Считаем процент
+        let percent = (current / max) * 100;
+
+        // Обновляем ширину (Inline-стиль перебьет CSS)
+        hpFill.style.width = `${percent.toFixed(2)}%`;
+
+        // Обновляем текст
+        hpText.innerText = `${Math.ceil(current)} / ${Math.ceil(max)}`;
     }
 
-    // 3. Обновляем счетчик убийств
+    // === 2. СЧЕТЧИК УБИЙСТВ ===
     const killCount = document.getElementById('killCount');
     if (killCount) killCount.innerText = gameState.kills;
 
-
-
-
-    // --- ОБНОВЛЕНИЕ ИНВЕНТАРЯ ---
-
-    // 1. Считаем общую сумму яиц
+    // === 3. ИНВЕНТАРЬ (Яйца) ===
+    // Считаем сумму
     let totalEggs = 0;
     rarities.forEach(r => {
         totalEggs += (gameState.inventory[r.id] || 0);
     });
 
-    // Обновляем цифру в мобильной шапке
+    // Обновляем мобильный счетчик
     const totalEl = document.getElementById('totalEggCountHtml');
     if (totalEl) totalEl.innerText = totalEggs;
 
-    // 2. Обновляем ленту в шапке (для ПК)
+    // Обновляем ПК ленту в шапке
     const headerInv = document.getElementById('headerInventory');
     if (headerInv) {
         headerInv.innerHTML = '';
-        // На ПК показываем как раньше (развернуто)
         [...rarities].reverse().forEach(r => {
             const count = gameState.inventory[r.id] || 0;
             const div = document.createElement('div');
-            div.className = `egg-counter`;
+            div.className = 'egg-counter';
             div.innerHTML = `
                 <img src="${r.image}" class="egg-icon-img" onerror="this.style.display='none'">
                 <span class="header-count">${count}</span>
@@ -58,16 +62,14 @@ function updateGameUI() {
         });
     }
 
-    // 3. Обновляем РЮКЗАК В САЙДБАРЕ (Детальный список)
+    // Обновляем Сайдбар (детальный список)
     const sidebarList = document.getElementById('sidebarInventoryList');
     if (sidebarList) {
         sidebarList.innerHTML = '';
         rarities.forEach(r => {
             const count = gameState.inventory[r.id] || 0;
-            // Показываем, даже если 0, чтобы игрок видел, чего нет
             const row = document.createElement('div');
             row.className = 'sidebar-inv-row';
-            // Добавляем цвет названия в зависимости от редкости
             row.innerHTML = `
                 <div style="display:flex; align-items:center; gap:8px;">
                     <img src="${r.image}" style="width:24px; height:24px; object-fit:contain;">
@@ -79,6 +81,10 @@ function updateGameUI() {
         });
     }
 }
+
+
+
+
 function updateShopUI() {
     const list = document.getElementById('sellList');
     if (!list) return;

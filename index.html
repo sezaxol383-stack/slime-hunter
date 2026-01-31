@@ -122,16 +122,19 @@
                     </div>
                 </div>
 
-                
-                <div id="ritualContainer" class="ritual-container">
-                    <div class="rune-slot" id="rune1"></div>
-                    <div class="rune-slot" id="rune2"></div>
-                    <div class="rune-slot" id="rune3"></div>
-                    <div id="ritualReadyText" class="ritual-ready-text">ГОТОВО!</div>
-                </div>
+
                 <div id="ritualLayer" class="ritual-layer"></div>
 
-               
+                <div id="ritualOrbit" class="ritual-orbit">
+                    <div id="runeSlot1" class="rune-orbit-slot slot-left" onclick="clickRune(1, 'red')"></div>
+
+                    <div id="runeSlot2" class="rune-orbit-slot slot-right" onclick="clickRune(2, 'green')"></div>
+
+                    <div id="runeSlot3" class="rune-orbit-slot slot-bottom" onclick="clickRune(3, 'blue')"></div>
+                </div>
+
+                <div id="comboDisplay" class="combo-display"></div>
+
                 <div class="slime-container" id="slimeArea" onclick="clickSlime(event)">
                     <div class="slime-shadow"></div>
                     <img src="images/slimes/slime_green_1.png" class="slime-img" alt="Слайм">
