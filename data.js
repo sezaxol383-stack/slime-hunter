@@ -241,3 +241,21 @@ const questTemplates = [
         rewardBase: 200
     }
 ];
+// === БАЗА БОССОВ ===
+const bossEnemies = [
+    // ЛЕС (Forest)
+    { id: 'boss_king', name: 'Король Леса', location: 'forest', image: 'images/slimes/boss_king.png' }, // Используем 5-й скин как короля
+    { id: 'boss_ent', name: 'Гнилой Пень', location: 'forest', image: 'images/slimes/boss_ent.png' },
+
+    // ОГОНЬ (Fire)
+    { id: 'boss_magma', name: 'Магмовый Голем', location: 'fire', image: 'images/slimes/boss_magma.png' },
+    { id: 'boss_ifrit', name: 'Ифрит', location: 'fire', image: 'images/slimes/boss_ifrit.png' },
+
+    // ЛЕД (Ice)
+    { id: 'boss_yeti', name: 'Снежный Гигант', location: 'ice', image: 'images/slimes/boss_yeti.png' },
+    { id: 'boss_queen', name: 'Ледяная Королева', location: 'ice', image: 'images/slimes/boss_queen.png' },
+
+    // ТЬМА (Dark)
+    { id: 'boss_lich', name: 'Лич', location: 'dark', image: 'images/slimes/boss_lich.png' },
+    { id: 'boss_void', name: 'Пустота', location: 'dark', image: 'images/slimes/boss_void.png' }
+];

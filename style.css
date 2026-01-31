@@ -1968,3 +1968,208 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     border-color: #00ff00;
     opacity: 0.7;
 }
+/* === РИТУАЛЬНЫЕ РУНЫ === */
+.ritual-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px; /* Отступ от полоски здоровья */
+    position: relative;
+    height: 50px; /* Фиксируем высоту */
+}
+
+.rune-slot {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #555;
+    border-radius: 50%; /* Круглые */
+    background: rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+    /* Центрируем содержимое (если захочешь цифры внутри) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: transparent; /* Скрываем цифру пока не активно */
+}
+
+/* Активная руна (заряжена) */
+.rune-active {
+    background: #00ffea; /* Голубое свечение */
+    border-color: #fff;
+    box-shadow: 0 0 10px #00ffea;
+    transform: scale(1.1);
+    color: #000; /* Цифра становится видна */
+}
+
+/* Когда готовы все 3 - они пульсируют */
+.runes-ready .rune-slot {
+    background: #ff0055; /* Красный боевой цвет */
+    box-shadow: 0 0 15px #ff0055;
+    animation: pulseRune 1s infinite;
+    cursor: pointer;
+}
+
+.ritual-ready-text {
+    display: none; /* Скрыто */
+    position: absolute;
+    top: -35px;
+    font-size: 20px;
+    font-weight: 900;
+    color: #ff0055;
+    text-shadow: 2px 2px 0 #000;
+    pointer-events: none;
+    animation: bounce 0.5s infinite alternate;
+    width: 100%; /* Растягиваем, чтобы text-align работал */
+    text-align: center; /* Центрируем текст */
+}
+
+@keyframes pulseRune {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes bounce {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-5px);
+    }
+}
+/* === ИМЯ ВРАГА === */
+.enemy-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 1px 1px 2px #000;
+    margin-bottom: 5px;
+    transition: all 0.3s;
+}
+
+    /* Стиль имени для БОССА */
+    .enemy-name.name-boss {
+        font-size: 26px;
+        color: #ffd700; /* Золотой */
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        text-shadow: 0 0 10px #ff0000, 2px 2px 0 #000;
+    }
+
+/* === КОНТЕЙНЕР ХП (ОБЩИЙ) === */
+.hp-container {
+    width: 200px; /* Обычная ширина */
+    height: 24px;
+    background: #222;
+    border: 2px solid #555;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden; /* Чтобы заливка не вылезала */
+    margin: 0 auto; /* Центрируем */
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+    /* === ВАРИАНТ ДЛЯ БОССА (Шире и красивее) === */
+    .hp-container.boss-style {
+        width: 300px;
+        height: 40px; /* Чуть уже, чтобы влезло в рамку */
+        background: #1a0000;
+        box-shadow: 0 0 20px #ff0000;
+        border: none;
+        position: relative;
+        overflow: visible; /* Разрешаем картинке торчать */
+        margin-top: 25px; /* Отступ сверху, чтобы рамка не налезла на имя */
+    }
+
+/* === ЗАЛИВКА (КРАСНАЯ) === */
+.hp-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #ff4444, #cc0000);
+    transition: width 0.2s ease-out;
+}
+
+    /* Заливка для босса (Более "злая") */
+    .hp-fill.boss-fill {
+        background: linear-gradient(180deg, #ff0055, #990033);
+        box-shadow: inset 0 0 10px #000;
+    }
+
+/* === РАМКА-КАРТИНКА (ПОВЕРХ) === */
+.hp-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+    display: none; /* Скрыта для обычных */
+}
+
+    /* Когда рамка активна (у босса) */
+    .hp-frame.active {
+        display: block;
+        position: absolute;
+        /* Убедись, что сохранил файл с этим именем */
+        background-image: url('images/ui/boss_frame1.png');
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        background-position: center;
+        pointer-events: none;
+        /* === НАСТРОЙКА ПОД ТВОЮ КАРТИНКУ === */
+        /* Рамка должна быть БОЛЬШЕ контейнера, чтобы "обнять" его */
+        width: 130%; /* Шире на 30% */
+        height: 250%; /* Сильно выше, чтобы влезли потеки слизи и верх */
+        /* Центрируем рамку относительно полоски */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 5;
+    }
+/* === ТЕКСТ (ЦИФРЫ) === */
+.hp-text {
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 900;
+    font-family: monospace;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 0 #000, -1px -1px 0 #000, 0 0 5px #000;
+    z-index: 10; /* Текст поверх всего */
+    pointer-events: none;
+}
+
+
+/* Счетчик убийств в шапке */
+.kill-display {
+    font-size: 16px;
+    color: #ff4444; /* Красный цвет черепа */
+    font-weight: bold;
+    background: rgba(0,0,0,0.5);
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 5px; /* Отступ от золота */
+}
+
+    .kill-display span:last-child {
+        color: #fff; /* Сами цифры белые */
+    }

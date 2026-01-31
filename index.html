@@ -19,6 +19,13 @@
                 <img src="images/ui/coin.png" class="coin-icon" alt="Gold">
                 <span id="goldCount">0</span>
             </div>
+
+            <div class="kill-display">
+                <span>💀</span>
+                <span id="killCount">0</span>
+            </div>
+
+
             <div id="mobileEggTotal" class="egg-total-badge mobile-only">
                 <img src="images/items/egg_common.png" style="width: 20px; height: 20px;">
                 <span id="totalEggCountHtml">0</span>
@@ -103,23 +110,28 @@
 
         <div id="gameScreen" class="screen active">
             <div class="main-area">
-                <div class="boss-hp-wrapper">
-                    <div class="hp-text"><span id="currentHp">10</span> / <span id="maxHp">10</span> HP</div>
-                    <div class="hp-bar-container">
-                        <div class="hp-bar-fill" id="hpFill"></div>
+                <div class="enemy-info">
+                    <div id="enemyName" class="enemy-name">Слайм</div>
+
+                    <div id="enemyHpContainer" class="hp-container">
+                        <div id="hpFill" class="hp-fill"></div>
+
+                        <div id="hpFrame" class="hp-frame"></div>
+
+                        <span id="hpText" class="hp-text">10/10</span>
                     </div>
                 </div>
 
-                <div id="bossLabel" class="boss-label">⚠️ BOSS FIGHT ⚠️</div>
-
-                <div id="playerHpContainer" class="player-hp-container" style="display: none;">
-                    <span class="heart">❤️</span><span class="heart">❤️</span><span class="heart">❤️</span>
+                
+                <div id="ritualContainer" class="ritual-container">
+                    <div class="rune-slot" id="rune1"></div>
+                    <div class="rune-slot" id="rune2"></div>
+                    <div class="rune-slot" id="rune3"></div>
+                    <div id="ritualReadyText" class="ritual-ready-text">ГОТОВО!</div>
                 </div>
-
                 <div id="ritualLayer" class="ritual-layer"></div>
 
-                <div class="stats-overlay">Убито: <span id="killCount">0</span></div>
-
+               
                 <div class="slime-container" id="slimeArea" onclick="clickSlime(event)">
                     <div class="slime-shadow"></div>
                     <img src="images/slimes/slime_green_1.png" class="slime-img" alt="Слайм">

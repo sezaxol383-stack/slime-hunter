@@ -33,9 +33,14 @@ let gameState = {
 
 // Переменные для скилла
 let petSkillTimer = null;
-
 let currentSlime = { maxHp: 10, currentHp: 10, isBoss: false };
 let currentLocationIndex = 0;
+// Переменные для Ритуала
+let ritualCharges = 0;          // Сколько рун заряжено (0, 1, 2, 3)
+let ritualChargeProgress = 0;   // Прогресс накопления текущей руны (0-100)
+const RITUAL_CHARGE_MAX = 100;  // Максимум прогресса для одной руны
+const PASSIVE_CHARGE_SPEED = 0.5; // Сколько добавляется само по себе (каждый тик)
+const CLICK_CHARGE_BONUS = 5;     // Сколько добавляет клик
 
 // ==========================================
 // === МИНИ-ИГРА: РИТУАЛ (СФЕРЫ 1-2-3) ===
@@ -128,36 +133,30 @@ function successRitual() {
 }
 
 function failRitual(reason) {
+    // 1. Сброс состояния
     clearTimeout(ritualState.timer);
     ritualState.active = false;
 
+    // 2. Визуальный эффект (Красный текст + вспышка)
     spawnDamageNumber(window.innerWidth / 2, window.innerHeight / 2, reason, false);
 
     const area = document.querySelector('.main-area');
     if (area) {
-        area.style.background = 'rgba(255,0,0,0.3)';
+        area.style.background = 'rgba(255,0,0,0.3)'; // Красная вспышка
         setTimeout(() => area.style.background = 'transparent', 300);
     }
 
+    // 3. Очистка старых сфер (если они были)
     setTimeout(() => {
         const layer = document.getElementById('ritualLayer');
         if (layer) layer.innerHTML = '';
     }, 500);
 
-    ritualState.playerHp--;
-    updatePlayerHpUI();
-
+    // 4. Вибрация для фидбека
     if (navigator.vibrate) navigator.vibrate(200);
 
-    if (ritualState.playerHp <= 0) {
-        setTimeout(() => {
-            alert("☠️ ВАС УБИЛИ! Босс восстановился.");
-            currentSlime.currentHp = currentSlime.maxHp;
-            ritualState.playerHp = 3;
-            updatePlayerHpUI();
-            updateGameUI();
-        }, 100);
-    }
+    // === УДАЛЕНО: Логика смерти и отнимания сердечек ===
+    // Игрок больше не умирает, просто получает предупреждение.
 }
 
 function clearRitual() {
@@ -341,6 +340,18 @@ function clickSlime(event) {
     playSound('hit');
     animateSlime();
     spawnParticles(event.clientX, event.clientY);
+
+     // Если бьем босса - ускоряем ритуал
+    if (currentSlime.isBoss && ritualCharges < 3) {
+        ritualChargeProgress += CLICK_CHARGE_BONUS;
+
+        // Моментальная проверка (чтобы не ждать тика таймера)
+        if (ritualChargeProgress >= RITUAL_CHARGE_MAX) {
+            ritualChargeProgress = 0;
+            addRitualCharge();
+        }
+    }
+
     let damage = gameState.clickPower;
     if (gameState.artifacts.includes('a3')) {
         damage *= 2;
@@ -816,10 +827,11 @@ function getTargetLocationIndex() {
     // 3. Иначе возвращаем максимальную доступную (авто-режим)
     return maxIndex;
 }
+
 function changeSlimeSkin() {
-    // Используем нашу новую функцию для выбора уровня
     let newIndex = getTargetLocationIndex();
 
+    // 1. Смена локации
     if (newIndex !== currentLocationIndex) {
         let videoPath = 'video/transition.mp4';
         if (newIndex === 1) videoPath = 'video/trans_fire.mp4';
@@ -832,20 +844,12 @@ function changeSlimeSkin() {
             changeMusic(newIndex);
 
             const newLoc = locations[newIndex];
-            const firstSlimeOfNewRegion = newLoc.slimes[0];
-
             const slimeImg = document.querySelector('.slime-img');
             if (slimeImg) {
-                slimeImg.src = firstSlimeOfNewRegion;
-                const container = document.querySelector('.slime-container');
-                if (container) {
-                    container.style.transform = 'translate(-50%, -50%)';
-                    container.style.left = '50%';
-                    container.style.top = '50%';
-                }
+                slimeImg.src = newLoc.slimes[0];
+                respawnSlime();
             }
         });
-
     } else {
         const loc = locations[currentLocationIndex];
         const randomSkin = loc.slimes[Math.floor(Math.random() * loc.slimes.length)];
@@ -853,34 +857,60 @@ function changeSlimeSkin() {
         if (slimeImg) slimeImg.src = randomSkin;
     }
 
+    // === 2. НАСТРОЙКА UI ===
+
     const slimeImg = document.querySelector('.slime-img');
-    const bossLabel = document.getElementById('bossLabel');
-    const hpBar = document.getElementById('hpFill');
-    const hpContainer = document.getElementById('playerHpContainer');
+    // const bossLabel = ... <--- УДАЛЕНО
+    const nameLabel = document.getElementById('enemyName');
+
+    const hpContainer = document.getElementById('enemyHpContainer');
+    const hpFill = document.getElementById('hpFill');
+    const hpFrame = document.getElementById('hpFrame');
+
+    const loc = locations[currentLocationIndex];
 
     if (currentSlime.isBoss) {
-        if (slimeImg) slimeImg.classList.add('boss');
-        if (bossLabel) bossLabel.style.display = 'block';
-        if (hpBar) hpBar.classList.add('boss-hp');
+        // --- РЕЖИМ БОССА ---
+        slimeImg.classList.add('boss');
 
-        if (hpContainer) hpContainer.style.display = 'block';
+        // if (bossLabel) bossLabel.style.display = 'block'; <--- УДАЛЕНО
 
-        ritualState.playerHp = 3;
-        updatePlayerHpUI();
+        const currentLocId = loc.id;
+        const possibleBosses = bossEnemies.filter(b => b.location === currentLocId);
+        let bossName = "БОСС";
 
-        if (window.bossAttackInterval) clearInterval(window.bossAttackInterval);
-        window.bossAttackInterval = setInterval(() => {
-            startRitual();
-        }, 4000);
+        if (possibleBosses.length > 0) {
+            const randomBoss = possibleBosses[Math.floor(Math.random() * possibleBosses.length)];
+            if (slimeImg) slimeImg.src = randomBoss.image;
+            bossName = randomBoss.name;
+
+            // if (bossLabel) ... <--- УДАЛЕНО (Блок с установкой текста и цвета)
+        }
+
+        if (nameLabel) {
+            nameLabel.innerText = `☠️ ${bossName} ☠️`;
+            nameLabel.classList.add('name-boss');
+        }
+
+        if (hpContainer) hpContainer.classList.add('boss-style');
+        if (hpFill) hpFill.classList.add('boss-fill');
+        if (hpFrame) hpFrame.classList.add('active');
 
     } else {
-        if (slimeImg) slimeImg.classList.remove('boss');
-        if (bossLabel) bossLabel.style.display = 'none';
-        if (hpBar) hpBar.classList.remove('boss-hp');
+        // --- ОБЫЧНЫЙ МОБ ---
+        slimeImg.classList.remove('boss');
+        // if (bossLabel) bossLabel.style.display = 'none'; <--- УДАЛЕНО
 
-        if (hpContainer) hpContainer.style.display = 'none';
+        if (nameLabel) {
+            nameLabel.innerText = `${loc.name} Слайм`;
+            nameLabel.classList.remove('name-boss');
+        }
+
+        if (hpContainer) hpContainer.classList.remove('boss-style');
+        if (hpFill) hpFill.classList.remove('boss-fill');
+        if (hpFrame) hpFrame.classList.remove('active');
+
         if (window.bossAttackInterval) clearInterval(window.bossAttackInterval);
-
         clearRitual();
         ritualState.active = false;
     }
@@ -1627,8 +1657,105 @@ function craftItem(recipeId) {
     saveGame();
     updateAllUI(); // Обновит и ресурсы, и кнопки рецептов
 }
+// === НОВАЯ ЛОГИКА РИТУАЛА ===
 
+function updateRitual() {
+    // Если уже 3 заряда, ничего не копим, ждем активации
+    if (ritualCharges >= 3) return;
 
+    // Пассивное накопление
+    ritualChargeProgress += PASSIVE_CHARGE_SPEED;
+
+    // Если накопили на целую руну
+    if (ritualChargeProgress >= RITUAL_CHARGE_MAX) {
+        ritualChargeProgress = 0;
+        addRitualCharge();
+    }
+}
+
+function addRitualCharge() {
+    ritualCharges++;
+
+    // Включаем визуально руну
+    const runeEl = document.getElementById(`rune${ritualCharges}`);
+    if (runeEl) {
+        runeEl.classList.add('rune-active');
+        runeEl.innerText = ritualCharges; // Пишем цифру 1, 2 или 3
+        playSound('coin'); // Звук "дзынь"
+    }
+
+    // Если собрали все 3
+    if (ritualCharges === 3) {
+        activateRitualReadyState();
+    }
+}
+
+function activateRitualReadyState() {
+    const container = document.getElementById('ritualContainer');
+    const text = document.getElementById('ritualReadyText');
+
+    container.classList.add('runes-ready');
+    text.style.display = 'block';
+
+    // Делаем контейнер кликабельным для активации способности
+    container.onclick = castRitualAbility;
+
+    playSound('upgrade'); // Звук готовности
+}
+
+function castRitualAbility() {
+    // ИСПРАВЛЕНО: currentEnemy -> currentSlime
+    const damage = Math.floor(currentSlime.maxHp * 0.2);
+
+    currentSlime.currentHp -= damage;
+    if (currentSlime.currentHp < 0) currentSlime.currentHp = 0;
+
+    // Спавним красивый текст урона
+    spawnDamageNumber(window.innerWidth / 2, window.innerHeight / 2, `ULTIMATE: ${damage}!`, true);
+
+    // Обновляем UI (иначе полоска не сдвинется до следующего клика)
+    updateGameUI();
+
+    // Эффекты
+    playSound('hit');
+    triggerShake(); // Добавим тряску экрана для эпичности
+
+    // Сброс ритуала
+    resetRitual();
+
+    // Проверка смерти (вдруг ульта убила босса)
+    if (currentSlime.currentHp <= 0) onSlimeDeath();
+}
+
+function resetRitual() {
+    ritualCharges = 0;
+    ritualChargeProgress = 0;
+
+    // Сброс визуала
+    const container = document.getElementById('ritualContainer');
+    const text = document.getElementById('ritualReadyText');
+
+    container.classList.remove('runes-ready');
+    container.onclick = null; // Убираем клик
+    text.style.display = 'none';
+
+    // Очищаем руны
+    for (let i = 1; i <= 3; i++) {
+        const rune = document.getElementById(`rune${i}`);
+        rune.classList.remove('rune-active');
+        rune.innerText = '';
+    }
+}
+// === ЗАПУСК ТАЙМЕРА РИТУАЛА ===
+setInterval(() => {
+    // Ритуал работает только на боссах (чтобы на обычных мобах не отвлекал)
+    if (currentSlime.isBoss) {
+        updateRitual();
+    } else {
+        // (Опционально) Сбрасываем руны, если это не босс
+        if (ritualCharges > 0) resetRitual();
+    }
+}, 1000 / 60);
 
 
 

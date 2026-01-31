@@ -9,13 +9,25 @@ function updateAllUI() {
     updateMagicUI();
 }
 function updateGameUI() {
-    const percent = (currentSlime.currentHp / currentSlime.maxHp) * 100;
-    document.getElementById('hpFill').style.width = `${percent}%`;
-    document.getElementById('currentHp').innerText = Math.ceil(currentSlime.currentHp);
-    document.getElementById('maxHp').innerText = currentSlime.maxHp;
-    document.getElementById('killCount').innerText = gameState.kills;
+    // 1. Обновляем ширину полоски
+    const percent = Math.max(0, (currentSlime.currentHp / currentSlime.maxHp) * 100);
+    const hpFill = document.getElementById('hpFill');
+    if (hpFill) hpFill.style.width = `${percent}%`;
 
-    // Внутри функции updateGameUI()...
+    // 2. === ИСПРАВЛЕНИЕ === 
+    // В новой верстке у нас нет отдельных id="currentHp" и id="maxHp".
+    // У нас теперь общий id="hpText".
+    const hpText = document.getElementById('hpText');
+    if (hpText) {
+        hpText.innerText = `${Math.ceil(currentSlime.currentHp)} / ${currentSlime.maxHp}`;
+    }
+
+    // 3. Обновляем счетчик убийств
+    const killCount = document.getElementById('killCount');
+    if (killCount) killCount.innerText = gameState.kills;
+
+
+
 
     // --- ОБНОВЛЕНИЕ ИНВЕНТАРЯ ---
 
@@ -506,16 +518,7 @@ function updateTutorialUI() {
         bar.style.width = `${pct}%`;
     }
 }
-function updatePlayerHpUI() {
-    const hearts = document.querySelectorAll('.heart');
-    hearts.forEach((h, index) => {
-        if (index < ritualState.playerHp) {
-            h.classList.remove('lost');
-        } else {
-            h.classList.add('lost');
-        }
-    });
-}
+
 function updateSoundButton() {
     const btn = document.getElementById('btnSound');
     if (btn) {
