@@ -2151,7 +2151,6 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
 /* === ЗАЛИВКА (КРАСНАЯ) === */
 .hp-fill {
     height: 100%;
-    width: 100%;
     background: linear-gradient(90deg, #ff4444, #cc0000);
     transition: width 0.2s ease-out;
 }

@@ -31,6 +31,13 @@ let gameState = {
     costCritPower: 200
 };
 
+// === ДОБАВИТЬ ВОТ ЭТОТ БЛОК (Переменные, которых не хватает) ===
+let ritualCharges = 0;
+let ritualChargeProgress = 0;
+const RITUAL_CHARGE_MAX = 100;     // Сколько нужно накопить для одной руны
+const PASSIVE_CHARGE_SPEED = 0.2;  // Скорость зарядки сама по себе
+const CLICK_CHARGE_BONUS = 5;      // Скорость зарядки от клика
+
 // Переменные для скилла
 let petSkillTimer = null;
 let currentSlime = { maxHp: 10, currentHp: 10, isBoss: false };
@@ -1841,9 +1848,6 @@ setInterval(() => {
         if (ritualCharges > 0) resetRitual();
     }
 }, 1000 / 60);
-
-
-
 
 
 
