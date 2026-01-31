@@ -9,7 +9,49 @@
     <link rel="stylesheet" href="mobile.css">
 </head>
 <body>
+    <div id="preloader" style="
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #141823;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.5s ease;
+">
+        <div style="font-size: 40px; margin-bottom: 20px;">⚔️</div>
+        <h2 style="color: #ffd700; font-family: sans-serif; text-transform: uppercase; letter-spacing: 2px;">Загрузка...</h2>
+        <div style="
+        width: 200px;
+        height: 4px;
+        background: #333;
+        border-radius: 2px;
+        margin-top: 10px;
+        overflow: hidden;
+    ">
+            <div id="loaderBar" style="
+            width: 0%;
+            height: 100%;
+            background: #ffd700;
+            transition: width 0.3s;
+            animation: loadAnim 2s infinite;
+        "></div>
+        </div>
 
+        <style>
+            @keyframes loadAnim {
+                0% {
+                    transform: translateX(-100%);
+                }
+
+                100% {
+                    transform: translateX(100%);
+                }
+            }
+        </style>
+    </div>
     <div class="header">
         <div class="header-left">
             <button id="btnSound" class="sound-btn" onclick="toggleSound()">🔊</button>
@@ -260,8 +302,13 @@
     </div>
 
     <div id="transitionLayer" class="transition-layer">
-        <video id="transVideo" src="video/transition.mp4" muted playsinline></video>
-        <button class="skip-btn" onclick="skipTransition()">SKIP >></button>
+        <div class="comic-panel">
+            <img id="transImg" src="" alt="Travel">
+
+            <div id="transText" class="comic-text">ВПЕРЁД!</div>
+
+            <div class="loader-spinner"></div>
+        </div>
     </div>
 
     <div id="devPanel" class="dev-panel" style="display: none;">
@@ -314,6 +361,21 @@
     <script src="data.js"></script>
     <script src="ui.js"></script>
     <script src="game.js"></script>
+
+    <script>
+        // Когда вся страница (картинки, стили, скрипты) загрузится
+        window.addEventListener('load', function () {
+            const preloader = document.getElementById('preloader');
+
+            // Даем небольшую паузу (500мс), чтобы убедиться, что визуал прогрузился
+            setTimeout(() => {
+                preloader.style.opacity = '0'; // Плавно исчезаем
+                setTimeout(() => {
+                    preloader.style.display = 'none'; // Убираем полностью
+                }, 500); // Ждем пока пройдет анимация исчезновения
+            }, 500);
+        });
+    </script>
 
 </body>
 </html>

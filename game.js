@@ -895,12 +895,8 @@ function changeSlimeSkin() {
 
     // 1. Смена локации (если перешли в другой мир)
     if (newIndex !== currentLocationIndex) {
-        let videoPath = 'video/transition.mp4';
-        if (newIndex === 1) videoPath = 'video/trans_fire.mp4';
-        if (newIndex === 2) videoPath = 'video/trans_ice.mp4';
-        if (newIndex === 3) videoPath = 'video/trans_dark.mp4';
-
-        playTransition(videoPath, () => {
+        
+        playTransition(() => {
             currentLocationIndex = newIndex;
             updateBackground();
             changeMusic(newIndex);

@@ -907,32 +907,50 @@ function showArtifactLore(artId) {
     document.getElementById('loreModal').style.display = 'flex';
     checkTutorialProgress('click_artifact', 1);
 }
-function playTransition(videoFile, callback) {
-    const layer = document.getElementById('transitionLayer');
-    const video = document.getElementById('transVideo');
 
-    if (!layer || !video) {
+
+function playTransition(callback) {
+    const layer = document.getElementById('transitionLayer');
+    const img = document.getElementById('transImg');
+    const text = document.getElementById('transText');
+
+    if (!layer || !img) {
         if (callback) callback();
         return;
     }
 
-    video.src = videoFile;
-    transitionCallback = callback;
+    // 1. ПОКАЗЫВАЕМ ЭКРАН И ПЕРВУЮ КАРТИНКУ (БЕГ)
+    // Убедись, что файлы называются так же, или поменяй пути!
+    img.src = 'images/bg/trans_run.png'; // <-- Твоя картинка бега
+    if (text) text.innerText = "В ПУТЬ!";
+
     layer.classList.add('active');
-    video.load();
-    video.play().catch(e => console.log("Video error:", e));
 
-    transitionTimer = setTimeout(() => {
-        if (transitionCallback) {
-            transitionCallback();
-            transitionCallback = null;
+    // 2. ЧЕРЕЗ 1.5 СЕКУНДЫ МЕНЯЕМ НА ВТОРУЮ (ПОРТАЛ/ВХОД)
+    setTimeout(() => {
+        img.src = 'images/bg/trans_portal.png'; // <-- Твоя картинка портала
+        if (text) {
+            text.innerText = "ПОЧТИ ПРИШЛИ...";
+            // Перезапуск анимации текста (маленький хак)
+            text.style.animation = 'none';
+            text.offsetHeight; /* trigger reflow */
+            text.style.animation = 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
         }
-    }, 1500);
 
-    video.onended = () => {
-        closeTransition();
-    };
+        // === В ЭТОТ МОМЕНТ МЕНЯЕМ ЛОКАЦИЮ В ИГРЕ ===
+        // Пока игрок смотрит на картинку портала, игра обновляется
+        if (callback) callback();
+
+        // 3. ЕЩЕ ЧЕРЕЗ 1.5 СЕКУНДЫ УБИРАЕМ ЭКРАН
+        setTimeout(() => {
+            layer.classList.remove('active');
+        }, 1500);
+
+    }, 1500);
 }
+
+
+
 // === ИНТЕРФЕЙС МАГИИ ===
 function updateMagicUI() {
     const grid = document.getElementById('materialsGrid');
