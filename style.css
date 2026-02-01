@@ -2293,3 +2293,86 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
         box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
     }
 }
+
+/* === НОВАЯ КОЛЛЕКЦИЯ (ХАБ) === */
+
+/* Шапка навигации внутри коллекции */
+.collection-header-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: 10px;
+}
+
+.nav-back-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+    .nav-back-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+/* Сетка меню категорий */
+.collection-hub-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    max-width: 500px;
+}
+
+/* Карточка категории (как выбор мира) */
+.category-card {
+    background: linear-gradient(145deg, #2a2e40, #1f2233);
+    border: 2px solid #445;
+    border-radius: 15px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+    .category-card:hover {
+        transform: translateY(-3px);
+        border-color: #ffd700;
+        background: linear-gradient(145deg, #353b50, #25293a);
+    }
+
+.cat-icon {
+    font-size: 40px;
+    margin-right: 20px;
+}
+
+.cat-info h4 {
+    margin: 0;
+    color: #fff;
+    font-size: 18px;
+    text-align: left;
+    border: none;
+    text-transform: none; /* Отменяем uppercase заголовков */
+}
+
+.cat-info p {
+    margin: 5px 0 0 0;
+    color: #aaa;
+    font-size: 12px;
+}
+
+/* Подкатегории */
+.sub-view {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.3s ease;
+}

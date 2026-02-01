@@ -107,93 +107,127 @@ function updateShopUI() {
         list.appendChild(div);
     });
 }
-function updateCollectionUI() {
-    const grid = document.getElementById('collectionGrid');
-    if (!grid) return;
-    grid.innerHTML = '';
 
-    const bossSection = document.createElement('div');
-    bossSection.style.textAlign = 'center';
-    bossSection.style.width = '100%';
-    bossSection.innerHTML = `<h3 style="color: #ff3333; text-transform: uppercase;">Трофеи</h3>`;
+// === ОБНОВЛЕННАЯ КОЛЛЕКЦИЯ (ВКЛАДКИ) ===
 
-    const bossContainer = document.createElement('div');
-    bossContainer.className = 'collection-grid';
-    bossContainer.style.justifyContent = 'center';
+// 1. Функция навигации: Открыть категорию
+function openSubCollection(category) {
+    // Скрываем хаб
+    document.getElementById('collectionHub').style.display = 'none';
 
-    bossDrops.forEach(item => {
-        const isUnlocked = gameState.bossTrophies && gameState.bossTrophies.includes(item.id);
-        const div = document.createElement('div');
-        div.className = `collection-item ${isUnlocked ? 'unlocked' : ''}`;
-        div.style.borderColor = isUnlocked ? "#ff3333" : "#333";
-        div.style.background = isUnlocked ? "rgba(255, 50, 50, 0.15)" : "rgba(0,0,0,0.3)";
+    // Показываем кнопку назад
+    document.getElementById('btnColBack').style.display = 'block';
 
-        const iconHtml = isUnlocked ?
-            `<img src="${item.image}" style="width: 50px; height: 50px; object-fit: contain;">` :
-            '<span style="font-size: 30px; opacity: 0.3;">👹</span>';
+    // Скрываем все под-экраны
+    document.getElementById('viewTrophies').style.display = 'none';
+    document.getElementById('viewItems').style.display = 'none';
+    document.getElementById('viewArtifacts').style.display = 'none';
 
-        div.innerHTML = `
-            <div style="height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">${iconHtml}</div>
-            <div style="font-size: 10px; text-align: center; color: ${isUnlocked ? '#fff' : '#777'}">${item.name}</div>
-        `;
-        bossContainer.appendChild(div);
-    });
-    bossSection.appendChild(bossContainer);
-    grid.appendChild(bossSection);
+    // Меняем заголовок и показываем нужный экран
+    const title = document.getElementById('colScreenTitle');
 
-    const collectionSection = document.createElement('div');
-    collectionSection.style.textAlign = 'center'; collectionSection.style.width = '100%';
-    collectionSection.innerHTML = `<h3 style="color: #aaddff">Коллекция</h3>`;
-
-    const standardContainer = document.createElement('div');
-    standardContainer.className = 'collection-grid';
-    standardContainer.style.justifyContent = 'center';
-
-    collectionItems.forEach(item => {
-        const isUnlocked = gameState.unlockedCollectibles.includes(item.id);
-        const div = document.createElement('div');
-        div.className = `collection-item ${isUnlocked ? 'unlocked' : ''}`;
-        div.style.border = isUnlocked ? "2px solid #00ffcc" : "2px solid #333";
-        div.style.background = isUnlocked ? "rgba(0, 255, 204, 0.1)" : "rgba(0,0,0,0.3)";
-        div.style.width = "80px";
-        const iconHtml = isUnlocked ? `<img src="${item.image}" style="width: 50px; height: 50px; object-fit: contain;">` : '<span style="font-size: 30px; opacity: 0.3;">🔒</span>';
-        div.innerHTML = `<div style="height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">${iconHtml}</div><div style="font-size: 10px; text-align: center; color: ${isUnlocked ? '#fff' : '#777'}">${item.name}</div>`;
-        standardContainer.appendChild(div);
-    });
-    collectionSection.appendChild(standardContainer);
-    grid.appendChild(collectionSection);
-
-    const ritualSection = document.createElement('div');
-    ritualSection.style.margin = "20px 0"; ritualSection.style.textAlign = "center";
-    const canRitual = gameState.unlockedCollectibles.length >= 5;
-    ritualSection.innerHTML = `<button onclick="performRitual()" style="background: linear-gradient(45deg, #ff0055, #ff00cc); border: 3px solid #fff; color: white; padding: 15px 40px; border-radius: 50px; font-weight: bold; cursor: pointer; opacity: ${canRitual ? '1' : '0.5'}; filter: ${canRitual ? 'none' : 'grayscale(1)'};">Ритуал </button>`;
-    grid.appendChild(ritualSection);
-
-    const artifactSection = document.createElement('div');
-    artifactSection.style.textAlign = 'center'; artifactSection.style.width = '100%';
-    artifactSection.innerHTML = `<h3 style="color: #ffcc00">Артефакты</h3>`;
-    const artContainer = document.createElement('div');
-    artContainer.className = 'collection-grid';
-    artContainer.style.justifyContent = 'center';
-
-    artifacts.forEach(art => {
-        const hasArt = gameState.artifacts.includes(art.id);
-        const artDiv = document.createElement('div');
-        artDiv.className = `collection-item ${hasArt ? 'unlocked' : ''}`;
-        artDiv.style.border = hasArt ? "2px solid #ffcc00" : "2px dashed #664400";
-        artDiv.style.background = hasArt ? "rgba(255, 204, 0, 0.15)" : "rgba(0,0,0,0.2)";
-        // ДОБАВЛЯЕМ ONCLICK:
-        if (hasArt) {
-            artDiv.onclick = () => showArtifactLore(art.id);
-            artDiv.style.cursor = "pointer";
-        }
-        const artIcon = hasArt ? `<img src="${art.image}" style="width: 60px; height: 60px; object-fit: contain;">` : '<span style="font-size: 40px; opacity: 0.2;">❓</span>';
-        artDiv.innerHTML = `<div style="height: 60px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">${artIcon}</div><div style="font-size: 10px; color: ${hasArt ? '#ffcc00' : '#665544'}; font-weight: bold;">${art.name}</div><div style="font-size: 9px; color: #00ff00; margin-top: 2px;">${hasArt ? art.buff : ''}</div>`;
-        artContainer.appendChild(artDiv);
-    });
-    artifactSection.appendChild(artContainer);
-    grid.appendChild(artifactSection);
+    if (category === 'trophies') {
+        document.getElementById('viewTrophies').style.display = 'flex';
+        title.innerText = '👹 Трофеи';
+    } else if (category === 'items') {
+        document.getElementById('viewItems').style.display = 'flex';
+        title.innerText = '🏺 Реликвии';
+    } else if (category === 'artifacts') {
+        document.getElementById('viewArtifacts').style.display = 'flex';
+        title.innerText = '⚡ Артефакты';
+    }
 }
+
+// 2. Функция навигации: Вернуться в меню
+function backToCollectionHub() {
+    document.getElementById('collectionHub').style.display = 'flex'; // Показываем меню
+    document.getElementById('btnColBack').style.display = 'none'; // Скрываем кнопку назад
+    document.getElementById('colScreenTitle').innerText = '💎 Сокровищница';
+
+    // Скрываем все под-экраны
+    document.getElementById('viewTrophies').style.display = 'none';
+    document.getElementById('viewItems').style.display = 'none';
+    document.getElementById('viewArtifacts').style.display = 'none';
+}
+
+// 3. Обновление данных (Отрисовка иконок)
+function updateCollectionUI() {
+    // --- ТРОФЕИ ---
+    const trophyGrid = document.getElementById('trophiesGrid');
+    if (trophyGrid) {
+        trophyGrid.innerHTML = '';
+        bossDrops.forEach(item => {
+            const isUnlocked = gameState.bossTrophies && gameState.bossTrophies.includes(item.id);
+            const div = document.createElement('div');
+            div.className = `collection-item ${isUnlocked ? 'unlocked' : ''}`;
+            div.style.borderColor = isUnlocked ? "#ff3333" : "#333";
+            div.style.background = isUnlocked ? "rgba(255, 50, 50, 0.15)" : "rgba(0,0,0,0.3)";
+
+            const iconHtml = isUnlocked ?
+                `<img src="${item.image}" style="width: 50px; height: 50px; object-fit: contain;">` :
+                '<span style="font-size: 30px; opacity: 0.3;">🔒</span>';
+
+            div.innerHTML = `
+                <div style="height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">${iconHtml}</div>
+                <div style="font-size: 10px; text-align: center; color: ${isUnlocked ? '#fff' : '#777'}">${item.name}</div>
+            `;
+            trophyGrid.appendChild(div);
+        });
+    }
+
+    // --- ОБЫЧНЫЕ ПРЕДМЕТЫ (РЕЛИКВИИ) ---
+    const itemsGrid = document.getElementById('itemsGrid');
+    if (itemsGrid) {
+        itemsGrid.innerHTML = '';
+        collectionItems.forEach(item => {
+            const isUnlocked = gameState.unlockedCollectibles.includes(item.id);
+            const div = document.createElement('div');
+            div.className = `collection-item ${isUnlocked ? 'unlocked' : ''}`;
+            div.style.border = isUnlocked ? "2px solid #00ffcc" : "2px solid #333";
+            div.style.background = isUnlocked ? "rgba(0, 255, 204, 0.1)" : "rgba(0,0,0,0.3)";
+
+            const iconHtml = isUnlocked ?
+                `<img src="${item.image}" style="width: 50px; height: 50px; object-fit: contain;">` :
+                '<span style="font-size: 30px; opacity: 0.3;">🔒</span>';
+
+            div.innerHTML = `<div style="height: 50px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">${iconHtml}</div><div style="font-size: 10px; text-align: center; color: ${isUnlocked ? '#fff' : '#777'}">${item.name}</div>`;
+            itemsGrid.appendChild(div);
+        });
+
+        // Кнопка ритуала теперь живет здесь
+        const ritualContainer = document.getElementById('ritualContainer');
+        if (ritualContainer) {
+            const canRitual = gameState.unlockedCollectibles.length >= 5;
+            ritualContainer.innerHTML = `<button onclick="performRitual()" style="background: linear-gradient(45deg, #ff0055, #ff00cc); border: 2px solid #fff; color: white; padding: 10px 30px; border-radius: 20px; font-weight: bold; cursor: pointer; opacity: ${canRitual ? '1' : '0.5'}; filter: ${canRitual ? 'none' : 'grayscale(1)'}; box-shadow: 0 0 15px #ff00cc;">🔮 ПРОВЕСТИ РИТУАЛ</button>`;
+        }
+    }
+
+    // --- АРТЕФАКТЫ ---
+    const artGrid = document.getElementById('artifactsGrid');
+    if (artGrid) {
+        artGrid.innerHTML = '';
+        artifacts.forEach(art => {
+            const hasArt = gameState.artifacts.includes(art.id);
+            const artDiv = document.createElement('div');
+            artDiv.className = `collection-item ${hasArt ? 'unlocked' : ''}`;
+            artDiv.style.border = hasArt ? "2px solid #ffcc00" : "2px dashed #664400";
+            artDiv.style.background = hasArt ? "rgba(255, 204, 0, 0.15)" : "rgba(0,0,0,0.2)";
+
+            if (hasArt) {
+                artDiv.onclick = () => showArtifactLore(art.id);
+                artDiv.style.cursor = "pointer";
+            }
+
+            const artIcon = hasArt ?
+                `<img src="${art.image}" style="width: 60px; height: 60px; object-fit: contain;">` :
+                '<span style="font-size: 40px; opacity: 0.2;">❓</span>';
+
+            artDiv.innerHTML = `<div style="height: 60px; display: flex; align-items: center; justify-content: center; margin-bottom: 5px;">${artIcon}</div><div style="font-size: 10px; color: ${hasArt ? '#ffcc00' : '#665544'}; font-weight: bold;">${art.name}</div><div style="font-size: 9px; color: #00ff00; margin-top: 2px;">${hasArt ? art.buff : ''}</div>`;
+            artGrid.appendChild(artDiv);
+        });
+    }
+}
+
 
 function updateForgeUI() {
     const list = document.getElementById('upgradesList');

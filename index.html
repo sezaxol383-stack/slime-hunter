@@ -259,7 +259,50 @@
         </div>
 
         <div id="collectionScreen" class="screen collection-screen">
-            <div class="collection-grid" id="collectionGrid"></div>
+            <div class="collection-header-nav">
+                <button id="btnColBack" class="nav-back-btn" onclick="backToCollectionHub()" style="display: none;">⬅ Назад</button>
+                <h2 id="colScreenTitle">💎 Сокровищница</h2>
+                <div style="width: 60px;"></div>
+            </div>
+
+            <div id="collectionHub" class="collection-hub-grid">
+                <div class="category-card" onclick="openSubCollection('trophies')">
+                    <div class="cat-icon">👹</div>
+                    <div class="cat-info">
+                        <h4>Трофеи Боссов</h4>
+                        <p>Редчайшие награды</p>
+                    </div>
+                </div>
+
+                <div class="category-card" onclick="openSubCollection('items')">
+                    <div class="cat-icon">🏺</div>
+                    <div class="cat-info">
+                        <h4>Реликвии</h4>
+                        <p>Предметы для ритуала</p>
+                    </div>
+                </div>
+
+                <div class="category-card" onclick="openSubCollection('artifacts')">
+                    <div class="cat-icon">⚡</div>
+                    <div class="cat-info">
+                        <h4>Артефакты</h4>
+                        <p>Древняя сила</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="viewTrophies" class="sub-view" style="display: none;">
+                <div id="trophiesGrid" class="collection-grid"></div>
+            </div>
+
+            <div id="viewItems" class="sub-view" style="display: none;">
+                <div id="itemsGrid" class="collection-grid"></div>
+                <div id="ritualContainer" style="margin-top: 20px; text-align: center;"></div>
+            </div>
+
+            <div id="viewArtifacts" class="sub-view" style="display: none;">
+                <div id="artifactsGrid" class="collection-grid"></div>
+            </div>
         </div>
 
         <div id="magicScreen" class="screen magic-screen">
