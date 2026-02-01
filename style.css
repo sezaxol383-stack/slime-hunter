@@ -2376,3 +2376,94 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     align-items: center;
     animation: fadeIn 0.3s ease;
 }
+
+/* === СТИЛИ КНОПКИ "ДОМОЙ" === */
+
+/* Картинка внутри кнопки */
+.home-icon {
+    width: 24px; /* Размер иконки */
+    height: 24px;
+    object-fit: contain;
+    position: relative; /* Чтобы быть выше свечения */
+    z-index: 2;
+}
+
+/* === КНОПКА "В БОЙ" (Слайм-индикатор) === */
+
+#btnHome {
+    position: relative;
+    width: 44px; /* Чуть больше стандартной иконки */
+    height: 44px;
+    padding: 0; /* Убираем отступы */
+    /* Базовый стиль кнопки */
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    /* Для центровки иконок */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible; /* Чтобы свечение могло выходить за края */
+    transition: all 0.3s ease;
+}
+
+/* Общий стиль для обеих иконок */
+.slime-icon {
+    width: 36px; /* Размер картинки слайма */
+    height: 36px;
+    object-fit: contain;
+    /* Накладываем их друг на друга */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Плавный переход между состояниями */
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+/* --- СОСТОЯНИЕ 1: В БОЮ (По умолчанию) --- */
+
+/* Спокойный слайм виден */
+.slime-normal {
+    opacity: 1;
+    z-index: 2;
+}
+
+/* Обеспокоенный слайм скрыт */
+.slime-worried {
+    opacity: 0;
+    z-index: 1;
+}
+
+/* --- СОСТОЯНИЕ 2: НЕ В БОЮ (Активен класс .home-btn-glow) --- */
+
+/* Когда добавлен класс glow, меняем рамку и фон кнопки */
+.home-btn-glow {
+    border-color: #ff4444 !important;
+    background: rgba(60, 0, 0, 0.6) !important;
+}
+
+    /* Спокойный слайм исчезает */
+    .home-btn-glow .slime-normal {
+        opacity: 0;
+    }
+
+    /* Обеспокоенный слайм появляется */
+    .home-btn-glow .slime-worried {
+        opacity: 1;
+        /* Добавляем ему мягкое красное свечение (фильтром, чтобы по контуру) */
+        filter: drop-shadow(0 0 8px rgba(255, 50, 50, 0.8));
+        /* Легкая пульсация для привлечения внимания */
+        animation: worryPulse 1s infinite alternate ease-in-out;
+    }
+
+/* Анимация легкой пульсации */
+@keyframes worryPulse {
+    from {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    to {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}

@@ -815,6 +815,7 @@ function animatePetIcon() {
 }
 //Группа 3: Навигация и окна
 // --- НАВИГАЦИЯ ---
+
 function switchTab(tabName) {
     document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
@@ -833,6 +834,19 @@ function switchTab(tabName) {
     const sidebar = document.querySelector('.sidebar');
     const backpackBtn = document.getElementById('btnBackpack');
 
+    // === НОВАЯ ЛОГИКА ДЛЯ КНОПКИ "В БОЙ" ===
+    const homeBtn = document.getElementById('btnHome');
+    if (homeBtn) {
+        if (tabName === 'game') {
+            // Если мы в игре — убираем свечение
+            homeBtn.classList.remove('home-btn-glow');
+        } else {
+            // Если мы НЕ в игре — включаем тревогу!
+            homeBtn.classList.add('home-btn-glow');
+        }
+    }
+    // ========================================
+
     if (tabName === 'shop') {
         container.classList.add('shop-mode');
         sidebar.classList.remove('active');
@@ -848,6 +862,8 @@ function switchTab(tabName) {
     if (tabName === 'map') updateMapUI();
     checkTutorialProgress('tab', tabName);
 }
+
+
 function toggleBackpack() {
     const sidebar = document.querySelector('.sidebar');
     sidebar.classList.toggle('active');
