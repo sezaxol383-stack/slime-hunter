@@ -414,13 +414,13 @@ function updateSidebarQuestUI() {
 
         // Добавляем кнопку "В ГИЛЬДИЮ", если квеста нет
         if (counter) {
-            counter.innerHTML = `<button class="quest-nav-btn" onclick="selectMobileTab('shop'); event.stopPropagation();">🚀 В ГИЛЬДИЮ</button>`;
+            counter.innerHTML = `<button class="quest-nav-btn" onclick="selectMobileTab('shop'); event.stopPropagation();">Гильдия</button>`;
         }
 
     } else {
         // Если квест ЕСТЬ
         const q = gameState.activeQuest;
-        if (title) title.innerText = "В ПРОЦЕССЕ";
+        if (title) title.innerText = "Выполняется";
         if (desc) desc.innerText = q.desc;
 
         const pct = Math.min(100, (q.current / q.target) * 100);
@@ -576,25 +576,28 @@ function updateTutorialUI() {
 
     if (destination && !isAlreadyThere) {
         let locName = "";
-        if (destination === 'shop') locName = "В ГИЛЬДИЮ";
-        if (destination === 'forge') locName = "В КУЗНИЦУ";
-        if (destination === 'collection') locName = "В КОЛЛЕКЦИЮ";
+        if (destination === 'shop') locName = "В Гильдию";
+        if (destination === 'forge') locName = "Домой";
+        if (destination === 'collection') locName = "В Колекцию";
 
         // Добавляем HTML кнопки
         // Важно: selectMobileTab переключит вкладку
-        navButtonHtml = `<button class="quest-nav-btn" onclick="selectMobileTab('${destination}'); event.stopPropagation();">🚀 ${locName}</button>`;
+        navButtonHtml = `<button class="quest-nav-btn" onclick="selectMobileTab('${destination}'); event.stopPropagation();">${locName}</button>`;
     }
     // ==============================
 
     // === ОТОБРАЖЕНИЕ (ФИНАЛ ИЛИ ОБЫЧНЫЙ ШАГ) ===
     if (currentTask.type === 'finish') {
         if (barContainer) barContainer.style.display = 'none';
+
+        // ВОТ ЗДЕСЬ ДОБАВЛЯЕМ КЛАСС:
         counter.innerHTML = `
             <button onclick="completeTutorial()" 
+                class="btn-claim-tutorial"  
                 style="background: linear-gradient(90deg, #00ffcc, #00aa99); 
-                       border: none; border-radius: 4px; padding: 6px 12px; 
+                       border: none; border-radius: 4px; padding: 8px 12px; 
                        cursor: pointer; font-weight: bold; color: #000; 
-                       margin-top: 5px; width: 100%; box-shadow: 0 0 5px #00ffcc;">
+                       margin-top: 5px; width: 100%;">
                 ✅ ЗАБРАТЬ НАГРАДУ
             </button>
         `;

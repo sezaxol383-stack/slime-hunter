@@ -1278,7 +1278,7 @@ const tutorialSteps = [
     {
         id: 3,
         title: "Торговля",
-        text: "Яйца можно продать. Перейди в ГИЛЬДИЮ (вкладка).",
+        text: "Яйца можно продать. Перейди в Гильдию",
         type: "tab",
         target: "shop"
     },
@@ -1291,8 +1291,8 @@ const tutorialSteps = [
     },
     {
         id: 5,
-        title: "Кузница",
-        text: "Теперь станем сильнее. Перейди в КУЗНИЦУ.",
+        title: "Дом",
+        text: "Теперь станем сильнее. Зайти в Дом.",
         type: "tab",
         target: "forge"
     },
@@ -1307,14 +1307,14 @@ const tutorialSteps = [
     {
         id: 7,
         title: "Азарт",
-        text: "В ГИЛЬДИИ есть 'Загадочная лавка'. Купи 1 Мистический Сундук (Лутбокс).",
+        text: "В Гильдии есть 'Загадочная лавка'. Купи 1 Мистический Сундук",
         type: "buy_lootbox",
         target: 1
     },
     {
         id: 8,
         title: "Коллекционер",
-        text: "В сундуках лежат предметы. Перейди в КОЛЛЕКЦИЮ.",
+        text: "В сундуках лежат предметы. Перейди в Колекцию.",
         type: "tab",
         target: "collection"
     },
@@ -1408,13 +1408,21 @@ function checkTutorialProgress(eventType, payload) {
     }
 }
 
+// В файле game.js
+
 function advanceTutorial() {
-    // ИСПРАВЛЕНО: ищем tutorialPanel вместо tutorialOverlay
     const box = document.getElementById('tutorialPanel');
+    const headerTitle = document.getElementById('tutTitleHeader'); // Находим заголовок
 
     if (box) {
-        // Эффект успеха
+        // Эффект успеха (CSS класс из style.css)
         box.classList.add('tutorial-complete');
+
+        // Временная смена текста заголовка
+        if (headerTitle) {
+            // Можно сохранить старый текст, но мы всё равно загрузим новый шаг через секунду
+            headerTitle.innerText = "ВЫПОЛНЕНО!";
+        }
     }
 
     playSound('coin'); // Звук успеха
@@ -1430,7 +1438,7 @@ function advanceTutorial() {
         saveGame();
 
         initTutorial();
-    }, 600);
+    }, 600); // 600мс длится анимация (совпадает с CSS)
 }
 
 function completeTutorial() {
