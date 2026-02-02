@@ -78,6 +78,18 @@
             <div id="headerInventory" class="header-inventory"></div>
         </div>
 
+
+        <div class="header-left">...</div>
+
+        <div id="questPill" class="quest-pill" onclick="openQuestModal()">
+            <span class="quest-icon">📜</span>
+            <span id="questPillText">Загрузка...</span>
+            <div id="questPillProgress" class="quest-pill-progress"></div>
+        </div>
+
+    </div>
+
+
     </div>
 
 
@@ -105,26 +117,7 @@
             <div class="main-area">
                 <div class="enemy-info">
 
-                    <div id="tutorialPanel" class="panel tutorial-panel collapsed mobile-floating">
-                        <div class="tut-header" onclick="toggleTutorial()">
-                            <span id="tutTitleHeader">ОБУЧЕНИЕ</span>
-                            <span id="tutArrow">▼</span>
-                        </div>
 
-                        <div id="tutBody" class="tut-body">
-                            <div class="tutorial-character">
-                                <img src="images/ui/guide_slime.png" style="width: 50px; height: 50px; object-fit: contain;">
-                            </div>
-                            <div class="tutorial-content">
-                                <h4 id="tutTitle">Задание</h4>
-                                <p id="tutText">Текст задания...</p>
-                                <div class="tut-progress">
-                                    <div id="tutBar" class="tut-bar-fill"></div>
-                                </div>
-                                <div id="tutCounter" class="tut-counter">0 / 1</div>
-                            </div>
-                        </div>
-                    </div>
 
                     <div id="activeQuestPanel" class="panel tutorial-panel mobile-floating" onclick="this.classList.toggle('collapsed')"
                          style="display: none; border-color: #ffd700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);">
@@ -403,6 +396,29 @@
         <button onclick="devKillCurrent()" style="background: #cc0000; color: white; border-color: #ff5555;">KILL</button>
         <button onclick="devReset()">Сброс</button>
         <button onclick="toggleDevPanel()" style="background: #555; margin-top: 20px;">Закрыть</button>
+    </div>
+
+
+
+
+    <div id="questModal" class="evo-modal-overlay" style="display: none;" onclick="closeQuestModal()">
+        <div class="evo-modal" style="border-color: #ffd700;" onclick="event.stopPropagation()">
+            <h2 style="color: #ffd700;">📜 ТЕКУЩАЯ ЦЕЛЬ</h2>
+
+            <div class="tutorial-character" style="margin: 0 auto 15px auto;">
+                <img src="images/ui/guide_slime.png" style="width: 50px;">
+            </div>
+
+            <h3 id="modalQuestTitle" style="color: #fff; margin-bottom: 5px;">Название</h3>
+            <p id="modalQuestDesc" style="color: #ccc; font-size: 14px;">Описание...</p>
+
+            <div class="tut-progress" style="margin: 15px 0;">
+                <div id="modalQuestBar" class="tut-bar-fill" style="background: #ffd700;"></div>
+            </div>
+            <div id="modalQuestCounter" class="tut-counter" style="text-align: center; font-size: 14px;">0 / 1</div>
+
+            <button class="evo-close-btn" onclick="closeQuestModal()" style="margin-top: 15px; width: 100%;">Закрыть</button>
+        </div>
     </div>
 
 

@@ -2711,3 +2711,82 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     align-items: center !important; /* Центрируем по вертикали */
     padding-bottom: 10px !important; /* Чуть приподнимем от края */
 }
+
+
+
+/* === ПЛАШКА ЗАДАНИЯ В ШАПКЕ (ВЕРХНИЙ ПРАВЫЙ УГОЛ) === */
+.quest-pill {
+    position: absolute;
+    /* Убираем top: 55px и центровку */
+    top: 50%;
+    right: 15px; /* Прижимаем к правому краю */
+    transform: translateY(-50%); /* Центрируем по вертикали относительно шапки */
+
+    background: rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 215, 0, 0.3); /* Тусклое золото */
+    border-radius: 20px;
+    padding: 5px 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    z-index: 90;
+    backdrop-filter: blur(4px);
+    transition: all 0.2s ease;
+    /* Ограничиваем ширину */
+    max-width: 150px; /* Чуть меньше, чтобы влезло */
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/* На мобильных устройствах можно сделать чуть компактнее */
+@media (max-width: 768px) {
+    .quest-pill {
+        max-width: 120px;
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+
+    #questPillText {
+        font-size: 11px;
+    }
+}
+
+    /* При наведении или клике */
+    .quest-pill:active {
+        transform: translateX(-50%) scale(0.95);
+        background: rgba(0, 0, 0, 0.8);
+        border-color: #ffd700;
+    }
+
+/* Текст внутри */
+#questPillText {
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #000;
+}
+
+/* Иконка */
+.quest-icon {
+    font-size: 14px;
+    animation: bounce 2s infinite;
+}
+
+/* Мини-прогресс бар снизу плашки */
+.quest-pill-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    background: #ffd700;
+    width: 0%; /* Будет меняться JS */
+    transition: width 0.3s;
+    box-shadow: 0 0 5px #ffd700;
+}
+
+/* Если задание выполнено (светится) */
+.quest-pill.complete {
+    border-color: #00ff00;
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+}

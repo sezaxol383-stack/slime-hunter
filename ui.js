@@ -593,101 +593,104 @@ function updateMapUI() {
     });
 }
 // Обновление интерфейса плашки
+// === ОБНОВЛЕНИЕ ПЛАШКИ ЗАДАНИЯ (НОВАЯ ВЕРСИЯ) ===
 function updateTutorialUI() {
-    const box = document.getElementById('tutorialPanel');
-    if (!box) return;
-
-    const titleHeader = document.getElementById('tutTitleHeader');
-    const title = document.getElementById('tutTitle');
-    const text = document.getElementById('tutText');
-    const bar = document.getElementById('tutBar');
-    const counter = document.getElementById('tutCounter');
-    const barContainer = document.querySelector('.tut-progress');
-
-    if (tutorialState.step >= tutorialSteps.length) {
-        completeTutorial();
+    // 1. Проверяем, идет ли обучение
+    if (!tutorialState.isActive || tutorialState.step >= tutorialSteps.length) {
+        // Если нет — скрываем плашку
+        const pill = document.getElementById('questPill');
+        if (pill) pill.style.display = 'none';
         return;
     }
 
+    // 2. Показываем плашку
+    const pill = document.getElementById('questPill');
+    if (pill) pill.style.display = 'flex';
+
+    // 3. Формируем текст (Название шага + Прогресс)
     const currentTask = tutorialSteps[tutorialState.step];
 
-    box.style.display = 'block';
-    titleHeader.innerText = `ЗАДАНИЕ: ${currentTask.title}`;
-    title.innerText = currentTask.title;
-    text.innerText = currentTask.text;
+    // Убираем слово "Задание", если оно там есть, для компактности
+    let titleText = currentTask.title.replace("Задание: ", "");
 
-    // === ЛОГИКА КНОПКИ ПЕРЕХОДА ===
-    let navButtonHtml = '';
+    // Если есть цель (цифры)
+    if (currentTask.target > 0) {
+        titleText += ` ${tutorialState.progress}/${currentTask.target}`;
 
-    // Карта привязки типов заданий к вкладкам
-    const targetMap = {
-        'shop': 'shop',          // Если цель - магазин
-        'buy_lootbox': 'shop',   // Покупка сундука - в магазин
-        'sell_egg': 'shop',      // Продажа - в магазин
-        'forge': 'forge',        // Если цель - кузница
-        'upgrade_dmg': 'forge',  // Прокачка - в кузницу
-        'collection': 'collection', // Коллекция
-        'perform_ritual': 'collection',
-        'click_artifact': 'collection'
-    };
-
-    // Определяем, куда идти
-    let destination = null;
-
-    // 1. Если тип задания 'tab' (Перейти на вкладку), берем цель напрямую
-    if (currentTask.type === 'tab') {
-        destination = currentTask.target;
-    }
-    // 2. Иначе ищем в нашей карте по типу задания
-    else if (targetMap[currentTask.type]) {
-        destination = targetMap[currentTask.type];
-    }
-
-    // Если мы нашли, куда идти, и мы НЕ на этой вкладке сейчас
-    // (Проверка экрана нужна, чтобы кнопка исчезала, когда мы уже пришли)
-    const currentScreen = document.querySelector('.screen.active');
-    const isAlreadyThere = currentScreen && currentScreen.id === (destination + 'Screen');
-
-    if (destination && !isAlreadyThere) {
-        let locName = "";
-        if (destination === 'shop') locName = "В Гильдию";
-        if (destination === 'forge') locName = "Домой";
-        if (destination === 'collection') locName = "В Колекцию";
-
-        // Добавляем HTML кнопки
-        // Важно: selectMobileTab переключит вкладку
-        navButtonHtml = `<button class="quest-nav-btn" onclick="selectMobileTab('${destination}'); event.stopPropagation();">${locName}</button>`;
-    }
-    // ==============================
-
-    // === ОТОБРАЖЕНИЕ (ФИНАЛ ИЛИ ОБЫЧНЫЙ ШАГ) ===
-    if (currentTask.type === 'finish') {
-        if (barContainer) barContainer.style.display = 'none';
-
-        // ВОТ ЗДЕСЬ ДОБАВЛЯЕМ КЛАСС:
-        counter.innerHTML = `
-            <button onclick="completeTutorial()" 
-                class="btn-claim-tutorial"  
-                style="background: linear-gradient(90deg, #00ffcc, #00aa99); 
-                       border: none; border-radius: 4px; padding: 8px 12px; 
-                       cursor: pointer; font-weight: bold; color: #000; 
-                       margin-top: 5px; width: 100%;">
-                ✅ ЗАБРАТЬ НАГРАДУ
-            </button>
-        `;
+        // Обновляем полоску прогресса
+        const pct = Math.min(100, (tutorialState.progress / currentTask.target) * 100);
+        const bar = document.getElementById('questPillProgress');
+        if (bar) bar.style.width = `${pct}%`;
     } else {
-        if (barContainer) barContainer.style.display = 'block';
-        let pct = 0;
-        if (currentTask.target > 0) {
-            pct = (tutorialState.progress / currentTask.target) * 100;
-            if (pct > 100) pct = 100;
-            // Вставляем кнопку навигации ПОСЛЕ счетчика
-            counter.innerHTML = `${tutorialState.progress} / ${currentTask.target} ${navButtonHtml}`;
-        } else {
-            counter.innerHTML = navButtonHtml; // Если нет цели (просто текст), только кнопка
-        }
-        bar.style.width = `${pct}%`;
+        // Если цели нет (просто "Нажми туда"), полоска полная
+        const bar = document.getElementById('questPillProgress');
+        if (bar) bar.style.width = `100%`;
     }
+
+    // Вставляем текст в плашку
+    const pillText = document.getElementById('questPillText');
+    if (pillText) pillText.innerText = titleText;
+
+    // 4. Подсветка выполнения
+    // Если прогресс >= цели, делаем текст зеленым и добавляем свечение
+    if (currentTask.target > 0 && tutorialState.progress >= currentTask.target) {
+        pill.classList.add('complete'); // Класс для зеленой рамки (в CSS)
+        if (pillText) pillText.style.color = '#00ff00';
+        if (pillText) pillText.innerText = "✅ ЗАБРАТЬ НАГРАДУ";
+    } else if (currentTask.type === 'finish') {
+        // Финальный шаг
+        pill.classList.add('complete');
+        if (pillText) pillText.style.color = '#00ff00';
+        if (pillText) pillText.innerText = "✅ ЗАВЕРШИТЬ";
+    } else {
+        pill.classList.remove('complete');
+        if (pillText) pillText.style.color = '#fff';
+    }
+}
+
+// === УПРАВЛЕНИЕ МОДАЛКОЙ ЗАДАНИЯ (НОВЫЕ ФУНКЦИИ) ===
+function openQuestModal() {
+    if (!tutorialState.isActive || tutorialState.step >= tutorialSteps.length) return;
+
+    const currentTask = tutorialSteps[tutorialState.step];
+
+    // Заполняем тексты
+    document.getElementById('modalQuestTitle').innerText = currentTask.title;
+    document.getElementById('modalQuestDesc').innerText = currentTask.text;
+
+    // Прогресс в модалке
+    if (currentTask.target > 0) {
+        document.getElementById('modalQuestCounter').innerText = `${tutorialState.progress} / ${currentTask.target}`;
+        const pct = Math.min(100, (tutorialState.progress / currentTask.target) * 100);
+        document.getElementById('modalQuestBar').style.width = `${pct}%`;
+    } else {
+        document.getElementById('modalQuestCounter').innerText = "";
+        document.getElementById('modalQuestBar').style.width = "100%";
+    }
+
+    // Если задание выполнено — кнопка "Забрать награду"
+    const isDone = (currentTask.target > 0 && tutorialState.progress >= currentTask.target) || currentTask.type === 'finish';
+
+    // Для удобства используем ту же кнопку закрытия, но если готово — она завершает шаг
+    const btn = document.querySelector('#questModal .evo-close-btn');
+    if (isDone) {
+        btn.innerText = "ЗАБРАТЬ НАГРАДУ";
+        btn.onclick = () => {
+            completeTutorial(); // Функция из game.js
+            closeQuestModal();
+        };
+        btn.style.background = "linear-gradient(90deg, #00ff00, #00aa00)";
+    } else {
+        btn.innerText = "Закрыть";
+        btn.onclick = closeQuestModal;
+        btn.style.background = ""; // Сброс
+    }
+
+    document.getElementById('questModal').style.display = 'flex';
+}
+
+function closeQuestModal() {
+    document.getElementById('questModal').style.display = 'none';
 }
 
 function updateSoundButton() {
