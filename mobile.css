@@ -516,3 +516,39 @@
         box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
     }
 }
+/* === ВЫПАДАЮЩЕЕ МЕНЮ СНИЗУ === */
+.dropdown-menu-bottom {
+    display: none;
+    position: absolute;
+    bottom: 70px; /* Появляется НАД нижней панелью */
+    right: 10px;
+    background: rgba(20, 24, 35, 0.95);
+    border: 1px solid #7aa2f7;
+    border-radius: 10px;
+    flex-direction: column;
+    min-width: 160px;
+    z-index: 1000;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    overflow: hidden;
+    /* Анимация появления снизу */
+    animation: slideUp 0.2s ease-out;
+}
+
+    /* Класс show добавляется скриптом */
+    .dropdown-menu-bottom.show {
+        display: flex;
+    }
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Стили кнопок внутри меню остаются теми же (.menu-item) */

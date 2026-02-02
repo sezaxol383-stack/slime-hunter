@@ -77,6 +77,7 @@ body {
 
 /* === ШАПКА === */
 .header {
+    position: relative;
     width: 100%;
     max-width: 1280px;
     height: 60px;
@@ -198,12 +199,17 @@ h2 {
     color: var(--accent);
     margin-top: 0;
     text-transform: uppercase;
-    text-align: center;
+    /* === ВОТ ЭТО МЕНЯЕМ ДЛЯ ЦЕНТРОВКИ === */
+    display: flex;
+    justify-content: center; /* Центр по горизонтали */
+    align-items: center; /* Центр по вертикали */
+    gap: 8px; /* Отступ между иконкой и текстом */
+    /* ==================================== */
+
     border-bottom: 1px solid rgba(255,255,255,0.1);
     padding-bottom: 5px;
     margin-bottom: 10px;
 }
-
 /* === ЭКРАН ОХОТЫ === */
 .boss-hp-wrapper {
     width: 90%;
@@ -1752,21 +1758,69 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     gap: 5px;
 }
 
-/* === ИНВЕНТАРЬ В САЙДБАРЕ === */
+/* === КРАСИВЫЙ ИНВЕНТАРЬ (СЕТКА) === */
+
+/* Контейнер сетки */
 .sidebar-inv-grid {
     display: grid;
-    grid-template-columns: 1fr;
+    /* Автоматически вмещаем столько ячеек, сколько влезет (минимум 50px шириной) */
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
     gap: 8px;
+    padding: 5px;
 }
 
-.sidebar-inv-row {
+/* Одна ячейка (Слот) */
+.inv-slot {
+    width: 100%;
+    aspect-ratio: 1; /* Строгий квадрат */
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    position: relative; /* Чтобы цифра была внутри */
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    background: rgba(255, 255, 255, 0.05);
-    padding: 5px 10px;
-    border-radius: 6px;
-    font-size: 13px;
+    justify-content: center;
+    transition: transform 0.1s, border-color 0.2s;
+    cursor: help; /* Курсор вопроса при наведении */
+}
+
+    .inv-slot:hover {
+        transform: scale(1.05);
+        border-color: #ffd700;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+/* Картинка внутри слота */
+.inv-icon {
+    width: 70%;
+    height: 70%;
+    object-fit: contain;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+}
+
+/* Цифра количества (в углу) */
+.inv-count {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 0 #000;
+    background: rgba(0,0,0,0.6);
+    padding: 0 4px;
+    border-radius: 4px;
+}
+
+/* Редкость рамок (Опционально) */
+.slot-mythic {
+    border-color: #f7768e;
+    box-shadow: inset 0 0 10px rgba(247, 118, 142, 0.2);
+}
+
+.slot-legendary {
+    border-color: #ff9e64;
+    box-shadow: inset 0 0 10px rgba(255, 158, 100, 0.2);
 }
 
 
@@ -2388,82 +2442,272 @@ button, .nav-btn, .menu-item, .btn-sell, .sound-btn, .coin-icon, .upgrade-btn {
     z-index: 2;
 }
 
-/* === КНОПКА "В БОЙ" (Слайм-индикатор) === */
+
+
+/* === КНОПКА-ПОРТАЛ (ФИНАЛЬНЫЙ ФИКС) === */
 
 #btnHome {
     position: relative;
-    width: 44px; /* Чуть больше стандартной иконки */
-    height: 44px;
-    padding: 0; /* Убираем отступы */
-    /* Базовый стиль кнопки */
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    /* Увеличиваем кнопку */
+    width: 64px !important;
+    height: 64px !important;
+    padding: 0 !important;
+    /* Убираем серый фон и рамку, чтобы виден был ТОЛЬКО портал */
+    background: transparent !important;
+    border: none !important;
     border-radius: 50%;
-    /* Для центровки иконок */
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow: visible; /* Чтобы свечение могло выходить за края */
-    transition: all 0.3s ease;
+    overflow: visible !important;
+    transition: transform 0.2s ease;
+    /* Поднимаем над остальными */
+    z-index: 10;
 }
 
-/* Общий стиль для обеих иконок */
-.slime-icon {
-    width: 36px; /* Размер картинки слайма */
-    height: 36px;
+    #btnHome:active {
+        transform: scale(0.95); /* Эффект нажатия */
+    }
+
+/* Общий стиль картинок порталов */
+.home-icon {
+    /* Растягиваем картинку на ВЕСЬ размер кнопки */
+    width: 100% !important;
+    height: 100% !important;
     object-fit: contain;
-    /* Накладываем их друг на друга */
+    /* Идеальное наложение друг на друга */
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease, filter 0.4s ease;
+}
+
+/* --- СОСТОЯНИЕ 1: В БОЮ (Синий портал) --- */
+.icon-portal-calm {
+    opacity: 1; /* Виден */
+    z-index: 2;
+    filter: drop-shadow(0 0 5px rgba(0, 100, 255, 0.5));
+    animation: portalFloat 3s infinite ease-in-out;
+}
+
+/* --- СОСТОЯНИЕ 2: НЕ В БОЮ (Красный портал) --- */
+.icon-portal-alert {
+    opacity: 0; /* СКРЫТ ПО УМОЛЧАНИЮ */
+    z-index: 3;
+    transform: scale(0.5); /* Уменьшен, пока спит */
+}
+
+/* === АКТИВАЦИЯ (Класс добавляется JS, когда мы не в игре) === */
+.home-btn-glow .icon-portal-calm {
+    opacity: 0; /* Синий исчезает */
+    transform: scale(1.5); /* Растворяется увеличиваясь */
+}
+
+.home-btn-glow .icon-portal-alert {
+    opacity: 1; /* Красный появляется */
+    transform: scale(1);
+    filter: drop-shadow(0 0 15px rgba(255, 50, 0, 0.8));
+    animation: portalPulse 0.8s infinite alternate;
+}
+
+/* Дополнительная пульсация сзади для красного режима */
+.home-btn-glow::before {
+    content: '';
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    /* Плавный переход между состояниями */
-    transition: opacity 0.3s ease, filter 0.3s ease;
+    width: 80%;
+    height: 80%;
+    background: rgba(255, 0, 0, 0.5);
+    border-radius: 50%;
+    z-index: 0;
+    animation: radarWave 1.5s infinite ease-out;
 }
 
-/* --- СОСТОЯНИЕ 1: В БОЮ (По умолчанию) --- */
-
-/* Спокойный слайм виден */
-.slime-normal {
-    opacity: 1;
-    z-index: 2;
-}
-
-/* Обеспокоенный слайм скрыт */
-.slime-worried {
-    opacity: 0;
-    z-index: 1;
-}
-
-/* --- СОСТОЯНИЕ 2: НЕ В БОЮ (Активен класс .home-btn-glow) --- */
-
-/* Когда добавлен класс glow, меняем рамку и фон кнопки */
-.home-btn-glow {
-    border-color: #ff4444 !important;
-    background: rgba(60, 0, 0, 0.6) !important;
-}
-
-    /* Спокойный слайм исчезает */
-    .home-btn-glow .slime-normal {
-        opacity: 0;
+/* === АНИМАЦИИ === */
+@keyframes portalFloat {
+    0%, 100% {
+        transform: translateY(0) scale(1);
     }
 
-    /* Обеспокоенный слайм появляется */
-    .home-btn-glow .slime-worried {
-        opacity: 1;
-        /* Добавляем ему мягкое красное свечение (фильтром, чтобы по контуру) */
-        filter: drop-shadow(0 0 8px rgba(255, 50, 50, 0.8));
-        /* Легкая пульсация для привлечения внимания */
-        animation: worryPulse 1s infinite alternate ease-in-out;
+    50% {
+        transform: translateY(-3px) scale(1.05);
     }
+}
 
-/* Анимация легкой пульсации */
-@keyframes worryPulse {
+@keyframes portalPulse {
     from {
-        transform: translate(-50%, -50%) scale(1);
+        transform: scale(1);
+        filter: brightness(1);
     }
 
     to {
-        transform: translate(-50%, -50%) scale(1.1);
+        transform: scale(1.1);
+        filter: brightness(1.3);
     }
+}
+
+@keyframes radarWave {
+    0% {
+        width: 80%;
+        height: 80%;
+        opacity: 0.8;
+    }
+
+    100% {
+        width: 200%;
+        height: 200%;
+        opacity: 0;
+    }
+}
+
+
+/* === НОВЫЙ ИНТЕРФЕЙС (ВЕРХ / НИЗ) === */
+
+/* 1. Настройка Верхней Шапки */
+.header {
+    height: 50px; /* Чуть меньше */
+    background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); /* Градиент вместо плашки */
+    border-bottom: none; /* Убираем черту */
+    padding-top: 5px;
+    z-index: 100;
+}
+
+/* Центрируем статы */
+.header-left {
+    justify-content: center !important;
+    gap: 15px;
+}
+
+/* 2. Нижняя Панель Управления */
+.bottom-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 80px; /* Высота панели */
+    /* Красивый фон снизу вверх */
+    background: linear-gradient(to top, #141823 20%, rgba(20, 24, 35, 0.8) 80%, transparent 100%);
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Выравнивание по центру по вертикали */
+    padding: 0 20px;
+    box-sizing: border-box;
+    z-index: 900; /* Поверх игры, но ниже модалок */
+    /* Чтобы клики проходили сквозь прозрачную часть */
+    pointer-events: none;
+}
+
+/* Группы кнопок (слева и справа) */
+.bottom-group {
+    display: flex;
+    gap: 10px;
+    pointer-events: auto; /* Включаем клики на кнопках */
+    align-items: flex-end;
+    padding-bottom: 15px; /* Отступ от самого низа */
+}
+
+/* 3. Центральная Кнопка (ПОРТАЛ) */
+.bottom-center {
+    position: absolute;
+    left: 50%;
+    bottom: 10px; /* Приподнята */
+    transform: translateX(-50%);
+    pointer-events: auto;
+}
+
+/* Делаем портал БОЛЬШИМ */
+.main-action-btn {
+    width: 70px !important;
+    height: 70px !important;
+    background: radial-gradient(circle, rgba(0,0,0,0.8), transparent 80%) !important;
+    border: 2px solid rgba(255,255,255,0.1) !important;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+    .main-action-btn .home-icon {
+        width: 55px; /* Иконка тоже больше */
+        height: 55px;
+    }
+
+
+/* 4. ВАЖНО: Поднимаем игру, чтобы кнопки не закрывали слайма */
+.main-area {
+    padding-bottom: 90px; /* Отступ снизу равен высоте панели + запас */
+}
+
+/* Поднимаем слайма и пета */
+.slime-container {
+    bottom: 25% !important; /* Поднимаем выше, чем было */
+}
+
+.pet-container {
+    bottom: 90px !important; /* Пет теперь стоит на "потолке" нижней панели */
+}
+
+
+/* === НОВЫЕ СТИЛИ КНОПОК === */
+
+/* 1. Кнопка звука в шапке */
+/* Кнопка звука в шапке (В ЛЕВОМ УГЛУ) */
+.header-btn {
+    position: absolute; /* Вырываем из потока */
+    left: 15px; /* Прижимаем к левому краю */
+    top: 50%; /* Центрируем по вертикали */
+    transform: translateY(-50%); /* Идеальная центровка */
+
+    margin: 0; /* Убираем лишние отступы */
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    z-index: 200;
+}
+
+/* 2. Новые нижние кнопки-картинки (Рюкзак и Меню) */
+.bottom-icon-btn {
+    /* Убираем стандартный фон и рамку кнопки */
+    background: transparent !important;
+    border: none !important;
+    padding: 0;
+    /* Задаем размер области нажатия */
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+    /* Чтобы иконка была поверх фона панели */
+    position: relative;
+    z-index: 10;
+}
+
+    /* Эффект нажатия */
+    .bottom-icon-btn:active {
+        transform: scale(0.9);
+    }
+
+    /* Сами картинки внутри кнопок */
+    .bottom-icon-btn img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        /* Добавляем легкую тень, чтобы иконка "выпрыгивала" с фона */
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    }
+
+
+/* Убедимся, что группы кнопок внизу выровнены красиво */
+.bottom-group {
+    align-items: center !important; /* Центрируем по вертикали */
+    padding-bottom: 10px !important; /* Чуть приподнимем от края */
 }

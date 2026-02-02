@@ -502,55 +502,54 @@ function onSlimeDeath() {
 
 
 
+// В файле game.js
+
 function rollLoot() {
+    // Если идет обучение (шаг 2), даем гарантированное яйцо
     if (tutorialState.isActive && tutorialState.step === 2) {
         gameState.inventory['common']++;
-        logEvent("Обучение: Найдено яйцо!", 'rarity-common');
+        logEvent("Обучение: Найдено обычное яйцо!", 'rarity-common');
         playSound('drop');
         updateAllUI();
-        // Засчитываем прогресс обучения (будто убили 100 слаймов сразу, чтобы завершить шаг)
         tutorialState.progress = 100;
         advanceTutorial();
         return;
     }
-    // 1. Дроп Яиц (Старая логика)
-    let chanceMultiplier = 1;
-    if (gameState.artifacts && gameState.artifacts.includes('a2')) chanceMultiplier = 2;
+
+    // 1. ДРОП ЯИЦ
+    let eggMultiplier = 1;
+    if (gameState.artifacts && gameState.artifacts.includes('a2')) eggMultiplier = 2;
 
     for (let item of rarities) {
-        if (Math.random() < (item.chance * chanceMultiplier)) {
+        // Проверяем шанс
+        if (Math.random() < (item.chance * eggMultiplier)) {
             gameState.inventory[item.id]++;
             checkQuestProgress('collect', item.id);
             playSound('drop');
-            logEvent(`Выпало: ${item.name}!`, item.class);
-            // Вибрацию и обновление UI делаем в конце
-            break; // Если выпало яйцо, прерываем цикл яиц (но не функцию!)
+
+            // ВАЖНО: Пишем в лог
+            logEvent(`Выпало: ${item.name}`, item.class);
+
+            break; // Выпало одно яйцо за раз (чтобы не сыпало кучу)
         }
     }
 
-    // 2. Дроп Материалов (НОВАЯ ЛОГИКА) 🧪
-    // Определяем ID текущей локации (forest, fire, ice, dark)
+    // 2. ДРОП МАТЕРИАЛОВ (С каждого моба может упасть и яйцо, И ресурс)
     const currentLocId = locations[currentLocationIndex].id;
-
-    // Фильтруем предметы, которые могут упасть ИМЕННО ЗДЕСЬ
     const possibleDrops = craftingMaterials.filter(m => m.location === currentLocId);
 
     possibleDrops.forEach(mat => {
-        // Кидаем кубик для каждого возможного предмета
         if (Math.random() < mat.chance) {
-            // Если ресурса еще нет в инвентаре, создаем запись
             if (!gameState.materials[mat.id]) gameState.materials[mat.id] = 0;
-
             gameState.materials[mat.id]++;
 
-            // Пишем в лог (желтым цветом)
-            logEvent(`Лут: ${mat.name} (+1)`, 'rarity-legendary');
+            // ВАЖНО: Пишем в лог
+            logEvent(`Ресурс: ${mat.name}`, 'rarity-common');
             playSound('drop');
         }
     });
 
-    // Обновляем всё в конце
-    if (navigator.vibrate) navigator.vibrate(50);
+    // Обновляем UI
     updateAllUI();
 }
 
@@ -1067,55 +1066,41 @@ function respawnSlime() {
 
     const isMobile = window.innerWidth < 768;
 
-    // === СБРОС КООРДИНАТ ===
-    // Обязательно очищаем top, чтобы он не конфликтовал с bottom
+    // СБРОС
     container.style.top = 'auto';
     container.style.margin = '0';
     container.style.position = 'absolute';
 
-    // === 1. БОСС (Всегда по центру, прижат к низу) ===
+    // === 1. БОСС ===
     if (currentSlime.isBoss) {
         container.style.left = '50%';
-
-        // Меняем transform! Теперь мы центрируем только по X. 
-        // По Y мы не сдвигаем, пусть он "растет" вверх от точки bottom.
         container.style.transform = 'translate(-50%, 0)';
 
-        // На ПК ставим на 15% от низа экрана. На мобилке — 25% (над меню)
-        container.style.bottom = isMobile ? '25%' : '15%';
-
-        console.log("Boss Spawn: Anchored to Bottom");
+        // Поднимаем босса выше (20-30%), чтобы не перекрывался Порталом
+        container.style.bottom = isMobile ? '30%' : '20%';
         return;
     }
 
-    // === 2. ОБЫЧНЫЕ МОБЫ (Рандом по низу) ===
+    // === 2. ОБЫЧНЫЕ МОБЫ ===
     let minX, maxX, minBottom, maxBottom;
 
     if (isMobile) {
         // МОБИЛКА
         minX = 15; maxX = 85;
-        // Спавним на высоте от 25% до 45% от пола (над меню)
+        // Спавним ВЫШЕ нижней панели (она занимает ~15-20%)
         minBottom = 25; maxBottom = 45;
     } else {
         // ПК
-        // Держим ближе к центру (40-60%)
         minX = 40; maxX = 60;
-        // Прижимаем к полу: от 10% до 25% снизу
-        minBottom = 10; maxBottom = 25;
+        minBottom = 20; maxBottom = 35;
     }
 
-    // Генерация
     const randomX = Math.floor(minX + Math.random() * (maxX - minX));
     const randomBottom = Math.floor(minBottom + Math.random() * (maxBottom - minBottom));
 
-    // Применение
     container.style.left = `${randomX}%`;
     container.style.bottom = `${randomBottom}%`;
-
-    // Центрируем только по горизонтали!
     container.style.transform = 'translate(-50%, 0)';
-
-    console.log(`Mob Spawn: Bottom ${randomBottom}%`);
 }
 
 

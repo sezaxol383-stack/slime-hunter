@@ -62,23 +62,63 @@ function updateGameUI() {
         });
     }
 
-    // Обновляем Сайдбар (детальный список)
+    // ... (начало функции updateGameUI с HP и золотом остается без изменений) ...
+
+    // ... внутри updateGameUI ...
+
+    // === ОБНОВЛЕНИЕ РЮКЗАКА ===
     const sidebarList = document.getElementById('sidebarInventoryList');
     if (sidebarList) {
         sidebarList.innerHTML = '';
-        rarities.forEach(r => {
+
+        // 1. ЯЙЦА
+        [...rarities].reverse().forEach(r => {
             const count = gameState.inventory[r.id] || 0;
-            const row = document.createElement('div');
-            row.className = 'sidebar-inv-row';
-            row.innerHTML = `
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <img src="${r.image}" style="width:24px; height:24px; object-fit:contain;">
-                    <span class="${r.class}">${r.name}</span>
-                </div>
-                <span style="font-weight:bold; color:#fff;">x${count}</span>
-            `;
-            sidebarList.appendChild(row);
+            if (count > 0) {
+                let slotClass = '';
+                if (r.id === 'mythic') slotClass = 'slot-mythic';
+                if (r.id === 'legendary') slotClass = 'slot-legendary';
+
+                const slot = document.createElement('div');
+                slot.className = `inv-slot ${slotClass}`;
+
+                // === ВОТ ЭТО НОВОЕ: КЛИК ПО ЯЙЦУ ===
+                // Мы передаем данные прямо в функцию открытия
+                slot.onclick = () => openItemInfo(r.name, r.image, "Это яйцо содержит питомца. Открой его в инкубаторе!", count, r.id);
+                // ====================================
+
+                slot.innerHTML = `<img src="${r.image}" class="inv-icon"><span class="inv-count">${count}</span>`;
+                sidebarList.appendChild(slot);
+            }
         });
+
+        // 2. МАТЕРИАЛЫ
+        if (gameState.materials) {
+            for (let [matId, count] of Object.entries(gameState.materials)) {
+                if (count > 0) {
+                    const matDef = craftingMaterials.find(m => m.id === matId);
+                    const imgSrc = matDef ? matDef.image : 'images/items/egg_common.png';
+                    const matName = matDef ? matDef.name : 'Ресурс';
+
+                    // Генерируем описание, если его нет
+                    const matDesc = matDef ? (matDef.desc || "Используется для создания магических предметов.") : "Неизвестный материал.";
+
+                    const slot = document.createElement('div');
+                    slot.className = 'inv-slot';
+
+                    // === ВОТ ЭТО НОВОЕ: КЛИК ПО РЕСУРСУ ===
+                    slot.onclick = () => openItemInfo(matName, imgSrc, matDesc, count, matId);
+                    // ======================================
+
+                    slot.innerHTML = `<img src="${imgSrc}" class="inv-icon"><span class="inv-count">${count}</span>`;
+                    sidebarList.appendChild(slot);
+                }
+            }
+        }
+
+        if (sidebarList.children.length === 0) {
+            sidebarList.innerHTML = '<div style="color:#777; font-size:12px; text-align:center; width:100%;">Пусто...</div>';
+        }
     }
 }
 
@@ -855,7 +895,7 @@ function switchTab(tabName) {
         container.classList.remove('shop-mode');
         if (backpackBtn) backpackBtn.style.display = 'flex';
         sidebar.classList.remove('active');
-        if (backpackBtn) backpackBtn.innerText = '🎒';
+        
     }
     if (tabName === 'magic') updateMagicUI();
     if (tabName === 'forge') updateForgeUI();
@@ -867,13 +907,17 @@ function switchTab(tabName) {
 function toggleBackpack() {
     const sidebar = document.querySelector('.sidebar');
     sidebar.classList.toggle('active');
-    const btn = document.getElementById('btnBackpack');
-    if (sidebar.classList.contains('active')) {
-        btn.innerText = '❌';
-    } else {
-        btn.innerText = '🎒';
-    }
+
+    // УДАЛИЛИ СТРОКИ ТИПА:
+    // const btn = document.getElementById('btnBackpack');
+    // if (sidebar.classList.contains('active')) btn.innerText = '❌';
+    // else btn.innerText = '🎒';
+
+    // Звук открытия
+    playSound('click');
 }
+
+
 function toggleMenu() {
     const menu = document.getElementById('dropdownMenu');
     menu.classList.toggle('show');
@@ -1103,4 +1147,28 @@ function spawnSpellEffect(type) {
 
     // Звуки (если хочешь)
     if (type === 'fire') playSound('hit'); // Или звук взрыва
+}
+
+// === ФУНКЦИИ ИНФОРМАЦИИ О ПРЕДМЕТЕ ===
+
+function openItemInfo(name, image, desc, count, id) {
+    // Заполняем данные
+    document.getElementById('infoTitle').innerText = name;
+    document.getElementById('infoImg').src = image;
+    document.getElementById('infoDesc').innerText = desc;
+    document.getElementById('infoCount').innerText = `В наличии: ${count} шт.`;
+
+    // Красим заголовок в зависимости от редкости (простая логика)
+    const title = document.getElementById('infoTitle');
+    if (id === 'mythic') title.style.color = '#f7768e';
+    else if (id === 'legendary') title.style.color = '#ff9e64';
+    else if (id === 'epic') title.style.color = '#bb9af7';
+    else title.style.color = '#ffd700';
+
+    // Показываем окно
+    document.getElementById('itemInfoModal').style.display = 'flex';
+}
+
+function closeItemInfo() {
+    document.getElementById('itemInfoModal').style.display = 'none';
 }

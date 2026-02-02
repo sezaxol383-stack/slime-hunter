@@ -53,17 +53,13 @@
             }
         </style>
     </div>
+
+
     <div class="header">
+
+        <button id="btnSound" class="sound-btn header-btn" onclick="toggleSound()">🔊</button>
+
         <div class="header-left">
-
-            <button id="btnHome" class="sound-btn" onclick="switchTab('game')" style="margin-right: 5px;">
-                <img src="images/ui/portal_calm.png" class="slime-icon slime-normal" alt="В бой">
-                <img src="images/ui/portal_alert.png" class="slime-icon slime-worried" alt="Вернись!">
-            </button>
-            
-            <button id="btnSound" class="sound-btn" onclick="toggleSound()">🔊</button>
-            <button id="btnBackpack" class="sound-btn mobile-only" onclick="toggleBackpack()">🎒</button>
-
             <div class="gold-display" onclick="onDevSecretClick()" style="cursor: pointer; user-select: none;">
                 <img src="images/ui/coin.png" class="coin-icon" alt="Gold">
                 <span id="goldCount">0</span>
@@ -74,26 +70,16 @@
                 <span id="killCount">0</span>
             </div>
 
-
             <div id="mobileEggTotal" class="egg-total-badge mobile-only">
                 <img src="images/items/egg_common.png" style="width: 20px; height: 20px;">
                 <span id="totalEggCountHtml">0</span>
             </div>
-            <div id="headerInventory" class="header-inventory">
-            </div>
+
+            <div id="headerInventory" class="header-inventory"></div>
         </div>
 
-        <button class="menu-btn mobile-nav" onclick="toggleMenu()">☰</button>
-
-        <div id="dropdownMenu" class="dropdown-menu">
-            <button class="menu-item active" onclick="selectMobileTab('game')">⚔️ Охота</button>
-            <button class="menu-item" onclick="selectMobileTab('forge')">🔥 Дом</button>
-            <button class="menu-item" onclick="selectMobileTab('shop')">💰 Гильдия</button>
-            <button class="menu-item" onclick="selectMobileTab('collection')">💎 Коллекция</button>
-            <button class="menu-item" onclick="selectMobileTab('map')">🗺️ Мир</button>
-            <button class="menu-item" onclick="selectMobileTab('magic')">🔮 Магия</button>
-        </div>
     </div>
+
 
     <div class="game-container">
 
@@ -110,8 +96,10 @@
             </div>
 
 
-
         </div>
+
+
+
 
         <div id="gameScreen" class="screen active">
             <div class="main-area">
@@ -351,6 +339,39 @@
 
     </div>
 
+
+    <div class="bottom-controls">
+
+        <div class="bottom-group left">
+            <button id="btnBackpack" class="bottom-icon-btn mobile-only" onclick="toggleBackpack()">
+                <img src="images/ui/icon_backpack.png" alt="Рюкзак">
+            </button>
+        </div>
+
+        <div class="bottom-center">
+            <button id="btnHome" class="sound-btn main-action-btn" onclick="switchTab('game')">
+                <img src="images/ui/portal_calm.png" class="home-icon icon-portal-calm" alt="В бой">
+                <img src="images/ui/portal_alert.png" class="home-icon icon-portal-alert" alt="Вернись!">
+            </button>
+        </div>
+
+        <div class="bottom-group right">
+            <button class="bottom-icon-btn mobile-nav" onclick="toggleMenu()">
+                <img src="images/ui/icon_menu.png" alt="Меню">
+            </button>
+
+            <div id="dropdownMenu" class="dropdown-menu-bottom">
+                <button class="menu-item active" onclick="selectMobileTab('game')">⚔️ Охота</button>
+                <button class="menu-item" onclick="selectMobileTab('forge')">🔥 Дом</button>
+                <button class="menu-item" onclick="selectMobileTab('shop')">💰 Гильдия</button>
+                <button class="menu-item" onclick="selectMobileTab('collection')">💎 Коллекция</button>
+                <button class="menu-item" onclick="selectMobileTab('map')">🗺️ Мир</button>
+                <button class="menu-item" onclick="selectMobileTab('magic')">🔮 Магия</button>
+            </div>
+        </div>
+    </div>
+
+
     <div id="transitionLayer" class="transition-layer">
         <div class="comic-panel">
             <img id="transImg" src="" alt="Travel">
@@ -386,6 +407,23 @@
 
 
 
+
+    <div id="itemInfoModal" class="evo-modal-overlay" style="display: none;" onclick="closeItemInfo()">
+        <div class="evo-modal" style="max-width: 300px; border-color: #fff;" onclick="event.stopPropagation()">
+
+            <h2 id="infoTitle" style="color: #ffd700; margin-bottom: 10px;">Название</h2>
+
+            <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 10px; margin-bottom: 10px; display: inline-block;">
+                <img id="infoImg" src="" style="width: 80px; height: 80px; object-fit: contain;">
+            </div>
+
+            <p id="infoDesc" style="color: #ccc; font-size: 14px; line-height: 1.4;">Описание предмета...</p>
+
+            <div id="infoCount" style="color: #00ffcc; font-weight: bold; margin-top: 10px;">В наличии: 5</div>
+
+            <button class="evo-close-btn" onclick="closeItemInfo()" style="margin-top: 15px; width: 100%;">Закрыть</button>
+        </div>
+    </div>
 
     <div id="evoModal" class="evo-modal-overlay" style="display: none;">
         <div class="evo-modal">
